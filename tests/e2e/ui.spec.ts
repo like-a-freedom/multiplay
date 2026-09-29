@@ -1,0 +1,68 @@
+import { expect, test } from '@playwright/test'
+
+for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'desktop', width: 1280, height: 900 }, { name: 'zoom', width: 320, height: 740 }]) {
+  test(`design system and core flow: ${size.name}`, async ({ page }) => {
+    await page.setViewportSize(size)
+    await page.goto('/')
+    if (size.name === 'zoom') await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+    const checkLayout = async () => {
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      for (const button of await page.getByRole('button').all()) {
+        const bounds = await button.boundingBox()
+        if (bounds) { expect(bounds.width).toBeGreaterThanOrEqual(48); expect(bounds.height).toBeGreaterThanOrEqual(48) }
+      }
+    }
+    await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Число 0–100')
+    await page.screenshot({ path: `/tmp/math-ui-answer-placeholder-${size.name}.png`, fullPage: true })
+    await page.getByLabel('Ответ на пример').fill('abc')
+    await page.getByRole('button', { name: 'Далее', exact: true }).click()
+    await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.locator('.answer-field__error')).toHaveCSS('background-color', 'rgb(247, 250, 255)')
+    await checkLayout()
+    await page.screenshot({ path: `/tmp/math-ui-diagnostic-${size.name}.png`, fullPage: true })
+    await page.getByLabel('Ответ на пример').fill('9')
+    await expect(page.getByLabel('Ответ на пример')).not.toHaveAttribute('aria-invalid', 'true')
+    await expect(page.locator('.answer-field__error')).toHaveCount(0)
+    await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('aria-describedby', 'answer-help')
+    await page.getByRole('button', { name: 'Пропустить проверку' }).click()
+    await expect(page.getByRole('heading', { name: 'Математическая экспедиция' })).toBeFocused()
+    await checkLayout()
+    await page.screenshot({ path: `/tmp/math-ui-home-${size.name}.png`, fullPage: true })
+    await page.getByRole('button', { name: 'Играть', exact: true }).click()
+    for (let index = 0; index < 2; index++) {
+      await page.getByRole('button', { name: 'Не знаю', exact: true }).click()
+      await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toBeFocused()
+      await checkLayout()
+      await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+    }
+    await expect(page.getByText('Миссия завершена!', { exact: true })).toBeVisible()
+    await expect(page.getByText('+10 XP', { exact: true })).toBeVisible()
+    await expect(page.getByText('Звёзды знаний: 0 из 66')).toBeVisible()
+    await expect(page.getByText('Всего 10 XP · уровень 1')).toBeVisible()
+    await checkLayout()
+    await page.locator('.mission__award').evaluate((element) => element.getAnimations().forEach((animation) => animation.finish()))
+    await page.screenshot({ path: `/tmp/math-ui-summary-${size.name}.png`, fullPage: true })
+    await page.getByRole('button', { name: 'Карта звёзд' }).click()
+    await expect(page.getByRole('heading', { name: 'Карта звёзд' })).toBeVisible()
+    await expect(page.getByText('Открыто звёзд: 0 из 66')).toBeVisible()
+    const factsToggle = page.getByRole('button', { name: /Все факты и достижения/ })
+    await expect(factsToggle).toHaveAttribute('aria-expanded', 'false')
+    await factsToggle.click()
+    await expect(factsToggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.getByRole('list', { name: 'Достижения по каждому факту' }).getByRole('listitem')).toHaveCount(66)
+    await checkLayout()
+    await page.locator('.map__archive-content').evaluate((element) => element.getAnimations().forEach((animation) => animation.finish()))
+    await page.screenshot({ path: `/tmp/math-ui-map-expanded-${size.name}.png`, fullPage: true })
+    await factsToggle.click()
+    await expect(page.getByRole('list', { name: 'Достижения по каждому факту' })).toHaveCount(0)
+    await page.locator('.map__archive-chevron').evaluate((element) => element.getAnimations().forEach((animation) => animation.finish()))
+    await page.screenshot({ path: `/tmp/math-ui-map-${size.name}.png`, fullPage: true })
+    await page.getByRole('button', { name: 'Назад', exact: true }).click()
+    await page.getByRole('button', { name: 'Отчёт для взрослого' }).click()
+    await page.getByRole('button', { name: 'Сбросить данные', exact: true }).click()
+    await page.getByRole('button', { name: 'Отмена', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Подтвердить сброс', exact: true })).toHaveCount(0)
+    await checkLayout()
+    await page.screenshot({ path: `/tmp/math-ui-report-${size.name}.png`, fullPage: true })
+  })
+}
