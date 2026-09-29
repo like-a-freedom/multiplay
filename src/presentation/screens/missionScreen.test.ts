@@ -1,38 +1,15 @@
 // @vitest-environment happy-dom
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { computed, ref } from 'vue'
 
-import type { GameSession } from '@/presentation/composables/gameSession'
-import { gameSessionKey } from '@/presentation/composables/gameSession'
 import MissionScreen from '@/presentation/screens/MissionScreen.vue'
-import { createProgressState } from '@/domain/progress/progressState'
-import { levelFromXp } from '@/domain/game/experience'
-import { starsEarned } from '@/domain/progress/progressState'
+import { fakeGameSession, sessionMountOptions } from '../../../tests/support/fakeGameSession'
 
-function fakeSession(): GameSession {
-  const state = ref(createProgressState())
-  return {
-    state,
-    storageStatus: ref('ok'),
-    totalXp: computed(() => state.value.rewards.totalXp),
-    level: computed(() => levelFromXp(state.value.rewards.totalXp)),
-    stars: computed(() => starsEarned(state.value)),
-    streakDays: computed(() => state.value.rewards.streak.days),
-    save: () => true,
-    resetProgress: () => undefined,
-  }
+function mountMission(session = fakeGameSession()) {
+  return mount(MissionScreen, sessionMountOptions(session))
 }
 
-function mountMission() {
-  return mount(MissionScreen, {
-    global: { provide: { [gameSessionKey as symbol]: fakeSession() } },
-    attachTo: document.body,
-  })
-}
-
-const buttons = (wrapper: ReturnType<typeof mountMission>) =>
-  wrapper.findAll('button')
+const buttons = (wrapper: ReturnType<typeof mountMission>) => wrapper.findAll('button')
 
 async function answer(wrapper: ReturnType<typeof mountMission>, value: string) {
   const input = wrapper.get('input')
@@ -90,5 +67,28 @@ describe('MissionScreen answer flow', () => {
     await input.trigger('keyup.enter')
     expect(wrapper.text()).toContain('Верно')
     wrapper.unmount()
+  })
+
+  it('resumes the unfinished mission with its frozen queue and id (PRD M4, §7)', async () => {
+    const session = fakeGameSession()
+    const first = mountMission(session)
+    await first.vm.$nextTick()
+
+    await answer(first, '0') // 0 × 0 отвечена
+    await buttons(first).find((b) => b.text() === 'Продолжить')!.trigger('click')
+    await first.vm.$nextTick()
+    first.unmount() // закрытие посередине миссии
+
+    const second = mountMission(session)
+    await second.vm.$nextTick()
+    expect(second.text()).toContain('Карточка 1 из 1') // осталась неотвеченная 0 × 1
+
+    await answer(second, '0')
+    expect(second.text()).toContain('Верно')
+    await buttons(second).find((b) => b.text() === 'Продолжить')!.trigger('click')
+    expect(second.text()).toContain('Миссия завершена!')
+    // Награда одна: восстановленная миссия сохранила ID и не наградила дважды.
+    expect(session.totalXp.value).toBe(10)
+    second.unmount()
   })
 })

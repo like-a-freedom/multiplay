@@ -5,16 +5,16 @@ import { submitCardAnswer } from '@/application/useCases/submitCardAnswer'
 import { completeMission } from '@/application/useCases/completeMission'
 import { startMission } from '@/application/useCases/startMission'
 import { factFromId } from '@/domain/fact/multiplicationFact'
-import { toCalendarDate } from '@/domain/learning/calendarDate'
 import type { AttemptOutcome } from '@/domain/learning/answer'
 import { explanationFor } from '@/domain/learning/explanation'
-import type { ProgressState } from '@/domain/progress/progressState'
+import { unansweredCardFactIds, type ProgressState } from '@/domain/progress/progressState'
 import AnswerField from '@/presentation/components/AnswerField.vue'
 import MissionProgress from '@/presentation/components/MissionProgress.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import QuestionCard from '@/presentation/components/QuestionCard.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { useGameSession } from '@/presentation/composables/gameSession'
+import { today } from '@/presentation/utils/clock'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
 
 /**
@@ -33,7 +33,7 @@ const props = defineProps<{ practice?: boolean }>()
 const emit = defineEmits<{ exit: []; completed: [] }>()
 const session = useGameSession()
 
-const missionId = crypto.randomUUID()
+const missionId = ref('')
 const cardFactIds = ref<string[]>([])
 const cardIndex = ref(0)
 const answerInput = ref('')
@@ -48,14 +48,23 @@ const fact = computed(() => factFromId(cardFactIds.value[cardIndex.value] ?? '0:
 const allAnswered = computed(() => cardIndex.value >= cardFactIds.value.length)
 
 onMounted(() => {
-  const started = startMission(session.state.value, {
-    missionId,
-    date: today(),
-    kind: props.practice === true ? 'practice' : 'mission',
-  })
-  session.state.value = started.state
-  cardFactIds.value = [...started.mission.cardFactIds]
-  session.save()
+  // Плановая игра продолжает незавершённую миссию (PRD M4, §7); свободная практика
+  // начинает новую сессию и замораживает новую очередь.
+  const existing = props.practice === true ? null : session.state.value.currentMission
+  if (existing !== null) {
+    missionId.value = existing.id
+    cardFactIds.value = unansweredCardFactIds(existing)
+  } else {
+    const started = startMission(session.state.value, {
+      missionId: crypto.randomUUID(),
+      date: today(),
+      kind: props.practice === true ? 'practice' : 'mission',
+    })
+    missionId.value = started.mission.id
+    session.state.value = started.state
+    cardFactIds.value = [...started.mission.cardFactIds]
+    session.save()
+  }
   if (cardFactIds.value.length === 0) {
     finish()
   } else {
@@ -65,17 +74,13 @@ onMounted(() => {
 
 function check(): void {
   if (feedback.value !== null) return
-  const result = submitCardAnswer(
-    session.state.value,
-    {
-      factId: fact.value.id,
-      date: today(),
-      missionId,
-      rawAnswer: answerInput.value,
-      choseUnknown: false,
-    },
-    fact.value.product,
-  )
+  const result = submitCardAnswer(session.state.value, {
+    factId: fact.value.id,
+    date: today(),
+    missionId: missionId.value,
+    rawAnswer: answerInput.value,
+    choseUnknown: false,
+  })
   if (result.kind === 'invalid-input') {
     inputError.value = 'Введи целое число от 0 до 100'
     return
@@ -85,11 +90,13 @@ function check(): void {
 
 function dontKnow(): void {
   if (feedback.value !== null) return
-  const result = submitCardAnswer(
-    session.state.value,
-    { factId: fact.value.id, date: today(), missionId, rawAnswer: null, choseUnknown: true },
-    fact.value.product,
-  )
+  const result = submitCardAnswer(session.state.value, {
+    factId: fact.value.id,
+    date: today(),
+    missionId: missionId.value,
+    rawAnswer: null,
+    choseUnknown: true,
+  })
   if (result.kind === 'accepted') applyAccepted(result.outcome, result.state, result.acceptedValue)
 }
 
@@ -122,7 +129,7 @@ function next(): void {
 }
 
 function finish(): void {
-  const result = completeMission(session.state.value, { missionId, date: today() })
+  const result = completeMission(session.state.value, { missionId: missionId.value, date: today() })
   session.state.value = result.state
   expeditionJustFinished.value = result.expeditionJustFinished
   session.save()
@@ -150,10 +157,6 @@ function feedbackText(outcome: AttemptOutcome, acceptedValue: number | null): st
     return `Попробуем ещё: ты ответил ${acceptedValue}, а верный ответ ${product}`
   }
   return `Посмотри подсказку: ответ ${product}`
-}
-
-function today(): string {
-  return toCalendarDate(new Date())
 }
 </script>
 

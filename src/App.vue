@@ -2,13 +2,13 @@
 import { computed, ref } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
-import { toCalendarDate } from '@/domain/learning/calendarDate'
 import { retentionSummary } from '@/domain/learning/retention'
-import { TOTAL_FACTS } from '@/domain/progress/rewards'
+import { TOTAL_FACTS, rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import { factNeedsReview, upcomingReviewDate } from '@/domain/progress/progressState'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { reviewCountToday, useGameSession } from '@/presentation/composables/gameSession'
+import { today } from '@/presentation/utils/clock'
 import DiagnosticScreen from '@/presentation/screens/DiagnosticScreen.vue'
 import HomeScreen from '@/presentation/screens/HomeScreen.vue'
 import KnowledgeMapScreen from '@/presentation/screens/KnowledgeMapScreen.vue'
@@ -18,7 +18,10 @@ import ReportScreen from '@/presentation/screens/ReportScreen.vue'
 type Screen = 'diagnostic' | 'home' | 'mission' | 'map' | 'report'
 
 const session = useGameSession()
-const today = toCalendarDate(new Date())
+const todayDate = today()
+
+// Обновления и статусные сообщения — между миссиями: урок не отвлекается (PRD §4).
+const lessonActive = computed(() => screen.value === 'mission' || screen.value === 'diagnostic')
 
 const needsDiagnostic = computed(() => {
   const diagnostic = session.state.value.diagnostic
@@ -34,10 +37,13 @@ function play(practice: boolean): void {
   screen.value = 'mission'
 }
 
-const reviewsToday = computed(() => reviewCountToday(session.state.value, today))
+const reviewsToday = computed(() => reviewCountToday(session.state.value, todayDate))
 const bestStreakDays = computed(() => session.state.value.rewards.streak.bestDays)
 const retention = computed(() => retentionSummary(session.state.value.attempts))
-const nextReview = computed(() => upcomingReviewDate(session.state.value, today))
+const nextReview = computed(() => upcomingReviewDate(session.state.value, todayDate))
+const clockRolledBack = computed(() =>
+  rewardsPausedByClockRollback(session.state.value, todayDate),
+)
 
 const factIds = computed(() => Object.keys(session.state.value.facts))
 const earnedFactIds = computed(() =>
@@ -47,7 +53,7 @@ const earnedFactIds = computed(() =>
 )
 const reviewFactIds = computed(() =>
   Object.values(session.state.value.facts)
-    .filter((fact) => factNeedsReview(fact, today))
+    .filter((fact) => factNeedsReview(fact, todayDate))
     .map((fact) => fact.factId),
 )
 
@@ -77,15 +83,19 @@ function onDiagnosticFinished(): void {
 
 <template>
   <main>
-    <div v-if="offlineReady && !offlineNoticeDismissed" class="banner" role="status">
+    <div v-if="offlineReady && !offlineNoticeDismissed && !lessonActive" class="banner" role="status">
       <span>Готово без интернета</span>
       <SecondaryButton label="Понятно" @click="offlineNoticeDismissed = true" />
     </div>
 
-    <div v-if="needRefresh && !updateDismissed" class="banner" role="status">
+    <div v-if="needRefresh && !updateDismissed && !lessonActive" class="banner" role="status">
       <span>Обновление готово</span>
       <PrimaryButton label="Обновить" @click="updateServiceWorker(true)" />
       <SecondaryButton label="Позже" @click="updateDismissed = true" />
+    </div>
+
+    <div v-if="clockRolledBack && !lessonActive" class="banner" role="status">
+      <span>Дата устройства стала раньше последней награды. Практика доступна, но награды и серия приостановлены.</span>
     </div>
 
     <div v-if="session.storageStatus.value !== 'ok'" class="banner banner--error" role="alert">

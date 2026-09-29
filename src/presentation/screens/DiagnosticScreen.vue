@@ -9,13 +9,13 @@ import {
   startDiagnostic,
 } from '@/application/useCases/diagnostic'
 import { submitCardAnswer } from '@/application/useCases/submitCardAnswer'
-import { toCalendarDate } from '@/domain/learning/calendarDate'
 import AnswerField from '@/presentation/components/AnswerField.vue'
 import MissionProgress from '@/presentation/components/MissionProgress.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import QuestionCard from '@/presentation/components/QuestionCard.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { useGameSession } from '@/presentation/composables/gameSession'
+import { today } from '@/presentation/utils/clock'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
 
 /**
@@ -46,17 +46,13 @@ function answer(choseUnknown: boolean): void {
   const current = card.value
   if (current === undefined) return
 
-  const result = submitCardAnswer(
-    session.state.value,
-    {
-      factId: current.fact.id,
-      date: toCalendarDate(new Date()),
-      missionId: null,
-      rawAnswer: choseUnknown ? null : answerInput.value,
-      choseUnknown,
-    },
-    current.fact.product,
-  )
+  const result = submitCardAnswer(session.state.value, {
+    factId: current.fact.id,
+    date: today(),
+    missionId: null,
+    rawAnswer: choseUnknown ? null : answerInput.value,
+    choseUnknown,
+  })
   if (result.kind === 'invalid-input') {
     inputError.value = 'Введи целое число от 0 до 100'
     return

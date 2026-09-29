@@ -57,8 +57,8 @@ test('поддерживающий режим: свободная практик
 
   await expect(page.getByText('Карточка 1 из 10')).toBeVisible()
 
-  // Практика перемешана — вычисляем ответ из показанного примера.
-  const expression = await page.locator('.question-card__expression').textContent()
+  // Практика перемешана — вычисляем ответ из показанного примера (видимая часть без озвучки).
+  const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
   const [a, b] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
   await page.getByLabel('Ответ на пример').fill(String(a * b))
   await page.getByLabel('Ответ на пример').press('Enter')

@@ -38,11 +38,13 @@ describe('diagnostic use cases', () => {
     const before = diagnosticCards(state, false)
     expect(before[0].outcome).toBeNull()
 
-    const result = submitCardAnswer(
-      state,
-      { factId, date: '2026-01-01', missionId: null, rawAnswer: null, choseUnknown: true },
-      0,
-    )
+    const result = submitCardAnswer(state, {
+      factId,
+      date: '2026-01-01',
+      missionId: null,
+      rawAnswer: null,
+      choseUnknown: true,
+    })
     if (result.kind !== 'accepted') throw new Error('expected accepted attempt')
     state = finishDiagnostic(result.state)
 

@@ -14,7 +14,11 @@ defineProps<{
 
 <template>
   <section class="question-card">
-    <p class="question-card__expression" role="text" :aria-label="spoken">{{ expression }}</p>
+    <p class="question-card__expression">
+      <!-- Пример озвучиваем осмысленно («Семь умножить на восемь»); цифры скрыты от скринридера. -->
+      <span class="visually-hidden">{{ spoken }}</span>
+      <span aria-hidden="true">{{ expression }}</span>
+    </p>
     <p
       v-if="feedbackText"
       class="question-card__feedback"

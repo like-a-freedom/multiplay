@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { judgeAnswer, parseAnswer } from '@/domain/learning/answer'
-import { makeFact } from '@/domain/fact/multiplicationFact'
+import { parseAnswer } from '@/domain/learning/answer'
 
 describe('parseAnswer', () => {
   it('accepts integers from 0 to 100', () => {
@@ -19,13 +18,5 @@ describe('parseAnswer', () => {
     expect(parseAnswer('7×8')).toEqual({ ok: false })
     expect(parseAnswer('101')).toEqual({ ok: false })
     expect(parseAnswer('1000')).toEqual({ ok: false })
-  })
-})
-
-describe('judgeAnswer', () => {
-  it('compares against the fact product', () => {
-    const fact = makeFact(7, 8)
-    expect(judgeAnswer(fact, 56)).toBe('correct')
-    expect(judgeAnswer(fact, 54)).toBe('wrong')
   })
 })

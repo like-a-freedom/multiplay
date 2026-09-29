@@ -120,3 +120,8 @@ export function upcomingReviewDate(state: ProgressState, today: CalendarDate): C
     .sort()
   return dates[0] ?? null
 }
+
+/** Карточки замороженной очереди, на которые ещё не было ответа (восстановление миссии, PRD M4). */
+export function unansweredCardFactIds(mission: MissionState): string[] {
+  return mission.cardFactIds.filter((factId) => !mission.answeredFactIds.includes(factId))
+}

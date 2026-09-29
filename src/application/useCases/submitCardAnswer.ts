@@ -1,3 +1,4 @@
+import { factFromId } from '@/domain/fact/multiplicationFact'
 import { type AttemptOutcome, type ParsedAnswer, parseAnswer } from '@/domain/learning/answer'
 import type { CalendarDate } from '@/domain/learning/calendarDate'
 import { type MasteryProgress, recordError, recordIndependentSuccess } from '@/domain/learning/mastery'
@@ -16,6 +17,7 @@ import { solutionShownOnDate } from '@/domain/progress/progressState'
  * Use case: принятая попытка по одной карточке. Каждая принятая попытка
  * сохраняется сразу (PRD M4); повторное «Проверить» после принятого ответа
  * новую попытку не создаёт (ответ принимается один раз на карточку — UI).
+ * Правильный ответ берётся из факта по его ID — вызывающий не может его подменить.
  */
 
 export interface SubmitCardAnswerCommand {
@@ -26,11 +28,6 @@ export interface SubmitCardAnswerCommand {
   /** `null` — нажата «Не знаю», иначе сырой ввод. */
   readonly rawAnswer: string | null
   readonly choseUnknown: boolean
-}
-
-export type CardFeedback = {
-  readonly outcome: AttemptOutcome
-  readonly correctProduct: number
 }
 
 export type SubmitCardAnswerResult =
@@ -46,32 +43,39 @@ export type SubmitCardAnswerResult =
 export function submitCardAnswer(
   state: ProgressState,
   command: SubmitCardAnswerCommand,
-  product: number,
 ): SubmitCardAnswerResult {
+  const fact = state.facts[command.factId]
+  if (fact === undefined) return { kind: 'invalid-input' }
+
   if (command.choseUnknown) {
-    return record(state, command, 'unknown', null)
+    return record(state, fact, command, 'unknown', null)
   }
 
   const parsed: ParsedAnswer = parseAnswer(command.rawAnswer ?? '')
   if (!parsed.ok) return { kind: 'invalid-input' }
 
+  const product = factFromId(command.factId).product
   const outcome: AttemptOutcome = parsed.value === product ? 'correct' : 'wrong'
-  return record(state, command, outcome, parsed.value)
+  return record(state, fact, command, outcome, parsed.value)
 }
 
 function record(
   state: ProgressState,
+  fact: FactProgress,
   command: SubmitCardAnswerCommand,
   outcome: AttemptOutcome,
   acceptedValue: number | null,
 ): SubmitCardAnswerResult {
-  const fact = state.facts[command.factId]
-  if (fact === undefined) return { kind: 'invalid-input' }
-
   const wasIndependent =
     outcome === 'correct' && !solutionShownOnDate(state, command.factId, command.date)
 
-  const updatedFact = updateFactProgress(fact, outcome, wasIndependent, command.date, command.missionId === null)
+  const updatedFact = updateFactProgress(
+    fact,
+    outcome,
+    wasIndependent,
+    command.date,
+    command.missionId === null,
+  )
 
   const answeredFactIds =
     state.currentMission !== null && state.currentMission.id === command.missionId
