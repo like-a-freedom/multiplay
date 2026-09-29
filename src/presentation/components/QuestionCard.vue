@@ -133,17 +133,14 @@ const visibleExpression = computed(() =>
 }
 
 .question-card__feedback {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  min-height: 48px;
+  display: block;
   max-width: 100%;
   margin: 0;
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-control);
-  font-size: 1.375rem;
+  font-size: var(--font-size-body);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: var(--line-height-body);
 }
 
 .question-card__feedback--success {
@@ -197,7 +194,7 @@ const visibleExpression = computed(() =>
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-xs) var(--space-xl);
+  gap: var(--space-md) var(--space-xl);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-control);
   background: var(--color-white);
@@ -209,15 +206,16 @@ const visibleExpression = computed(() =>
 
 .question-card__submitted {
   color: var(--color-ink-muted);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body);
 }
 
 .question-card__correct-answer {
   color: var(--color-ink);
+  font-weight: 700;
 }
 
 .question-card__correct-answer strong {
-  font-size: var(--font-size-title);
+  font-size: inherit;
   font-variant-numeric: tabular-nums;
 }
 
