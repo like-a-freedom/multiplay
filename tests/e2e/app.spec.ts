@@ -66,6 +66,28 @@ test('поддерживающий режим: свободная практик
   await expect(page.getByText('Верно')).toBeVisible()
 })
 
+test('«Пора повторить» ведёт сразу в повторение', async ({ page }) => {
+  await page.addInitScript(
+    ([key, snapshot]) => {
+      window.localStorage.setItem(key, snapshot)
+    },
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(maintenanceWithReview())],
+  )
+  await page.goto('/')
+
+  await expect(page.getByText('К повторению: 1')).toBeVisible()
+  await page.getByRole('button', { name: 'Повторить', exact: true }).click()
+
+  // Повторение — только факт с наступившим сроком, без новых и практики.
+  await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+  await expect(page.getByText('2 × 3 = ?')).toBeVisible()
+  await page.getByLabel('Ответ на пример').fill('6')
+  await page.getByLabel('Ответ на пример').press('Enter')
+  await expect(page.getByText('Верно')).toBeVisible()
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  await expect(page.getByText('Миссия завершена!')).toBeVisible()
+})
+
 function finishedExpedition(): ProgressState {
   const base = createProgressState()
   const facts: Record<string, FactProgress> = {}
@@ -83,5 +105,22 @@ function finishedExpedition(): ProgressState {
     mode: 'maintenance',
     expeditionFinished: true,
     diagnostic: { factIds: [], skipped: false, completed: true },
+  }
+}
+
+/** Поддерживающий режим: один факт с наступившим сроком проверки. */
+function maintenanceWithReview(): ProgressState {
+  const base = finishedExpedition()
+  const fact = base.facts['2:3']
+  return {
+    ...base,
+    facts: {
+      ...base.facts,
+      '2:3': {
+        ...fact,
+        status: 'familiar',
+        review: { completedSuccesses: 0, nextReviewDate: '2020-01-01' },
+      },
+    },
   }
 }

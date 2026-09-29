@@ -1,15 +1,16 @@
 import type { CalendarDate } from '@/domain/learning/calendarDate'
 import type { FactCandidate, MissionPlan } from '@/domain/mission/mission'
-import { composeMission, composePractice } from '@/domain/mission/composeMission'
+import { composeMission, composePractice, composeReview } from '@/domain/mission/composeMission'
 import type { ProgressState } from '@/domain/progress/progressState'
 import { planningStatus } from '@/domain/progress/progressState'
 
 /**
  * Use case: старт миссии. Очередь фиксируется при старте (PRD §3).
- * `kind: 'practice'` — свободная практика вместо плановой миссии.
+ * `kind: 'practice'` — свободная практика, `kind: 'review'` — повторение
+ * фактов «Пора повторить» вместо плановой миссии.
  */
 
-export type MissionKind = 'mission' | 'practice'
+export type MissionKind = 'mission' | 'practice' | 'review'
 
 export interface StartMissionCommand {
   readonly missionId: string
@@ -34,7 +35,9 @@ export function startMission(
   const cards =
     command.kind === 'practice'
       ? composePractice(candidates, command.random)
-      : composeMission(candidates)
+      : command.kind === 'review'
+        ? composeReview(candidates)
+        : composeMission(candidates)
   const cardFactIds = cards.map((card) => card.factId)
 
   return {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { composeMission, composePractice } from '@/domain/mission/composeMission'
+import { composeMission, composePractice, composeReview } from '@/domain/mission/composeMission'
 import type { FactCandidate } from '@/domain/mission/mission'
 
 const candidate = (factId: string, status: FactCandidate['status']): FactCandidate => ({ factId, status })
@@ -29,6 +29,21 @@ describe('composeMission', () => {
   it('makes the mission shorter when familiar facts are scarce', () => {
     const cards = composeMission([candidate('n1', 'new'), candidate('d1', 'due')])
     expect(cards).toHaveLength(2)
+  })
+})
+
+describe('composeReview', () => {
+  it('takes only facts marked «Пора повторить» and caps at 10', () => {
+    const due = Array.from({ length: 12 }, (_, i) => candidate(`d${i}`, 'due'))
+    const cards = composeReview([
+      candidate('n1', 'new'),
+      ...due,
+      candidate('f1', 'familiar'),
+    ])
+    expect(cards).toHaveLength(10)
+    expect(cards.every((c) => c.status === 'due')).toBe(true)
+    expect(cards.map((c) => c.factId)).not.toContain('n1')
+    expect(cards.map((c) => c.factId)).not.toContain('f1')
   })
 })
 

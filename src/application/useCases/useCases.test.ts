@@ -18,6 +18,13 @@ describe('mission use cases', () => {
     expect(planned.mission.cardFactIds).toHaveLength(2)
   })
 
+  it('starts a review session with due facts only («Пора повторить» → работа)', () => {
+    const base = createProgressState()
+    const state = withDueFact(base, '2:3', '2026-01-01')
+    const review = startMission(state, { missionId: 'r1', date: '2026-01-01', kind: 'review' })
+    expect(review.mission.cardFactIds).toEqual(['2:3'])
+  })
+
   it('freezes the card queue at mission start', () => {
     const started = startMission(createProgressState(), { missionId: 'm1', date: '2026-01-01' })
     // Свежее состояние: только два новых факта, повторений и знакомых нет — миссия короче.
@@ -113,6 +120,25 @@ describe('mission use cases', () => {
     expect(starsEarned(repeated.state)).toBe(0)
   })
 })
+
+function withDueFact(
+  state: ReturnType<typeof createProgressState>,
+  factId: string,
+  dueDate: string,
+): ReturnType<typeof createProgressState> {
+  const fact = state.facts[factId]
+  return {
+    ...state,
+    facts: {
+      ...state.facts,
+      [factId]: {
+        ...fact,
+        status: 'familiar',
+        review: { completedSuccesses: 0, nextReviewDate: dueDate },
+      },
+    },
+  }
+}
 
 function record(
   state: ReturnType<typeof createProgressState>,

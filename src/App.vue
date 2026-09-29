@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
+import type { MissionKind } from '@/application/useCases/startMission'
 import { retentionSummary } from '@/domain/learning/retention'
 import { TOTAL_FACTS, rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import { factNeedsReview, upcomingReviewDate } from '@/domain/progress/progressState'
@@ -36,10 +37,10 @@ watch(screen, () => {
   })
 })
 const diagnosticResume = ref(true)
-const missionPractice = ref(false)
+const missionKind = ref<MissionKind>('mission')
 
-function play(practice: boolean): void {
-  missionPractice.value = practice
+function play(kind: MissionKind): void {
+  missionKind.value = kind
   screen.value = 'mission'
 }
 
@@ -143,15 +144,16 @@ function onDiagnosticFinished(): void {
       :reviews-today="reviewsToday"
       :maintenance-mode="session.state.value.mode === 'maintenance'"
       :next-review-date="nextReview"
-      @play="play(false)"
-      @practice="play(true)"
+      @play="play('mission')"
+      @practice="play('practice')"
+      @review="play('review')"
       @map="screen = 'map'"
       @report="screen = 'report'"
     />
 
     <MissionScreen
       v-else-if="screen === 'mission'"
-      :practice="missionPractice"
+      :kind="missionKind"
       @exit="screen = 'home'"
       @completed="screen = 'home'"
       @map="screen = 'map'"
@@ -163,6 +165,7 @@ function onDiagnosticFinished(): void {
       :earned-fact-ids="earnedFactIds"
       :review-fact-ids="reviewFactIds"
       @back="screen = 'home'"
+      @review="play('review')"
     />
 
     <ReportScreen

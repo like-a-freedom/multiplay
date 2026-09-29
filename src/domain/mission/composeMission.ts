@@ -30,3 +30,11 @@ export function composePractice(
   const familiar = candidates.filter((c) => c.status === 'familiar')
   return shuffle(familiar, random).slice(0, MISSION_CARD_LIMIT)
 }
+
+/**
+ * Повторение («Пора повторить», CONTEXT.md): только факты после ошибки
+ * или с наступившим сроком проверки — сразу в работу, без новых фактов.
+ */
+export function composeReview(candidates: readonly FactCandidate[]): readonly FactCandidate[] {
+  return candidates.filter((c) => c.status === 'due').slice(0, MISSION_CARD_LIMIT)
+}

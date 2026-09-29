@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 
 import { factFromId } from '@/domain/fact/multiplicationFact'
+import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { STAR_PATH, constellationPositions } from '@/presentation/utils/constellation'
 
@@ -15,7 +16,7 @@ const props = defineProps<{
   earnedFactIds: readonly string[]
   reviewFactIds: readonly string[]
 }>()
-defineEmits<{ back: [] }>()
+defineEmits<{ back: []; review: [] }>()
 
 const size = 320
 const positions = computed(() => constellationPositions(props.factIds.length, size))
@@ -103,6 +104,11 @@ function factLabel(factId: string): string {
       </div>
     </section>
     <div class="screen__actions">
+      <PrimaryButton
+        v-if="reviewFactIds.length > 0"
+        label="Повторить сейчас"
+        @click="$emit('review')"
+      />
       <SecondaryButton label="Назад" @click="$emit('back')" />
     </div>
   </section>

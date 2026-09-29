@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 
 import { submitCardAnswer } from '@/application/useCases/submitCardAnswer'
 import { completeMission } from '@/application/useCases/completeMission'
-import { startMission } from '@/application/useCases/startMission'
+import { startMission, type MissionKind } from '@/application/useCases/startMission'
 import { factFromId } from '@/domain/fact/multiplicationFact'
 import type { AttemptOutcome } from '@/domain/learning/answer'
 import { explanationFor } from '@/domain/learning/explanation'
@@ -33,7 +33,7 @@ interface Feedback {
   readonly starUnlocked: boolean
 }
 
-const props = defineProps<{ practice?: boolean }>()
+const props = defineProps<{ kind?: MissionKind }>()
 const emit = defineEmits<{ exit: []; completed: []; map: [] }>()
 const session = useGameSession()
 
@@ -55,9 +55,10 @@ const fact = computed(() => factFromId(cardFactIds.value[cardIndex.value] ?? '0:
 const allAnswered = computed(() => cardIndex.value >= cardFactIds.value.length)
 
 onMounted(() => {
-  // Плановая игра продолжает незавершённую миссию (PRD M4, §7); свободная практика
-  // начинает новую сессию и замораживает новую очередь.
-  const existing = props.practice === true ? null : session.state.value.currentMission
+  // Плановая игра и повторение продолжают незавершённую миссию (PRD M4, §7);
+  // свободная практика начинает новую сессию и замораживает новую очередь.
+  const kind = props.kind ?? 'mission'
+  const existing = kind === 'practice' ? null : session.state.value.currentMission
   if (existing !== null) {
     missionId.value = existing.id
     cardFactIds.value = unansweredCardFactIds(existing)
@@ -65,7 +66,7 @@ onMounted(() => {
     const started = startMission(session.state.value, {
       missionId: crypto.randomUUID(),
       date: today(),
-      kind: props.practice === true ? 'practice' : 'mission',
+      kind,
     })
     missionId.value = started.mission.id
     session.state.value = started.state

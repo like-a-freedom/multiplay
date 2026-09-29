@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StreakBadge from '@/presentation/components/StreakBadge.vue'
@@ -6,11 +8,13 @@ import XpCounter from '@/presentation/components/XpCounter.vue'
 import { formatDateRu } from '@/presentation/utils/formatDate'
 
 /**
- * Главный экран (PRD §3): «Играть», серия, XP, уровень, звёзды.
+ * Главный экран (PRD §3): «Играть», серия, XP, уровень, звёзды знаний.
+ * «К повторению» — не напоминание, а главное действие: когда есть что
+ * повторять, первой кнопкой идёт «Повторить» — сразу в работу.
  * В поддерживающем режиме вместо серии — число фактов к повторению
  * и ближайшая дата, когда очередь пуста.
  */
-defineProps<{
+const props = defineProps<{
   xp: number
   level: number
   streakDays: number
@@ -20,7 +24,18 @@ defineProps<{
   maintenanceMode: boolean
   nextReviewDate: string | null
 }>()
-defineEmits<{ play: []; practice: []; map: []; report: [] }>()
+const emit = defineEmits<{ play: []; practice: []; review: []; map: []; report: [] }>()
+
+const primaryLabel = computed(() => {
+  if (props.reviewsToday > 0) return 'Повторить'
+  return props.maintenanceMode ? 'Свободная практика' : 'Играть'
+})
+
+function primaryAction(): void {
+  if (props.reviewsToday > 0) emit('review')
+  else if (props.maintenanceMode) emit('practice')
+  else emit('play')
+}
 </script>
 
 <template>
@@ -46,15 +61,20 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
     </div>
 
     <div class="screen__actions">
-      <PrimaryButton v-if="!maintenanceMode || reviewsToday > 0" :label="maintenanceMode ? 'Повторить' : 'Играть'" @click="$emit('play')" />
-      <PrimaryButton v-else label="Свободная практика" @click="$emit('practice')" />
+      <!-- Одно очевидное действие: есть «Пора повторить» — идём повторять. -->
+      <PrimaryButton :label="primaryLabel" @click="primaryAction" />
       <SecondaryButton
-        v-if="maintenanceMode && reviewsToday > 0"
-        label="Свободная практика"
-        @click="$emit('practice')"
+        v-if="reviewsToday > 0 && !maintenanceMode"
+        label="Играть"
+        @click="emit('play')"
       />
-      <SecondaryButton label="Карта звёзд" @click="$emit('map')" />
-      <SecondaryButton label="Отчёт для взрослого" @click="$emit('report')" />
+      <SecondaryButton
+        v-if="reviewsToday > 0 && maintenanceMode"
+        label="Свободная практика"
+        @click="emit('practice')"
+      />
+      <SecondaryButton label="Карта звёзд" @click="emit('map')" />
+      <SecondaryButton label="Отчёт для взрослого" @click="emit('report')" />
     </div>
   </section>
 </template>
