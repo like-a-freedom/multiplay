@@ -336,7 +336,7 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 .mission__finish-title {
   margin: 0;
-  font-size: clamp(1.375rem, 7vw, var(--font-size-title));
+  font-size: var(--font-size-title);
   line-height: var(--line-height-title);
   text-wrap: balance;
 }
@@ -368,8 +368,8 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 .mission__award-value {
   color: var(--color-ink);
-  font-size: 2.5rem;
-  line-height: 1;
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-title);
   font-variant-numeric: tabular-nums;
 }
 

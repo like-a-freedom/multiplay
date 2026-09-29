@@ -203,7 +203,7 @@ function factLabel(factId: string): string {
 }
 
 .map__review-card strong {
-  font-size: 1.375rem;
+  font-size: var(--font-size-body);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
