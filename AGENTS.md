@@ -6,7 +6,11 @@ This repository defines a multiplication PWA for one 10-year-old using iPhone 12
 
 ## Technology and Development
 
-Use Vue 3 with TypeScript and Vite, plain CSS, and `vite-plugin-pwa` for offline assets. Use a small Vue composable for shared game state and a versioned `localStorage` record for persistence. Start without Pinia or Vue Router; add them only if real complexity warrants it. Use Vitest for learning and persistence rules. No app scaffold or package scripts exist yet; when added, document exact install, dev, build, and test commands here.
+Use Vue 3 with TypeScript and Vite, plain CSS, and `vite-plugin-pwa` for offline assets. Use a small Vue composable for shared game state and a versioned `localStorage` record for persistence. Start without Pinia or Vue Router; add them only if real complexity warrants it. Use Vitest for learning and persistence rules. Commands (npm, Node 22): `npm install` — установка зависимостей; `npm run dev` — dev-сервер; `npm run build` — typecheck + production build (включая service worker); `npm run preview` — локальный просмотр сборки; `npm run typecheck` — только проверка типов (`vue-tsc`); `npm test` / `npm run test:watch` — Vitest; `npm run test:e2e` — Playwright (WebKit в эмуляции iPhone 12 Pro Max, см. `tests/device-checklist.md` для проверки на реальном телефоне). Иконки PWA генерируются: `python3 scripts/generate-icons.py`. TypeScript закреплён на 5.9: `vue-tsc` 3.x ещё не поддерживает TypeScript 7.
+
+## Architecture
+
+DDD-слои под `src/`, зависимости только внутрь: `domain/` (чистые функции и типы: `fact/`, `learning/`, `game/`, `mission/`, `progress/` — без Vue и браузерных API), `application/` (use cases `startMission`, `submitCardAnswer`, `completeMission`, `diagnostic` и port `ProgressStore`), `infrastructure/` (адаптер `LocalStorageProgressStore`, версионированный снимок `snapshot.ts`), `presentation/` (Vue: `components/`, `screens/`, `composables/gameSession.ts`, `styles/tokens.css` — токены из `DESIGN.md`). Composition root — `src/main.ts`. Импорты через алиас `@/`; слой не импортирует вышележащие. Тесты лежат рядом с кодом (`*.test.ts`).
 
 ## Learning and Screen-Time Behavior
 

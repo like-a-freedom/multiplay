@@ -1,0 +1,147 @@
+import { type AttemptOutcome, type ParsedAnswer, parseAnswer } from '@/domain/learning/answer'
+import type { CalendarDate } from '@/domain/learning/calendarDate'
+import { type MasteryProgress, recordError, recordIndependentSuccess } from '@/domain/learning/mastery'
+import {
+  type ReviewSchedule,
+  scheduleAfterError,
+  scheduleAfterFirstSuccess,
+  scheduleAfterPlannedSuccess,
+  scheduleFromDiagnosticAnswer,
+  isDueForReview,
+} from '@/domain/learning/reviewSchedule'
+import type { FactProgress, ProgressState } from '@/domain/progress/progressState'
+import { solutionShownOnDate } from '@/domain/progress/progressState'
+
+/**
+ * Use case: принятая попытка по одной карточке. Каждая принятая попытка
+ * сохраняется сразу (PRD M4); повторное «Проверить» после принятого ответа
+ * новую попытку не создаёт (ответ принимается один раз на карточку — UI).
+ */
+
+export interface SubmitCardAnswerCommand {
+  readonly factId: string
+  readonly date: CalendarDate
+  /** `null` — ответ в диагностике; иначе ID текущей миссии. */
+  readonly missionId: string | null
+  /** `null` — нажата «Не знаю», иначе сырой ввод. */
+  readonly rawAnswer: string | null
+  readonly choseUnknown: boolean
+}
+
+export type CardFeedback = {
+  readonly outcome: AttemptOutcome
+  readonly correctProduct: number
+}
+
+export type SubmitCardAnswerResult =
+  | { kind: 'invalid-input' }
+  | {
+      kind: 'accepted'
+      readonly outcome: AttemptOutcome
+      /** Принятое число; `null` — «Не знаю». */
+      readonly acceptedValue: number | null
+      readonly state: ProgressState
+    }
+
+export function submitCardAnswer(
+  state: ProgressState,
+  command: SubmitCardAnswerCommand,
+  product: number,
+): SubmitCardAnswerResult {
+  if (command.choseUnknown) {
+    return record(state, command, 'unknown', null)
+  }
+
+  const parsed: ParsedAnswer = parseAnswer(command.rawAnswer ?? '')
+  if (!parsed.ok) return { kind: 'invalid-input' }
+
+  const outcome: AttemptOutcome = parsed.value === product ? 'correct' : 'wrong'
+  return record(state, command, outcome, parsed.value)
+}
+
+function record(
+  state: ProgressState,
+  command: SubmitCardAnswerCommand,
+  outcome: AttemptOutcome,
+  acceptedValue: number | null,
+): SubmitCardAnswerResult {
+  const fact = state.facts[command.factId]
+  if (fact === undefined) return { kind: 'invalid-input' }
+
+  const wasIndependent =
+    outcome === 'correct' && !solutionShownOnDate(state, command.factId, command.date)
+
+  const updatedFact = updateFactProgress(fact, outcome, wasIndependent, command.date, command.missionId === null)
+
+  const answeredFactIds =
+    state.currentMission !== null && state.currentMission.id === command.missionId
+      ? [...state.currentMission.answeredFactIds, command.factId]
+      : state.currentMission?.answeredFactIds ?? []
+
+  const currentMission =
+    state.currentMission !== null && state.currentMission.id === command.missionId
+      ? { ...state.currentMission, answeredFactIds }
+      : state.currentMission
+
+  return {
+    kind: 'accepted',
+    outcome,
+    acceptedValue,
+    state: {
+      ...state,
+      facts: { ...state.facts, [command.factId]: updatedFact },
+      attempts: [
+        ...state.attempts,
+        {
+          factId: command.factId,
+          date: command.date,
+          outcome,
+          independent: wasIndependent,
+          missionId: command.missionId,
+        },
+      ],
+      currentMission,
+    },
+  }
+}
+
+function updateFactProgress(
+  fact: FactProgress,
+  outcome: AttemptOutcome,
+  independent: boolean,
+  date: CalendarDate,
+  isDiagnostic: boolean,
+): FactProgress {
+  const base: FactProgress = { ...fact, status: 'familiar', lastAnswerDate: date }
+
+  if (isDiagnostic) {
+    // Диагностика не присваивает освоение и не запускает отсчёт (PRD §3).
+    return { ...base, review: scheduleFromDiagnosticAnswer(date, outcome) }
+  }
+
+  if (outcome !== 'correct') {
+    return applyScheduleAndMastery(base, scheduleAfterError(date), recordError(fact.mastery))
+  }
+
+  if (!independent) {
+    // Успех после показанного сегодня решения не продвигает расписание.
+    return base
+  }
+
+  const review = nextReviewAfterSuccess(fact.review, date)
+  return applyScheduleAndMastery(base, review, recordIndependentSuccess(fact.mastery, date))
+}
+
+function nextReviewAfterSuccess(previous: ReviewSchedule | null, date: CalendarDate): ReviewSchedule {
+  if (previous === null) return scheduleAfterFirstSuccess(date)
+  if (!isDueForReview(previous, date)) return previous // досрочная практика срок не отодвигает
+  return scheduleAfterPlannedSuccess(previous, date)
+}
+
+function applyScheduleAndMastery(
+  fact: FactProgress,
+  review: ReviewSchedule,
+  mastery: MasteryProgress,
+): FactProgress {
+  return { ...fact, review, mastery }
+}

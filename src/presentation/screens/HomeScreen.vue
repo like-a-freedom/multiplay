@@ -1,0 +1,72 @@
+<script setup lang="ts">
+import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
+import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
+import StreakBadge from '@/presentation/components/StreakBadge.vue'
+import XpCounter from '@/presentation/components/XpCounter.vue'
+import { formatDateRu } from '@/presentation/utils/formatDate'
+
+/**
+ * Главный экран (PRD §3): «Играть», серия, XP, уровень, звёзды.
+ * В поддерживающем режиме вместо серии — число фактов к повторению
+ * и ближайшая дата, когда очередь пуста.
+ */
+defineProps<{
+  xp: number
+  level: number
+  streakDays: number
+  stars: number
+  totalFacts: number
+  reviewsToday: number
+  maintenanceMode: boolean
+  nextReviewDate: string | null
+}>()
+defineEmits<{ play: []; practice: []; map: []; report: [] }>()
+</script>
+
+<template>
+  <section class="screen home">
+    <h1 class="screen__title">Математическая экспедиция</h1>
+
+    <div class="home__status">
+      <XpCounter :xp="xp" :level="level" />
+      <StreakBadge v-if="!maintenanceMode" :days="streakDays" />
+      <p v-else class="home__maintenance">
+        <template v-if="reviewsToday > 0">К повторению: {{ reviewsToday }}</template>
+        <template v-else>
+          На сегодня повторений нет<template v-if="nextReviewDate">
+            · ближайшее {{ formatDateRu(nextReviewDate) }}</template>
+        </template>
+      </p>
+      <p class="home__stars">Звёзды: {{ stars }} из {{ totalFacts }}</p>
+    </div>
+
+    <div class="screen__actions">
+      <PrimaryButton label="Играть" @click="$emit('play')" />
+      <SecondaryButton
+        v-if="maintenanceMode"
+        label="Свободная практика"
+        @click="$emit('practice')"
+      />
+      <SecondaryButton label="Что уже помню" @click="$emit('map')" />
+      <SecondaryButton label="Отчёт для взрослого" @click="$emit('report')" />
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.home__status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.home__stars,
+.home__maintenance {
+  margin: 0;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: var(--line-height-label);
+  color: var(--color-on-space);
+}
+</style>

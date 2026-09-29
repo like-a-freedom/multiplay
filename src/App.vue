@@ -1,0 +1,184 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRegisterSW } from 'virtual:pwa-register/vue'
+
+import { toCalendarDate } from '@/domain/learning/calendarDate'
+import { retentionSummary } from '@/domain/learning/retention'
+import { TOTAL_FACTS } from '@/domain/progress/rewards'
+import { factNeedsReview, upcomingReviewDate } from '@/domain/progress/progressState'
+import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
+import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
+import { reviewCountToday, useGameSession } from '@/presentation/composables/gameSession'
+import DiagnosticScreen from '@/presentation/screens/DiagnosticScreen.vue'
+import HomeScreen from '@/presentation/screens/HomeScreen.vue'
+import KnowledgeMapScreen from '@/presentation/screens/KnowledgeMapScreen.vue'
+import MissionScreen from '@/presentation/screens/MissionScreen.vue'
+import ReportScreen from '@/presentation/screens/ReportScreen.vue'
+
+type Screen = 'diagnostic' | 'home' | 'mission' | 'map' | 'report'
+
+const session = useGameSession()
+const today = toCalendarDate(new Date())
+
+const needsDiagnostic = computed(() => {
+  const diagnostic = session.state.value.diagnostic
+  return diagnostic === null || (!diagnostic.completed && !diagnostic.skipped)
+})
+
+const screen = ref<Screen>(needsDiagnostic.value ? 'diagnostic' : 'home')
+const diagnosticResume = ref(true)
+const missionPractice = ref(false)
+
+function play(practice: boolean): void {
+  missionPractice.value = practice
+  screen.value = 'mission'
+}
+
+const reviewsToday = computed(() => reviewCountToday(session.state.value, today))
+const bestStreakDays = computed(() => session.state.value.rewards.streak.bestDays)
+const retention = computed(() => retentionSummary(session.state.value.attempts))
+const nextReview = computed(() => upcomingReviewDate(session.state.value, today))
+
+const factIds = computed(() => Object.keys(session.state.value.facts))
+const earnedFactIds = computed(() =>
+  Object.values(session.state.value.facts)
+    .filter((fact) => fact.mastery.hasStar)
+    .map((fact) => fact.factId),
+)
+const reviewFactIds = computed(() =>
+  Object.values(session.state.value.facts)
+    .filter((fact) => factNeedsReview(fact, today))
+    .map((fact) => fact.factId),
+)
+
+// PWA: «Готово без интернета»; обновление предлагается, но урок не перезагружается (PRD M6).
+const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW()
+const offlineNoticeDismissed = ref(false)
+const updateDismissed = ref(false)
+const resetConfirm = ref(false)
+
+function onReset(): void {
+  session.resetProgress()
+  resetConfirm.value = false
+  screen.value = 'diagnostic'
+  diagnosticResume.value = true
+}
+
+function onRecheck(): void {
+  diagnosticResume.value = false
+  screen.value = 'diagnostic'
+}
+
+function onDiagnosticFinished(): void {
+  diagnosticResume.value = true
+  screen.value = 'home'
+}
+</script>
+
+<template>
+  <main>
+    <div v-if="offlineReady && !offlineNoticeDismissed" class="banner" role="status">
+      <span>Готово без интернета</span>
+      <SecondaryButton label="Понятно" @click="offlineNoticeDismissed = true" />
+    </div>
+
+    <div v-if="needRefresh && !updateDismissed" class="banner" role="status">
+      <span>Обновление готово</span>
+      <PrimaryButton label="Обновить" @click="updateServiceWorker(true)" />
+      <SecondaryButton label="Позже" @click="updateDismissed = true" />
+    </div>
+
+    <div v-if="session.storageStatus.value !== 'ok'" class="banner banner--error" role="alert">
+      <template v-if="session.storageStatus.value === 'corrupt'">
+        <span>Данные прогресса повреждены. Сброс данных удалит их.</span>
+        <SecondaryButton
+          :label="resetConfirm ? 'Подтвердить сброс' : 'Сбросить данные'"
+          @click="resetConfirm ? onReset() : (resetConfirm = true)"
+        />
+      </template>
+      <template v-else-if="session.storageStatus.value === 'unknown-version'">
+        <span>Данные сохранены другой версией приложения. Сброс данных удалит их.</span>
+        <SecondaryButton
+          :label="resetConfirm ? 'Подтвердить сброс' : 'Сбросить данные'"
+          @click="resetConfirm ? onReset() : (resetConfirm = true)"
+        />
+      </template>
+      <template v-else>
+        <span>Прогресс не сохраняется</span>
+        <SecondaryButton label="Повторить запись" @click="session.save()" />
+      </template>
+    </div>
+
+    <DiagnosticScreen
+      v-if="screen === 'diagnostic'"
+      :resume="diagnosticResume"
+      @finished="onDiagnosticFinished"
+    />
+
+    <HomeScreen
+      v-else-if="screen === 'home'"
+      :xp="session.totalXp.value"
+      :level="session.level.value"
+      :streak-days="session.streakDays.value"
+      :stars="session.stars.value"
+      :total-facts="TOTAL_FACTS"
+      :reviews-today="reviewsToday"
+      :maintenance-mode="session.state.value.mode === 'maintenance'"
+      :next-review-date="nextReview"
+      @play="play(false)"
+      @practice="play(true)"
+      @map="screen = 'map'"
+      @report="screen = 'report'"
+    />
+
+    <MissionScreen
+      v-else-if="screen === 'mission'"
+      :practice="missionPractice"
+      @exit="screen = 'home'"
+      @completed="screen = 'home'"
+    />
+
+    <KnowledgeMapScreen
+      v-else-if="screen === 'map'"
+      :fact-ids="factIds"
+      :earned-fact-ids="earnedFactIds"
+      :review-fact-ids="reviewFactIds"
+      @back="screen = 'home'"
+    />
+
+    <ReportScreen
+      v-else
+      :xp="session.totalXp.value"
+      :level="session.level.value"
+      :stars="session.stars.value"
+      :total-facts="TOTAL_FACTS"
+      :best-streak-days="bestStreakDays"
+      :reviews-today="reviewsToday"
+      :retention-correct="retention.correct"
+      :retention-checked="retention.checked"
+      :has-diagnostic-set="session.state.value.diagnostic !== null"
+      @back="screen = 'home'"
+      @reset="onReset"
+      @recheck="onRecheck"
+    />
+  </main>
+</template>
+
+<style scoped>
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  max-width: 480px;
+  margin: 0 auto var(--space-lg);
+  padding: var(--space-md);
+  border-radius: var(--radius-control);
+  background: var(--color-space-raised);
+  color: var(--color-on-space);
+}
+
+.banner--error {
+  border: 1px solid var(--color-error);
+}
+</style>

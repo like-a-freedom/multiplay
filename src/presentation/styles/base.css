@@ -1,0 +1,63 @@
+/* Базовая раскладка: одна колонка, максимум 480px (DESIGN.md). */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-space);
+  color: var(--color-on-space);
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+#app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    calc(env(safe-area-inset-top) + var(--space-lg))
+    calc(env(safe-area-inset-right) + var(--space-lg))
+    calc(env(safe-area-inset-bottom) + var(--space-lg))
+    calc(env(safe-area-inset-left) + var(--space-lg));
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.screen__title {
+  margin: 0;
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  line-height: var(--line-height-title);
+}
+
+.screen__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Декоративные SVG скрыты от скринридера. */
+.decorative {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

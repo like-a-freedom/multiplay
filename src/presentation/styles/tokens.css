@@ -1,0 +1,47 @@
+/* Дизайн-токены «Математическая экспедиция» (DESIGN.md). Источник истины — YAML в DESIGN.md. */
+:root {
+  /* colors */
+  --color-space: #0b1020;
+  --color-space-raised: #151f36;
+  --color-paper: #f7faff;
+  --color-white: #ffffff;
+  --color-ink: #15213b;
+  --color-ink-muted: #52617a;
+  --color-action: #175cd3;
+  --color-action-pressed: #114ab0;
+  --color-focus: #175cd3;
+  --color-on-space: #f7faff;
+  --color-focus-on-space: #f9ba43;
+  --color-streak: #f9ba43;
+  --color-success: #0b6b62;
+  --color-error: #b42335;
+  --color-control-outline: #64748b;
+  --color-divider: #cad5e5;
+
+  /* typography */
+  --font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-size-question: 3.5rem;
+  --font-size-title: 1.75rem;
+  --font-size-body: 1.0625rem;
+  --font-size-label: 0.875rem;
+  --font-size-button: 1.0625rem;
+  --line-height-question: 1.08;
+  --line-height-title: 1.18;
+  --line-height-body: 1.45;
+  --line-height-label: 1.3;
+  --line-height-button: 1.2;
+
+  /* rounded */
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --radius-badge: 999px;
+
+  /* spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+  --space-section: 48px;
+}
