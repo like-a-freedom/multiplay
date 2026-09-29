@@ -8,6 +8,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   variant?: 'question' | 'summary'
   celebrate?: boolean
+  starUnlocked?: boolean
   review?: boolean
   answerValue?: number
   submittedValue?: number | null
@@ -54,6 +55,7 @@ const visibleExpression = computed(() =>
       <span v-if="celebrate && answerValue !== undefined" class="visually-hidden">
         Правильный ответ: {{ answerValue }}
       </span>
+      <p v-if="starUnlocked" class="question-card__star-unlocked">Новая звезда открыта на карте!</p>
       <div v-if="review && answerValue !== undefined" class="question-card__answer-row">
         <p v-if="submittedValue !== null && submittedValue !== undefined" class="question-card__submitted">
           Твой ответ: {{ submittedValue }}
@@ -161,6 +163,16 @@ const visibleExpression = computed(() =>
   box-shadow: inset 0 0 0 1px var(--color-review-outline);
 }
 
+.question-card__star-unlocked {
+  align-self: flex-start;
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-control);
+  background: var(--color-streak);
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
 .question-card__hint {
   color: var(--color-ink);
   padding: var(--space-md) var(--space-lg);
@@ -250,6 +262,10 @@ const visibleExpression = computed(() =>
 
   .question-card--correct .question-card__feedback {
     animation: success-confirm 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .question-card__star-unlocked {
+    animation: review-appear 320ms 120ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .question-card--review .question-card__answer-row,

@@ -8,6 +8,7 @@ import { factFromId } from '@/domain/fact/multiplicationFact'
 import type { AttemptOutcome } from '@/domain/learning/answer'
 import { explanationFor } from '@/domain/learning/explanation'
 import { unansweredCardFactIds, type ProgressState } from '@/domain/progress/progressState'
+import { rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import AnswerField from '@/presentation/components/AnswerField.vue'
 import MissionProgress from '@/presentation/components/MissionProgress.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
@@ -29,10 +30,11 @@ interface Feedback {
   readonly tone: 'success' | 'error' | 'hint'
   readonly hintText: string | null
   readonly submittedValue: number | null
+  readonly starUnlocked: boolean
 }
 
 const props = defineProps<{ practice?: boolean }>()
-const emit = defineEmits<{ exit: []; completed: [] }>()
+const emit = defineEmits<{ exit: []; completed: []; map: [] }>()
 const session = useGameSession()
 
 const missionId = ref('')
@@ -45,6 +47,7 @@ const finished = ref(false)
 const expeditionJustFinished = ref(false)
 const awardedXp = ref(0)
 const bonusXp = ref(0)
+const xpPausedByClock = ref(false)
 const cardRegion = ref<HTMLElement | null>(null)
 const actions = ref<HTMLElement | null>(null)
 
@@ -110,6 +113,9 @@ function applyAccepted(
   acceptedValue: number | null,
 ): void {
   inputError.value = null
+  const starUnlocked =
+    !session.state.value.facts[fact.value.id].mastery.hasStar &&
+    state.facts[fact.value.id].mastery.hasStar
   session.state.value = state
   session.save()
   feedback.value = {
@@ -118,6 +124,7 @@ function applyAccepted(
     submittedValue: acceptedValue,
     tone: outcome === 'correct' ? 'success' : outcome === 'wrong' ? 'error' : 'hint',
     hintText: outcome === 'correct' ? null : explanationFor(fact.value),
+    starUnlocked,
   }
   focusPrimaryAction()
 }
@@ -134,7 +141,9 @@ function next(): void {
 }
 
 function finish(): void {
-  const result = completeMission(session.state.value, { missionId: missionId.value, date: today() })
+  const date = today()
+  xpPausedByClock.value = rewardsPausedByClockRollback(session.state.value, date)
+  const result = completeMission(session.state.value, { missionId: missionId.value, date })
   session.state.value = result.state
   expeditionJustFinished.value = result.expeditionJustFinished
   awardedXp.value = result.xpAwarded
@@ -176,6 +185,7 @@ function feedbackText(outcome: AttemptOutcome): string {
           :feedback-text="feedback?.text ?? null"
           :feedback-tone="feedback?.tone ?? null"
           :celebrate="feedback?.outcome === 'correct'"
+          :star-unlocked="feedback?.starUnlocked ?? false"
           :review="feedback !== null && feedback.outcome !== 'correct'"
           :answer-value="feedback ? fact.product : undefined"
           :submitted-value="feedback?.outcome === 'wrong' ? feedback.submittedValue : null"
@@ -236,22 +246,30 @@ function feedbackText(outcome: AttemptOutcome): string {
           <p class="mission__finish-eyebrow">Маршрут пройден</p>
           <h2 class="mission__finish-title">{{ expeditionJustFinished ? 'Экспедиция завершена!' : 'Миссия завершена!' }}</h2>
           <p class="mission__finish-copy">
-            {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты потренировался. Завтра можно продолжить маршрут.' }}
+            {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты прошёл маршрут. Можно сыграть ещё или вернуться позже.' }}
           </p>
           <div class="mission__award" role="status">
             <template v-if="awardedXp + bonusXp > 0">
-              <span class="mission__award-label">Награда за миссию</span>
+              <span class="mission__award-label">Опыт за практику</span>
               <strong class="mission__award-value">+{{ awardedXp + bonusXp }} XP</strong>
-              <span v-if="bonusXp > 0" class="mission__award-bonus">В том числе {{ bonusXp }} XP за серию</span>
+              <span v-if="bonusXp > 0" class="mission__award-bonus">{{ awardedXp }} XP за миссию + {{ bonusXp }} XP за серию дней</span>
             </template>
-            <span v-else>Практика засчитана. Новые XP в этой миссии не начислены.</span>
+            <template v-else>
+              <span class="mission__award-label">Опыт за практику</span>
+              <strong class="mission__award-value">+0 XP</strong>
+              <span>{{ xpPausedByClock ? 'XP приостановлены из-за даты устройства.' : 'Дневные 30 XP уже получены. Играть дальше можно.' }}</span>
+            </template>
+            <span class="mission__award-total">Всего {{ session.totalXp.value }} XP · уровень {{ session.level.value }}</span>
           </div>
-          <p v-if="session.stars.value > 0" class="mission__stars">Открыто звёзд: {{ session.stars.value }} из 66</p>
-          <p v-else class="mission__stars">Звёзды — за ответы, которые помнишь через неделю.</p>
+          <div class="mission__stars">
+            <strong>Звёзды знаний: {{ session.stars.value }} из 66</strong>
+            <p>Звезда — за пример, который ты решил сам и повторил спустя неделю. XP на звёзды не влияют.</p>
+          </div>
         </div>
       </div>
       <div ref="actions" class="screen__actions">
         <PrimaryButton label="Продолжить" @click="emit('completed')" />
+        <SecondaryButton label="Карта звёзд" @click="emit('map')" />
       </div>
     </template>
   </section>
@@ -315,7 +333,7 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 .mission__finish-title {
   margin: 0;
-  font-size: var(--font-size-title);
+  font-size: clamp(1.375rem, 7vw, var(--font-size-title));
   line-height: var(--line-height-title);
   text-wrap: balance;
 }
@@ -339,6 +357,12 @@ function feedbackText(outcome: AttemptOutcome): string {
   font-size: var(--font-size-label);
 }
 
+.mission__award-total {
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-review-outline);
+  font-size: var(--font-size-label);
+}
+
 .mission__award-value {
   color: var(--color-ink);
   font-size: 2.5rem;
@@ -347,6 +371,18 @@ function feedbackText(outcome: AttemptOutcome): string {
 }
 
 .mission__stars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-control-outline);
+  border-radius: var(--radius-control);
+  background: var(--color-white);
+}
+
+.mission__stars strong { color: var(--color-ink); }
+.mission__stars p {
+  margin: 0;
   color: var(--color-ink-muted);
   font-size: var(--font-size-label);
 }

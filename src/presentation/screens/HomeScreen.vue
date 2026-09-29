@@ -42,7 +42,7 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
             · ближайшее {{ formatDateRu(nextReviewDate) }}</template>
         </template>
       </p>
-      <p class="home__stars">Звёзды: {{ stars }} из {{ totalFacts }}</p>
+      <p class="home__stars">Звёзды знаний: {{ stars }} из {{ totalFacts }}</p>
     </div>
 
     <div class="screen__actions">
@@ -53,7 +53,7 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
         label="Свободная практика"
         @click="$emit('practice')"
       />
-      <SecondaryButton label="Что уже помню" @click="$emit('map')" />
+      <SecondaryButton label="Карта звёзд" @click="$emit('map')" />
       <SecondaryButton label="Отчёт для взрослого" @click="$emit('report')" />
     </div>
   </section>

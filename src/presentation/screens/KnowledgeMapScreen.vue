@@ -34,10 +34,10 @@ function factLabel(factId: string): string {
 
 <template>
   <section class="screen map">
-    <h1 class="screen__title">Что уже помню</h1>
+    <h1 class="screen__title">Карта звёзд</h1>
 
-    <p v-if="earnedFactIds.length === 0">Начнём экспедицию</p>
-    <p v-else>Открыто звёзд: {{ earnedFactIds.length }} из {{ factIds.length }}</p>
+    <p class="map__count">Открыто звёзд: {{ earnedFactIds.length }} из {{ factIds.length }}</p>
+    <p class="map__rule">Одна звезда — один пример, который ты правильно решил сам и повторил не раньше чем через неделю. Ошибка до второй проверки начинает путь заново. Открытая звезда остаётся; XP на неё не влияют.</p>
 
     <svg
       class="map__sky"
@@ -109,6 +109,9 @@ function factLabel(factId: string): string {
 </template>
 
 <style scoped>
+.map__count { margin: 0; font-weight: 700; }
+.map__rule { margin: 0; color: var(--color-on-space); }
+
 .map__sky {
   width: 100%;
   max-width: 320px;

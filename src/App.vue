@@ -101,7 +101,7 @@ function onDiagnosticFinished(): void {
     </div>
 
     <div v-if="clockRolledBack && !lessonActive" class="banner" role="status">
-      <span>Дата устройства стала раньше последней награды. Практика доступна, но награды и серия приостановлены.</span>
+      <span>Дата устройства стала раньше последнего начисления. Практика доступна, но XP и серия приостановлены.</span>
     </div>
 
     <div v-if="session.storageStatus.value !== 'ok'" class="banner banner--error" role="alert">
@@ -154,6 +154,7 @@ function onDiagnosticFinished(): void {
       :practice="missionPractice"
       @exit="screen = 'home'"
       @completed="screen = 'home'"
+      @map="screen = 'map'"
     />
 
     <KnowledgeMapScreen

@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import MissionScreen from '@/presentation/screens/MissionScreen.vue'
+import { today } from '@/presentation/utils/clock'
 import { fakeGameSession, sessionMountOptions } from '../../../tests/support/fakeGameSession'
 
 function mountMission(session = fakeGameSession()) {
@@ -92,5 +93,54 @@ describe('MissionScreen answer flow', () => {
     // Награда одна: восстановленная миссия сохранила ID и не наградила дважды.
     expect(session.totalXp.value).toBe(10)
     second.unmount()
+  })
+
+  it('announces a new star on its answer and links the mission finish to the map', async () => {
+    const session = fakeGameSession()
+    const initial = session.state.value
+    session.state.value = {
+      ...initial,
+      facts: {
+        ...initial.facts,
+        '0:0': {
+          ...initial.facts['0:0'],
+          status: 'familiar',
+          mastery: { independentSuccessDates: ['2020-01-01'], hasStar: false, needsReview: false },
+        },
+      },
+      currentMission: { id: 'star-mission', cardFactIds: ['0:0'], answeredFactIds: [] },
+    }
+    const wrapper = mountMission(session)
+    await wrapper.vm.$nextTick()
+    await answer(wrapper, '0')
+    expect(wrapper.text()).toContain('Новая звезда открыта на карте!')
+    expect(session.stars.value).toBe(1)
+    await buttons(wrapper).find((b) => b.text() === 'Продолжить')!.trigger('click')
+    expect(wrapper.text()).toContain('Звёзды знаний: 1 из 66')
+    expect(wrapper.text()).toContain('Всего 10 XP · уровень 1')
+    await buttons(wrapper).find((b) => b.text() === 'Карта звёзд')!.trigger('click')
+    expect(wrapper.emitted('map')).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('explains why the fourth completed mission gives no new XP', async () => {
+    const session = fakeGameSession()
+    session.state.value = {
+      ...session.state.value,
+      rewards: {
+        ...session.state.value.rewards,
+        totalXp: 30,
+        completions: [1, 2, 3].map((index) => ({ missionId: `prior-${index}`, date: today() })),
+      },
+      currentMission: { id: 'fourth-mission', cardFactIds: ['0:0'], answeredFactIds: [] },
+    }
+    const wrapper = mountMission(session)
+    await wrapper.vm.$nextTick()
+    await answer(wrapper, '0')
+    await buttons(wrapper).find((b) => b.text() === 'Продолжить')!.trigger('click')
+    expect(wrapper.text()).toContain('+0 XP')
+    expect(wrapper.text()).toContain('Дневные 30 XP уже получены')
+    expect(session.totalXp.value).toBe(30)
+    wrapper.unmount()
   })
 })
