@@ -21,7 +21,7 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
       :value="modelValue"
       type="text"
       inputmode="numeric"
-      placeholder="Число 0–100"
+      placeholder="Введи целое число от 0 до 100"
       autocomplete="off"
       :disabled="disabled"
       :aria-invalid="errorText ? true : undefined"

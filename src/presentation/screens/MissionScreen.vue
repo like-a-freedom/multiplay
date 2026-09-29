@@ -82,6 +82,9 @@ onMounted(() => {
 
 function check(): void {
   if (feedback.value !== null) return
+  // Пустое поле — не ошибка: подсказка уже видна в плейсхолдере (PRD M2).
+  if (answerInput.value.trim() === '') return
+
   const result = submitCardAnswer(session.state.value, {
     factId: fact.value.id,
     date: today(),

@@ -12,7 +12,7 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
         if (bounds) { expect(bounds.width).toBeGreaterThanOrEqual(48); expect(bounds.height).toBeGreaterThanOrEqual(48) }
       }
     }
-    await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Число 0–100')
+    await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Введи целое число от 0 до 100')
     await page.screenshot({ path: `/tmp/math-ui-answer-placeholder-${size.name}.png`, fullPage: true })
     await page.getByLabel('Ответ на пример').fill('abc')
     await page.getByRole('button', { name: 'Далее', exact: true }).click()

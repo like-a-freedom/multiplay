@@ -52,6 +52,8 @@ onMounted(() => {
 function answer(choseUnknown: boolean): void {
   const current = card.value
   if (current === undefined) return
+  // Пустое поле — не ошибка: подсказка уже видна в плейсхолдере (PRD M2).
+  if (!choseUnknown && answerInput.value.trim() === '') return
 
   const result = submitCardAnswer(session.state.value, {
     factId: current.fact.id,

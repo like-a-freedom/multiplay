@@ -56,7 +56,7 @@ test('«Не знаю» открывает спокойную подсказку
   await page.setViewportSize({ width: 428, height: 926 })
   await page.goto('/')
   await page.getByRole('button', { name: 'Играть' }).click()
-  await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Число 0–100')
+  await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Введи целое число от 0 до 100')
   await page.getByRole('button', { name: 'Не знаю' }).click()
 
   const card = page.locator('.question-card')

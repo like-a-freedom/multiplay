@@ -48,6 +48,15 @@ describe('DiagnosticScreen', () => {
     wrapper.unmount()
   })
 
+  it('empty submit keeps the placeholder as the only hint instead of stacking an error', async () => {
+    const wrapper = mountDiagnostic()
+    await wrapper.vm.$nextTick()
+
+    await wrapper.get('input').trigger('keyup.enter')
+    expect(wrapper.find('.answer-field__error').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('skip keeps the saved set and finishes the check', async () => {
     const session = fakeGameSession()
     const wrapper = mountDiagnostic(session)
