@@ -60,6 +60,8 @@ function reset(): void {
         @click="emit('recheck')"
       />
       <SecondaryButton label="Назад" @click="emit('back')" />
+      <p v-if="confirmReset" role="alert">Удалить все ответы, звёзды и XP? Это действие нельзя отменить.</p>
+      <SecondaryButton v-if="confirmReset" label="Отмена" @click="confirmReset = false" />
       <SecondaryButton
         :label="confirmReset ? 'Подтвердить сброс' : 'Сбросить данные'"
         @click="reset"
@@ -85,6 +87,6 @@ function reset(): void {
 }
 
 .report__note {
-  color: var(--color-ink-muted);
+  color: var(--color-on-space);
 }
 </style>

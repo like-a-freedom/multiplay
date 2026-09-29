@@ -27,6 +27,11 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
   <section class="screen home">
     <h1 class="screen__title">Математическая экспедиция</h1>
 
+    <svg class="home__orbit" viewBox="0 0 320 96" aria-hidden="true">
+      <ellipse cx="160" cy="48" rx="136" ry="30" />
+      <ellipse cx="160" cy="48" rx="80" ry="20" />
+      <circle cx="160" cy="48" r="9" /><circle cx="24" cy="48" r="4" /><circle cx="240" cy="48" r="4" />
+    </svg>
     <div class="home__status">
       <XpCounter :xp="xp" :level="level" />
       <StreakBadge v-if="!maintenanceMode" :days="streakDays" />
@@ -41,9 +46,10 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
     </div>
 
     <div class="screen__actions">
-      <PrimaryButton label="Играть" @click="$emit('play')" />
+      <PrimaryButton v-if="!maintenanceMode || reviewsToday > 0" :label="maintenanceMode ? 'Повторить' : 'Играть'" @click="$emit('play')" />
+      <PrimaryButton v-else label="Свободная практика" @click="$emit('practice')" />
       <SecondaryButton
-        v-if="maintenanceMode"
+        v-if="maintenanceMode && reviewsToday > 0"
         label="Свободная практика"
         @click="$emit('practice')"
       />
@@ -58,7 +64,10 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-sm);
+  gap: var(--space-md);
+  background: var(--color-space-raised);
+  border-radius: var(--radius-card);
+  padding: var(--space-xl);
 }
 
 .home__stars,
@@ -68,5 +77,15 @@ defineEmits<{ play: []; practice: []; map: []; report: [] }>()
   font-weight: 600;
   line-height: var(--line-height-label);
   color: var(--color-on-space);
+}
+.home__orbit {
+  width: 100%;
+  height: 96px;
+  fill: none;
+  stroke: var(--color-on-space);
+  stroke-width: 2;
+}
+.home__orbit circle {
+  fill: var(--color-space);
 }
 </style>

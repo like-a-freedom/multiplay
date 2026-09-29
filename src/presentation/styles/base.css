@@ -10,8 +10,29 @@ body {
   background: var(--color-space);
   color: var(--color-on-space);
   font-family: var(--font-family);
-  font-size: var(--font-size-body);
   line-height: var(--line-height-body);
+}
+
+html {
+  font-size: 100%;
+}
+body {
+  font-size: var(--font-size-body);
+}
+::selection {
+  background: var(--color-streak);
+  color: var(--color-ink);
+}
+button, input {
+  max-width: 100%;
+  min-width: 0;
+}
+button {
+  touch-action: manipulation;
+  overflow-wrap: anywhere;
+}
+p {
+  margin: 0;
 }
 
 #app {
@@ -29,6 +50,8 @@ body {
   flex-direction: column;
   gap: var(--space-xl);
   max-width: 480px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0 auto;
 }
 
@@ -66,11 +89,15 @@ body {
   border: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+.screen__title {
+  text-wrap: balance;
+  hyphens: auto;
+}
+.screen__title:focus {
+  outline: none;
+}
+@media (min-width: 700px) {
+  #app {
+    padding-top: var(--space-section);
   }
 }

@@ -6,7 +6,7 @@ defineProps<{ current: number; total: number }>()
 <template>
   <div class="mission-progress">
     <p class="mission-progress__text">Карточка {{ current }} из {{ total }}</p>
-    <progress class="mission-progress__bar" :value="current - 1" :max="total">
+    <progress aria-label="Завершённые карточки" class="mission-progress__bar" :value="current - 1" :max="total">
       {{ current - 1 }} из {{ total }}
     </progress>
   </div>
@@ -42,6 +42,10 @@ defineProps<{ current: number; total: number }>()
 
 .mission-progress__bar::-webkit-progress-value {
   border-radius: var(--radius-badge);
-  background: var(--color-action);
+  background: var(--color-on-space);
+}
+.mission-progress__bar::-moz-progress-bar {
+  background: var(--color-on-space);
+  border-radius: var(--radius-badge);
 }
 </style>

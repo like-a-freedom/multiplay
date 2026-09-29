@@ -10,7 +10,7 @@ import { type MultiplicationFact, isSimpleFactor } from '@/domain/fact/multiplic
 export function explanationFor(fact: MultiplicationFact): string {
   const [count, value] = fact.factors
 
-  if (count === 0) return `0 × ${value} — это 0 раз по ${value}: складывать нечего`
+  if (count === 0) return `Ноль групп по ${value}: ничего не берём, получается 0.`
   if (count === 1) return `1 × ${value} — это 1 раз по ${value}`
 
   const isSimple = (factor: number) => isSimpleFactor(factor) && factor !== 0 && factor !== 1

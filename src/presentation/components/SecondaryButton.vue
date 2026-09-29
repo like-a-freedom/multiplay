@@ -29,11 +29,14 @@ defineEmits<{ click: [] }>()
 }
 
 .button-secondary:focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--color-focus-on-space);
   outline-offset: 2px;
 }
 
 .button-secondary:disabled {
   opacity: 0.5;
 }
+@media (hover: hover) { .button-secondary:hover:not(:disabled) {
+  background: var(--color-divider);
+} }
 </style>

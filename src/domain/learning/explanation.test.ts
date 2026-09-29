@@ -14,7 +14,7 @@ describe('explanationFor', () => {
   })
 
   it('explains zero and one facts in plain Russian', () => {
-    expect(explanationFor(makeFact(0, 1))).toBe('0 × 1 — это 0 раз по 1: складывать нечего')
+    expect(explanationFor(makeFact(0, 1))).toBe('Ноль групп по 1: ничего не берём, получается 0.')
     expect(explanationFor(makeFact(1, 9))).toBe('1 × 9 — это 1 раз по 9')
   })
 

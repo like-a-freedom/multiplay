@@ -42,9 +42,11 @@ describe('MissionScreen answer flow', () => {
     await wrapper.vm.$nextTick()
 
     await answer(wrapper, '1')
-    expect(wrapper.text()).toContain('Попробуем ещё')
-    expect(wrapper.text()).toContain('ты ответил 1, а верный ответ 0')
-    expect((wrapper.get('input').element as HTMLInputElement).value).toBe('1')
+    expect(wrapper.text()).toContain('Разберём вместе')
+    expect(wrapper.text()).toContain('Твой ответ: 1')
+    expect(wrapper.text()).toContain('Верный ответ: 0')
+    expect(wrapper.find('input').exists()).toBe(false)
+    expect(wrapper.find('.question-card--review').exists()).toBe(true)
     wrapper.unmount()
   })
 

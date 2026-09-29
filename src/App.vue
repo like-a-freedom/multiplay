@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 import { retentionSummary } from '@/domain/learning/retention'
 import { TOTAL_FACTS, rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import { factNeedsReview, upcomingReviewDate } from '@/domain/progress/progressState'
-import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { reviewCountToday, useGameSession } from '@/presentation/composables/gameSession'
 import { today } from '@/presentation/utils/clock'
@@ -29,6 +28,13 @@ const needsDiagnostic = computed(() => {
 })
 
 const screen = ref<Screen>(needsDiagnostic.value ? 'diagnostic' : 'home')
+watch(screen, () => {
+  void nextTick(() => {
+    const heading = document.querySelector<HTMLElement>('main h1')
+    heading?.setAttribute('tabindex', '-1')
+    heading?.focus()
+  })
+})
 const diagnosticResume = ref(true)
 const missionPractice = ref(false)
 
@@ -90,7 +96,7 @@ function onDiagnosticFinished(): void {
 
     <div v-if="needRefresh && !updateDismissed && !lessonActive" class="banner" role="status">
       <span>Обновление готово</span>
-      <PrimaryButton label="Обновить" @click="updateServiceWorker(true)" />
+      <SecondaryButton label="Обновить" @click="updateServiceWorker(true)" />
       <SecondaryButton label="Позже" @click="updateDismissed = true" />
     </div>
 
@@ -101,6 +107,7 @@ function onDiagnosticFinished(): void {
     <div v-if="session.storageStatus.value !== 'ok'" class="banner banner--error" role="alert">
       <template v-if="session.storageStatus.value === 'corrupt'">
         <span>Данные прогресса повреждены. Сброс данных удалит их.</span>
+        <SecondaryButton v-if="resetConfirm" label="Отмена" @click="resetConfirm = false" />
         <SecondaryButton
           :label="resetConfirm ? 'Подтвердить сброс' : 'Сбросить данные'"
           @click="resetConfirm ? onReset() : (resetConfirm = true)"
@@ -108,6 +115,7 @@ function onDiagnosticFinished(): void {
       </template>
       <template v-else-if="session.storageStatus.value === 'unknown-version'">
         <span>Данные сохранены другой версией приложения. Сброс данных удалит их.</span>
+        <SecondaryButton v-if="resetConfirm" label="Отмена" @click="resetConfirm = false" />
         <SecondaryButton
           :label="resetConfirm ? 'Подтвердить сброс' : 'Сбросить данные'"
           @click="resetConfirm ? onReset() : (resetConfirm = true)"

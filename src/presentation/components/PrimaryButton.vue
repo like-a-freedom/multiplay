@@ -36,4 +36,7 @@ defineEmits<{ click: [] }>()
 .button-primary:disabled {
   opacity: 0.5;
 }
+@media (hover: hover) { .button-primary:hover:not(:disabled) {
+  background: var(--color-action-pressed);
+} }
 </style>

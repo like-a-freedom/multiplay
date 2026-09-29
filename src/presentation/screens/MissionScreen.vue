@@ -15,6 +15,7 @@ import QuestionCard from '@/presentation/components/QuestionCard.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { useGameSession } from '@/presentation/composables/gameSession'
 import { today } from '@/presentation/utils/clock'
+import { STAR_PATH } from '@/presentation/utils/constellation'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
 
 /**
@@ -27,6 +28,7 @@ interface Feedback {
   readonly text: string
   readonly tone: 'success' | 'error' | 'hint'
   readonly hintText: string | null
+  readonly submittedValue: number | null
 }
 
 const props = defineProps<{ practice?: boolean }>()
@@ -41,6 +43,8 @@ const inputError = ref<string | null>(null)
 const feedback = ref<Feedback | null>(null)
 const finished = ref(false)
 const expeditionJustFinished = ref(false)
+const awardedXp = ref(0)
+const bonusXp = ref(0)
 const cardRegion = ref<HTMLElement | null>(null)
 const actions = ref<HTMLElement | null>(null)
 
@@ -110,7 +114,8 @@ function applyAccepted(
   session.save()
   feedback.value = {
     outcome,
-    text: feedbackText(outcome, acceptedValue),
+    text: feedbackText(outcome),
+    submittedValue: acceptedValue,
     tone: outcome === 'correct' ? 'success' : outcome === 'wrong' ? 'error' : 'hint',
     hintText: outcome === 'correct' ? null : explanationFor(fact.value),
   }
@@ -132,6 +137,8 @@ function finish(): void {
   const result = completeMission(session.state.value, { missionId: missionId.value, date: today() })
   session.state.value = result.state
   expeditionJustFinished.value = result.expeditionJustFinished
+  awardedXp.value = result.xpAwarded
+  bonusXp.value = result.streakBonusXp
   session.save()
   finished.value = true
   focusCard()
@@ -150,18 +157,15 @@ function focusPrimaryAction(): void {
   void nextTick(() => actions.value?.querySelector('button')?.focus())
 }
 
-function feedbackText(outcome: AttemptOutcome, acceptedValue: number | null): string {
-  const product = fact.value.product
+function feedbackText(outcome: AttemptOutcome): string {
   if (outcome === 'correct') return 'Верно'
-  if (outcome === 'wrong') {
-    return `Попробуем ещё: ты ответил ${acceptedValue}, а верный ответ ${product}`
-  }
-  return `Посмотри подсказку: ответ ${product}`
+  return outcome === 'unknown' ? 'Посмотрим подсказку' : 'Разберём вместе'
 }
 </script>
 
 <template>
   <section class="screen mission" tabindex="-1">
+    <h1 class="visually-hidden">Миссия</h1>
     <template v-if="!finished">
       <MissionProgress :current="cardIndex + 1" :total="Math.max(cardFactIds.length, 1)" />
 
@@ -171,16 +175,22 @@ function feedbackText(outcome: AttemptOutcome, acceptedValue: number | null): st
           :spoken="spokenExpression(fact.factors[0], fact.factors[1])"
           :feedback-text="feedback?.text ?? null"
           :feedback-tone="feedback?.tone ?? null"
+          :celebrate="feedback?.outcome === 'correct'"
+          :review="feedback !== null && feedback.outcome !== 'correct'"
+          :answer-value="feedback ? fact.product : undefined"
+          :submitted-value="feedback?.outcome === 'wrong' ? feedback.submittedValue : null"
+          :zero-group-value="feedback && feedback.outcome !== 'correct' && fact.factors[0] === 0 ? fact.factors[1] : null"
           :hint-text="feedback?.hintText ?? null"
         />
 
         <!-- После верного ответа поле убирается; ошибочное значение остаётся видимым (DESIGN.md). -->
         <AnswerField
-          v-if="feedback === null || feedback.outcome === 'wrong'"
+          v-if="feedback === null"
           v-model="answerInput"
           :error-text="inputError"
           :disabled="feedback !== null"
           label="Ответ на пример"
+          @update:model-value="inputError = null"
           @submit="check"
         />
       </div>
@@ -199,22 +209,46 @@ function feedbackText(outcome: AttemptOutcome, acceptedValue: number | null): st
     </template>
 
     <template v-else>
-      <div ref="cardRegion" class="mission__card" tabindex="-1">
-        <QuestionCard
-          v-if="expeditionJustFinished"
-          expression="Экспедиция завершена!"
-          spoken="Экспедиция завершена"
-          feedback-text="Все 66 звёзд открыты"
-          feedback-tone="success"
-          hint-text="Теперь доступны повторения и свободная практика."
-        />
-        <QuestionCard
-          v-else
-          expression="Миссия завершена!"
-          spoken="Миссия завершена"
-          feedback-text="Отличная работа"
-          feedback-tone="success"
-        />
+      <div ref="cardRegion" class="mission__finish" tabindex="-1">
+        <svg
+          class="mission__finish-art"
+          :class="{ 'mission__finish-art--expedition': expeditionJustFinished }"
+          :viewBox="expeditionJustFinished ? '0 0 330 180' : '0 0 320 112'"
+          aria-hidden="true"
+        >
+          <template v-if="expeditionJustFinished">
+            <path
+              v-for="n in 66"
+              :key="n"
+              :d="STAR_PATH"
+              :transform="`translate(${15 + ((n - 1) % 11) * 30} ${15 + Math.floor((n - 1) / 11) * 30})`"
+              class="mission__finish-star"
+            />
+          </template>
+          <template v-else>
+            <path class="mission__finish-orbit" d="M -24 88 C 74 5 201 127 345 18" />
+            <path :d="STAR_PATH" transform="translate(54 66) scale(.7)" class="mission__finish-star mission__finish-star--small" />
+            <path :d="STAR_PATH" transform="translate(163 73) scale(2.5)" class="mission__finish-star mission__finish-star--hero" />
+            <path :d="STAR_PATH" transform="translate(271 30) scale(.9)" class="mission__finish-star mission__finish-star--small" />
+          </template>
+        </svg>
+        <div class="mission__finish-content">
+          <p class="mission__finish-eyebrow">Маршрут пройден</p>
+          <h2 class="mission__finish-title">{{ expeditionJustFinished ? 'Экспедиция завершена!' : 'Миссия завершена!' }}</h2>
+          <p class="mission__finish-copy">
+            {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты потренировался. Завтра можно продолжить маршрут.' }}
+          </p>
+          <div class="mission__award" role="status">
+            <template v-if="awardedXp + bonusXp > 0">
+              <span class="mission__award-label">Награда за миссию</span>
+              <strong class="mission__award-value">+{{ awardedXp + bonusXp }} XP</strong>
+              <span v-if="bonusXp > 0" class="mission__award-bonus">В том числе {{ bonusXp }} XP за серию</span>
+            </template>
+            <span v-else>Практика засчитана. Новые XP в этой миссии не начислены.</span>
+          </div>
+          <p v-if="session.stars.value > 0" class="mission__stars">Открыто звёзд: {{ session.stars.value }} из 66</p>
+          <p v-else class="mission__stars">Звёзды — за ответы, которые помнишь через неделю.</p>
+        </div>
       </div>
       <div ref="actions" class="screen__actions">
         <PrimaryButton label="Продолжить" @click="emit('completed')" />
@@ -236,5 +270,105 @@ function feedbackText(outcome: AttemptOutcome, acceptedValue: number | null): st
 
 .mission__card:focus {
   outline: none;
+}
+.mission__finish {
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+.mission__finish:focus { outline: none; }
+
+.mission__finish-art {
+  display: block;
+  width: 100%;
+  height: 112px;
+  background: var(--color-space-raised);
+}
+
+.mission__finish-art--expedition { height: 180px; }
+
+.mission__finish-orbit {
+  fill: none;
+  stroke: var(--color-control-outline);
+  stroke-width: 2;
+  stroke-dasharray: 4 8;
+}
+
+.mission__finish-star { fill: var(--color-streak); }
+.mission__finish-star--small { fill: var(--color-on-space); }
+
+.mission__finish-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+}
+
+.mission__finish-eyebrow {
+  color: var(--color-success);
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+
+.mission__finish-title {
+  margin: 0;
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-title);
+  text-wrap: balance;
+}
+
+.mission__finish-copy { color: var(--color-ink-muted); }
+
+.mission__award {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-review-outline);
+  border-radius: var(--radius-control);
+  background: var(--color-review-surface);
+  color: var(--color-review-ink);
+}
+
+.mission__award-label,
+.mission__award-bonus {
+  font-size: var(--font-size-label);
+}
+
+.mission__award-value {
+  color: var(--color-ink);
+  font-size: 2.5rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission__stars {
+  color: var(--color-ink-muted);
+  font-size: var(--font-size-label);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mission__finish-star--hero {
+    transform-origin: 163px 73px;
+    animation: mission-star-arrive 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .mission__award {
+    animation: award-arrive 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes mission-star-arrive {
+  from { opacity: .45; scale: .75; }
+  to { opacity: 1; scale: 1; }
+}
+
+@keyframes award-arrive {
+  from { opacity: .65; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 </style>

@@ -21,15 +21,19 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
       :value="modelValue"
       type="text"
       inputmode="numeric"
+      placeholder="Число 0–100"
       autocomplete="off"
       :disabled="disabled"
-      :aria-describedby="errorText ? 'answer-error' : undefined"
+      :aria-invalid="errorText ? true : undefined"
+      enterkeyhint="done"
+      :aria-describedby="errorText ? 'answer-error' : 'answer-help'"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @keyup.enter.stop.prevent="$emit('submit')"
     />
     <p v-if="errorText" id="answer-error" class="answer-field__error" aria-live="polite">
       {{ errorText }}
     </p>
+    <span v-else id="answer-help" class="visually-hidden">Введи целое число от 0 до 100</span>
   </div>
 </template>
 
@@ -59,6 +63,8 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
   font-weight: 700;
   line-height: var(--line-height-title);
   font-variant-numeric: tabular-nums;
+  width: 100%;
+  caret-color: var(--color-action);
 }
 
 .answer-field__input:focus-visible {
@@ -66,9 +72,28 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
   outline-offset: 2px;
 }
 
+.answer-field__input::placeholder {
+  color: var(--color-ink-muted);
+  font-size: var(--font-size-body);
+  font-weight: 400;
+}
+
 .answer-field__error {
   margin: 0;
-  color: var(--color-error);
+  border-radius: var(--radius-control);
+  padding: var(--space-sm) var(--space-md);
   font-size: var(--font-size-label);
+}
+
+.answer-field__error {
+  color: var(--color-error);
+  background: var(--color-paper);
+}
+.answer-field__input[aria-invalid="true"] {
+  border: 2px solid var(--color-error);
+}
+.answer-field__input:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: var(--color-ink);
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 import {
   type DiagnosticCard,
@@ -32,6 +32,13 @@ const cardIndex = ref(0)
 const answerInput = ref('')
 const inputError = ref<string | null>(null)
 const summary = ref(false)
+const region = ref<HTMLElement | null>(null)
+function focusCurrent(): void {
+  void nextTick(() => {
+    const target = summary.value ? region.value?.querySelector<HTMLElement>('h1') : region.value?.querySelector<HTMLInputElement>('input')
+    target?.focus()
+  })
+}
 
 const card = computed(() => cards.value[cardIndex.value])
 const lastIndex = computed(() => Math.max(cards.value.length - 1, 0))
@@ -67,6 +74,7 @@ function answer(choseUnknown: boolean): void {
     complete()
   } else {
     cardIndex.value += 1
+    focusCurrent()
   }
 }
 
@@ -81,6 +89,7 @@ function complete(): void {
   session.save()
   cards.value = diagnosticCards(session.state.value, false)
   summary.value = true
+  focusCurrent()
 }
 
 function outcomeWord(outcome: DiagnosticCard['outcome']): string {
@@ -91,9 +100,10 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
 </script>
 
 <template>
-  <section class="screen diagnostic">
+  <section ref="region" class="screen diagnostic">
     <template v-if="!summary">
-      <h1 class="screen__title">Короткая проверка</h1>
+      <h1 class="screen__title" tabindex="-1">Короткая проверка</h1>
+      <p>Без спешки. Если ответ пока неизвестен, нажми «Не знаю».</p>
       <MissionProgress :current="cardIndex + 1" :total="Math.max(cards.length, 1)" />
 
       <QuestionCard
@@ -106,6 +116,7 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
         v-model="answerInput"
         :error-text="inputError"
         label="Ответ на пример"
+        @update:model-value="inputError = null"
         @submit="answer(false)"
       />
 
@@ -121,7 +132,7 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
     </template>
 
     <template v-else>
-      <h1 class="screen__title">Проверка завершена</h1>
+      <h1 class="screen__title" tabindex="-1">Проверка завершена</h1>
       <p>Ответы и подсказки — ниже. Проверка не даёт XP и не влияет на серию.</p>
       <ul class="diagnostic__summary">
         <li v-for="item in cards" :key="item.fact.id">

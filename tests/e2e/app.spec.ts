@@ -23,7 +23,8 @@ test('миссия: ошибка называет введённое, Enter от
   await expect(page.getByText('Карточка 1 из 2')).toBeVisible()
   await page.getByLabel('Ответ на пример').fill('1')
   await page.getByRole('button', { name: 'Проверить' }).click()
-  await expect(page.getByText('ты ответил 1, а верный ответ 0')).toBeVisible()
+  await expect(page.getByText('Твой ответ: 1')).toBeVisible()
+  await expect(page.getByText('Верный ответ: 0')).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()
 
   // Карточка 2 из 2: 0 × 1 — верный ответ отправляется Enter'ом.
