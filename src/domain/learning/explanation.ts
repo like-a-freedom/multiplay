@@ -1,32 +1,25 @@
-import { type MultiplicationFact, isSimpleFactor } from '@/domain/fact/multiplicationFact'
+import { type MultiplicationFact } from '@/domain/fact/multiplicationFact'
+import { capitalize, numberWord } from '@/domain/learning/numberWords'
 
 /**
- * Объясняющая подсказка (PRD §2): одна подготовленная стратегия получения ответа.
- * `7 × 8` читается «семь раз по восемь» — первый множитель показывает,
- * сколько раз берём второй; так же устроено разложение из PRD.
+ * Объясняющая подсказка (PRD §2): одна короткая стратегия получения ответа
+ * на языке школьных правил и «одинаковых слагаемых» (N по M).
  * Правильный ответ уже показан строкой выше, поэтому в подсказке он не повторяется.
  */
 
 export function explanationFor(fact: MultiplicationFact): string {
   const [count, value] = fact.factors
 
-  if (count === 0) return `Ноль групп по ${value}: ничего не берём, получается 0.`
-  if (count === 1) return `1 × ${value} — это 1 раз по ${value}`
+  if (count === 0) return 'На ноль умножать — всегда будет 0.'
+  if (count === 1) return `На единицу умножать — остаётся то же число: ${value}.`
+  if (value === 10) return `На десять умножать — приписать нолик: ${count * 10}.`
 
-  const isSimple = (factor: number) => isSimpleFactor(factor) && factor !== 0 && factor !== 1
-  if (value > 5 && !isSimple(count) && !isSimple(value)) {
-    const rest = value - 5
-    return `${count} × ${value} = ${count} × 5 + ${count} × ${rest} = ${count * 5} + ${count * rest}`
+  if (count <= 5) {
+    const addends = Array.from({ length: count }, () => value).join(' + ')
+    return `${capitalize(numberWord(count))} по ${numberWord(value)}: ${addends} = ${count * value}.`
   }
 
-  const parts = count <= 5 ? `: ${Array.from({ length: count }, () => value).join(' + ')}` : ''
-  return `${count} × ${value} — это ${count} ${pluralRu(count, 'раз', 'раза', 'раз')} по ${value}${parts}`
-}
-
-function pluralRu(value: number, one: string, few: string, many: string): string {
-  const mod10 = value % 10
-  const mod100 = value % 100
-  if (mod10 === 1 && mod100 !== 11) return one
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few
-  return many
+  // Трудные факты: разложение второго множителя через 5 и остаток (PRD §2).
+  const rest = value - 5
+  return `Разбей ${value} на 5 и ${rest}: ${count * 5} + ${count * rest}.`
 }

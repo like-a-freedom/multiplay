@@ -193,7 +193,6 @@ function feedbackText(outcome: AttemptOutcome): string {
           :review="feedback !== null && feedback.outcome !== 'correct'"
           :answer-value="feedback ? fact.product : undefined"
           :submitted-value="feedback?.outcome === 'wrong' ? feedback.submittedValue : null"
-          :zero-group-value="feedback && feedback.outcome !== 'correct' && fact.factors[0] === 0 ? fact.factors[1] : null"
           :hint-text="feedback?.hintText ?? null"
         />
 

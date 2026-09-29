@@ -4,7 +4,7 @@ import { createProgressState } from '../../src/domain/progress/progressState'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 
-test('ошибка в 0 × 5 показывает спокойную карточку и пустые группы', async ({ page }) => {
+test('ошибка в 0 × 5 показывает спокойную карточку и правило-коротышку', async ({ page }) => {
   const initial = createProgressState()
   const progress = {
     ...initial,
@@ -30,8 +30,8 @@ test('ошибка в 0 × 5 показывает спокойную карто�
   await expect(card.locator('.question-card__feedback')).toHaveCSS('animation-name', /^review-appear/)
   await expect(card.getByText('Твой ответ: 5')).toBeVisible()
   await expect(card.getByText('Верный ответ: 0')).toBeVisible()
-  await expect(card.getByText('Ноль групп по 5: ничего не берём, получается 0.')).toBeVisible()
-  await expect(card.locator('.question-card__zero-visual')).toContainText('групп по 5')
+  await expect(card.getByText('На ноль умножать — всегда будет 0.')).toBeVisible()
+  await expect(card.locator('.question-card__zero-visual')).toHaveCount(0)
   await expect(card.locator('.question-card__confetti span')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Продолжить' })).toBeFocused()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -64,8 +64,8 @@ test('«Не знаю» открывает спокойную подсказку
   await expect(card.getByText('Посмотрим подсказку')).toBeVisible()
   await expect(card.getByText('Верный ответ: 0')).toBeVisible()
   await expect(card.getByText('Твой ответ:', { exact: false })).toHaveCount(0)
-  await expect(card.getByText('Как это работает')).toBeVisible()
-  await expect(card.getByText('Ноль групп по 7: ничего не берём, получается 0.')).toBeVisible()
-  await expect(card.locator('.question-card__zero-visual')).toContainText('групп по 7')
+  await expect(card.getByText('Как вспомнить')).toBeVisible()
+  await expect(card.getByText('На ноль умножать — всегда будет 0.')).toBeVisible()
+  await expect(card.locator('.question-card__zero-visual')).toHaveCount(0)
   await page.screenshot({ path: '/tmp/math-hint-zero-seven.png', fullPage: true })
 })

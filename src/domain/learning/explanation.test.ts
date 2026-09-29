@@ -3,27 +3,36 @@ import { describe, expect, it } from 'vitest'
 import { explanationFor } from '@/domain/learning/explanation'
 import { makeFact } from '@/domain/fact/multiplicationFact'
 
+// Спецификация утверждённых формулировок (см. предложение об упрощении подсказок).
 describe('explanationFor', () => {
-  it('explains hard facts by decomposition into familiar products', () => {
-    expect(explanationFor(makeFact(7, 8))).toBe('7 × 8 = 7 × 5 + 7 × 3 = 35 + 21')
+  it('explains zero facts with the school rule', () => {
+    expect(explanationFor(makeFact(0, 2))).toBe('На ноль умножать — всегда будет 0.')
   })
 
-  it('explains simple facts as repeated addition (первый множитель — сколько раз берём второй)', () => {
-    expect(explanationFor(makeFact(3, 4))).toBe('3 × 4 — это 3 раза по 4: 4 + 4 + 4')
-    expect(explanationFor(makeFact(2, 7))).toBe('2 × 7 — это 2 раза по 7: 7 + 7')
+  it('explains one facts with the school rule', () => {
+    expect(explanationFor(makeFact(1, 9))).toBe('На единицу умножать — остаётся то же число: 9.')
   })
 
-  it('explains zero and one facts in plain Russian', () => {
-    expect(explanationFor(makeFact(0, 1))).toBe('Ноль групп по 1: ничего не берём, получается 0.')
-    expect(explanationFor(makeFact(1, 9))).toBe('1 × 9 — это 1 раз по 9')
+  it('explains ten facts with the school rule', () => {
+    expect(explanationFor(makeFact(6, 10))).toBe('На десять умножать — приписать нолик: 60.')
   })
 
-  it('keeps long repeated addition short enough to read', () => {
-    expect(explanationFor(makeFact(6, 10))).toBe('6 × 10 — это 6 раз по 10')
+  it('explains simple facts as school «N по M» with equal addends', () => {
+    expect(explanationFor(makeFact(2, 7))).toBe('Два по семь: 7 + 7 = 14.')
+    expect(explanationFor(makeFact(3, 4))).toBe('Три по четыре: 4 + 4 + 4 = 12.')
+    expect(explanationFor(makeFact(5, 7))).toBe('Пять по семь: 7 + 7 + 7 + 7 + 7 = 35.')
   })
 
-  it('does not repeat the answer: it is already shown after the attempt', () => {
-    expect(explanationFor(makeFact(0, 1))).not.toContain('поэтому 0')
-    expect(explanationFor(makeFact(7, 8))).not.toContain('56')
+  it('explains hard facts by breaking the second factor through 5', () => {
+    expect(explanationFor(makeFact(7, 8))).toBe('Разбей 8 на 5 и 3: 35 + 21.')
+    expect(explanationFor(makeFact(6, 7))).toBe('Разбей 7 на 5 и 2: 30 + 12.')
+  })
+
+  it('never uses the unfamiliar «групп» wording', () => {
+    for (const a of [0, 1, 2, 5, 7, 10]) {
+      for (const b of [0, 3, 4, 6, 8, 9, 10]) {
+        expect(explanationFor(makeFact(a, b))).not.toContain('групп')
+      }
+    }
   })
 })

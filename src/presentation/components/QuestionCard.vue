@@ -12,7 +12,6 @@ const props = defineProps<{
   review?: boolean
   answerValue?: number
   submittedValue?: number | null
-  zeroGroupValue?: number | null
   expression: string
   spoken: string
   feedbackText?: string | null
@@ -62,12 +61,8 @@ const visibleExpression = computed(() =>
         </p>
         <p class="question-card__correct-answer">Верный ответ: <strong>{{ answerValue }}</strong></p>
       </div>
-      <div v-if="review && zeroGroupValue !== null && zeroGroupValue !== undefined" class="question-card__zero-visual" aria-hidden="true">
-        <span class="question-card__empty-orbit">0</span>
-        <span>групп по {{ zeroGroupValue }}</span>
-      </div>
       <div v-if="hintText" class="question-card__hint">
-        <p class="question-card__hint-label">Как это работает</p>
+        <p class="question-card__hint-label">Как вспомнить</p>
         <p>{{ hintText }}</p>
       </div>
     </div>
@@ -226,27 +221,6 @@ const visibleExpression = computed(() =>
   font-variant-numeric: tabular-nums;
 }
 
-.question-card__zero-visual {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  border: 1px solid var(--color-review-outline);
-  border-radius: var(--radius-control);
-  color: var(--color-review-ink);
-  font-weight: 600;
-}
-
-.question-card__empty-orbit {
-  display: grid;
-  flex: 0 0 64px;
-  place-items: center;
-  height: 64px;
-  border: 2px dashed var(--color-review-outline);
-  border-radius: 50%;
-  font-size: var(--font-size-title);
-  font-variant-numeric: tabular-nums;
-}
 .question-card--summary .question-card__expression {
   font-size: var(--font-size-title);
   line-height: var(--line-height-title);
@@ -269,12 +243,10 @@ const visibleExpression = computed(() =>
   }
 
   .question-card--review .question-card__answer-row,
-  .question-card--review .question-card__zero-visual,
   .question-card--review .question-card__hint {
     animation: review-appear 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .question-card--review .question-card__zero-visual { animation-delay: 60ms; }
   .question-card--review .question-card__hint { animation-delay: 120ms; }
 
   .question-card--review .question-card__feedback {
