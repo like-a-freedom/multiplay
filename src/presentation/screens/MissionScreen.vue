@@ -20,8 +20,8 @@ import { STAR_PATH } from '@/presentation/utils/constellation'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
 
 /**
- * Экран миссии: одна карточка за раз, ответ скрыт до попытки,
- * после ответа — результат и подсказка (PRD §2–3). Без автоперехода.
+ * Mission screen: one card at a time, the answer hidden until an attempt;
+ * after the attempt — the result and a hint (PRD §2–3). No auto-advance.
  */
 
 interface Feedback {
@@ -55,8 +55,8 @@ const fact = computed(() => factFromId(cardFactIds.value[cardIndex.value] ?? '0:
 const allAnswered = computed(() => cardIndex.value >= cardFactIds.value.length)
 
 onMounted(() => {
-  // Плановая игра и повторение продолжают незавершённую миссию (PRD M4, §7);
-  // свободная практика начинает новую сессию и замораживает новую очередь.
+  // A planned mission or a review resumes an unfinished session (PRD M4, §7);
+  // free practice starts a new one and freezes a new queue.
   const kind = props.kind ?? 'mission'
   const existing = kind === 'practice' ? null : session.state.value.currentMission
   if (existing !== null) {
@@ -82,7 +82,7 @@ onMounted(() => {
 
 function check(): void {
   if (feedback.value !== null) return
-  // Пустое поле — не ошибка: подсказка уже видна в плейсхолдере (PRD M2).
+  // An empty field is not an error: the hint already sits in the placeholder (PRD M2).
   if (answerInput.value.trim() === '') return
 
   const result = submitCardAnswer(session.state.value, {
@@ -157,7 +157,7 @@ function finish(): void {
   focusCard()
 }
 
-/** Предсказуемый фокус: после ответа — главное действие, на новой карточке — поле ввода. */
+/** Predictable focus: the primary action after an answer, the input on a new card. */
 function focusCard(): void {
   void nextTick(() => {
     const input = cardRegion.value?.querySelector('input')
@@ -196,7 +196,7 @@ function feedbackText(outcome: AttemptOutcome): string {
           :hint-text="feedback?.hintText ?? null"
         />
 
-        <!-- После верного ответа поле убирается; ошибочное значение остаётся видимым (DESIGN.md). -->
+        <!-- The field is hidden after an answer; the wrong value stays visible (DESIGN.md). -->
         <AnswerField
           v-if="feedback === null"
           v-model="answerInput"

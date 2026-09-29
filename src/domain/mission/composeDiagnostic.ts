@@ -3,9 +3,9 @@ import { isSimpleFact } from '@/domain/fact/multiplicationFact'
 import { shuffle } from '@/domain/mission/shuffle'
 
 /**
- * Диагностический набор (PRD §3 «Диагностика»): 10 разных фактов
- * с простыми и трудными множителями. Выбранный набор сохраняется:
- * он же используется для проверки удержания через 2 и 4 недели (PRD §5).
+ * The diagnostic set (PRD §3): 10 distinct facts mixing simple and hard
+ * factors. The chosen set is persisted and reused for the retention check
+ * after 2 and 4 weeks (PRD §5).
  */
 
 export const DIAGNOSTIC_SIZE = 10

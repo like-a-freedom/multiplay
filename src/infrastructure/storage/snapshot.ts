@@ -5,9 +5,9 @@ import type { ReviewSchedule } from '@/domain/learning/reviewSchedule'
 import type { StreakState } from '@/domain/game/streak'
 
 /**
- * Версионированный снимок прогресса (PRD §4 «Сохранение»).
- * Повреждённые или неизвестные версии не очищаются молча: они возвращаются
- * отдельными состояниями для явного сообщения и подтверждаемого сброса.
+ * A versioned progress snapshot (PRD §4, "Saving"). Corrupt or unknown
+ * versions are never cleared silently: they come back as distinct results
+ * so the UI can show a message and an explicit confirmed reset.
  */
 
 export const SNAPSHOT_VERSION = 1
@@ -31,8 +31,8 @@ export function parseSnapshot(raw: string): LoadProgressResult {
   if (version !== SNAPSHOT_VERSION) return { kind: 'unknown-version', version }
   if (!isProgressState(state)) return { kind: 'corrupt' }
 
-  // Снимки ранних прототипов не содержат diagnostic — нормализуем в null,
-  // иначе экраны падают на undefined (белый экран).
+  // Early prototype snapshots lack `diagnostic` — normalize it to null so the
+  // screens do not crash on undefined.
   return { kind: 'saved', state: { ...state, diagnostic: state.diagnostic ?? null } }
 }
 
@@ -54,7 +54,7 @@ function isProgressState(value: unknown): value is ProgressState {
 }
 
 function isDiagnosticState(value: unknown): boolean {
-  // Поле добавлено после первого прототипа; старые снимки нормализуются в null.
+  // The field was added after the first prototype; old snapshots are normalized to null.
   if (value === null || value === undefined) return true
   const candidate = value as Partial<ProgressState['diagnostic']> & { factIds?: unknown }
   return (

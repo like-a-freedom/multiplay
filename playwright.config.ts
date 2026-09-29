@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /**
- * e2e-прогон на движке Safari (WebKit) в эмуляции iPhone 12 Pro Max.
- * Полный прогон на реальном устройстве — по tests/device-checklist.md.
+ * e2e runs on the Safari engine (WebKit) emulating an iPhone 12 Pro Max.
+ * The full run on a real device follows tests/device-checklist.md.
  */
 export default defineConfig({
   testDir: 'tests/e2e',

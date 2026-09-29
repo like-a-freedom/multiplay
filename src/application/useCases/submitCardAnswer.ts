@@ -14,18 +14,18 @@ import type { FactProgress, ProgressState } from '@/domain/progress/progressStat
 import { solutionShownOnDate } from '@/domain/progress/progressState'
 
 /**
- * Use case: принятая попытка по одной карточке. Каждая принятая попытка
- * сохраняется сразу (PRD M4); повторное «Проверить» после принятого ответа
- * новую попытку не создаёт (ответ принимается один раз на карточку — UI).
- * Правильный ответ берётся из факта по его ID — вызывающий не может его подменить.
+ * Use case: one accepted attempt per card. Every accepted attempt is saved
+ * immediately (PRD M4); pressing "Check" again after an accepted answer never
+ * creates a second attempt (one answer per card, enforced by the UI).
+ * The correct product comes from the fact id — callers cannot substitute it.
  */
 
 export interface SubmitCardAnswerCommand {
   readonly factId: string
   readonly date: CalendarDate
-  /** `null` — ответ в диагностике; иначе ID текущей миссии. */
+  /** `null` for a diagnostic attempt; otherwise the current mission id. */
   readonly missionId: string | null
-  /** `null` — нажата «Не знаю», иначе сырой ввод. */
+  /** `null` when "Don't know" was pressed; otherwise the raw input. */
   readonly rawAnswer: string | null
   readonly choseUnknown: boolean
 }
@@ -35,7 +35,7 @@ export type SubmitCardAnswerResult =
   | {
       kind: 'accepted'
       readonly outcome: AttemptOutcome
-      /** Принятое число; `null` — «Не знаю». */
+      /** The accepted number; `null` for "Don't know". */
       readonly acceptedValue: number | null
       readonly state: ProgressState
     }
@@ -119,7 +119,7 @@ function updateFactProgress(
   const base: FactProgress = { ...fact, status: 'familiar', lastAnswerDate: date }
 
   if (isDiagnostic) {
-    // Диагностика не присваивает освоение и не запускает отсчёт (PRD §3).
+    // Diagnostics never grant mastery and never start the counter (PRD §3).
     return { ...base, review: scheduleFromDiagnosticAnswer(date, outcome) }
   }
 
@@ -128,7 +128,7 @@ function updateFactProgress(
   }
 
   if (!independent) {
-    // Успех после показанного сегодня решения не продвигает расписание.
+    // A success after a solution shown today does not advance the schedule.
     return base
   }
 

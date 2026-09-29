@@ -3,15 +3,15 @@ import { calendarDayDiff } from '@/domain/learning/calendarDate'
 import type { AttemptRecord } from '@/domain/progress/progressState'
 
 /**
- * Показатель удержания (PRD §5): доля правильных первых ответов среди
- * проверенных фактов, не показывавшихся последние ≥7 календарных дней.
- * Всегда с числителем и знаменателем; при пустой выборке — «Пока нет данных».
+ * Retention metric (PRD §5): share of correct first answers among checked
+ * facts that have not been shown for at least 7 calendar days. Always carries
+ * a numerator and a denominator; "no data yet" for an empty sample.
  */
 
 export interface RetentionSummary {
-  /** Проверок после перерыва ≥7 дней (знаменатель). */
+  /** Checks after a gap of at least 7 days (denominator). */
   readonly checked: number
-  /** Среди них верный первый ответ (числитель). */
+  /** Correct first answers among them (numerator). */
   readonly correct: number
 }
 
@@ -36,7 +36,7 @@ export function retentionSummary(attempts: readonly AttemptRecord[]): RetentionS
   return { checked, correct }
 }
 
-/** Все появления факта по дням: первая попытка дня — «первый ответ без подсказки». */
+/** One cluster per fact per day: the day's first attempt is the "first answer without a hint". */
 function clustersByFact(attempts: readonly AttemptRecord[]): Map<string, DayCluster[]> {
   const byFact = new Map<string, Map<CalendarDate, AttemptRecord['outcome']>>()
   for (const attempt of attempts) {

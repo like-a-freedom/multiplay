@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 
 /**
- * Карточка примера (DESIGN.md): ответ скрыт до попытки; после ответа —
- * правильный результат и короткая подсказка. Жеста переворота нет.
+ * The question card (DESIGN.md): the answer is hidden until an attempt; after
+ * the attempt — the result and a short hint. No flip gesture.
  */
 const props = defineProps<{
   variant?: 'question' | 'summary'
@@ -39,7 +39,7 @@ const visibleExpression = computed(() =>
       <span v-for="piece in 8" :key="piece" />
     </div>
     <p class="question-card__expression">
-      <!-- Пример озвучиваем осмысленно («Семь умножить на восемь»); цифры скрыты от скринридера. -->
+      <!-- The expression is announced as words ("Seven times eight"); digits are hidden from screen readers. -->
       <span class="visually-hidden">{{ spoken }}</span>
       <span aria-hidden="true">{{ visibleExpression }}</span>
     </p>

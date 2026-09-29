@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Серия — золотой бейдж с числом дней и текстовой подписью (DESIGN.md). */
+/** The streak as a golden badge with the day count and a text label (DESIGN.md). */
 defineProps<{ days: number }>()
 </script>
 

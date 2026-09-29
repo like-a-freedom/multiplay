@@ -1,4 +1,4 @@
-/* Дизайн-токены «Математическая экспедиция» (DESIGN.md). Источник истины — YAML в DESIGN.md. */
+/* Design tokens for "Математическая экспедиция" (DESIGN.md). The YAML front matter of DESIGN.md is the source of truth. */
 :root {
   /* colors */
   --color-space: #0b1020;

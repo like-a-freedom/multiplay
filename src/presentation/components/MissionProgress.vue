@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Индикатор миссии (DESIGN.md): текст с фактической длиной миссии + семантический progress. */
+/** Mission indicator (DESIGN.md): the actual mission length as text plus a semantic progress element. */
 defineProps<{ current: number; total: number }>()
 </script>
 

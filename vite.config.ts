@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { configDefaults, defineConfig } from 'vitest/config'
 
-// registerType: 'prompt' — обновление предлагается между миссиями, урок не перезагружается (PRD §4).
+// registerType 'prompt' — the update is offered between missions so a lesson is never reloaded (PRD §4).
 export default defineConfig({
   plugins: [
     vue(),
@@ -38,7 +38,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    // e2e-спеки прогоняет Playwright, а не Vitest.
+    // e2e specs run under Playwright, not Vitest.
     exclude: [...configDefaults.exclude, 'tests/e2e/**'],
   },
 })

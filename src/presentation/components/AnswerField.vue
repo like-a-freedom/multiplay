@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
- * Поле ответа (DESIGN.md): системная цифровая клавиатура через inputmode,
- * видимый label, текст ошибки через aria-describedby. Ошибочное значение не удаляется.
+ * The answer field (DESIGN.md): system numeric keyboard via inputmode, a
+ * visible label, the error wired via aria-describedby. An invalid value is
+ * never cleared automatically.
  */
 defineProps<{
   modelValue: string

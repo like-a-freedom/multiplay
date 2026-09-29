@@ -20,7 +20,7 @@ type Screen = 'diagnostic' | 'home' | 'mission' | 'map' | 'report'
 const session = useGameSession()
 const todayDate = today()
 
-// Обновления и статусные сообщения — между миссиями: урок не отвлекается (PRD §4).
+// Updates and status notices appear between missions so a lesson is never disturbed (PRD §4).
 const lessonActive = computed(() => screen.value === 'mission' || screen.value === 'diagnostic')
 
 const needsDiagnostic = computed(() => {
@@ -64,7 +64,7 @@ const reviewFactIds = computed(() =>
     .map((fact) => fact.factId),
 )
 
-// PWA: «Готово без интернета»; обновление предлагается, но урок не перезагружается (PRD M6).
+// PWA: "offline ready"; an update is offered without reloading a lesson (PRD M6).
 const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW()
 const offlineNoticeDismissed = ref(false)
 const updateDismissed = ref(false)

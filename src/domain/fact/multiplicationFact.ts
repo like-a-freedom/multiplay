@@ -1,6 +1,6 @@
 /**
- * Факт умножения (CONTEXT.md): пара множителей и их произведение.
- * Перестановка множителей представляет тот же факт, ID — `min:max`.
+ * A multiplication fact (CONTEXT.md): a pair of factors and their product.
+ * Factor order does not matter; the id is `min:max`.
  */
 
 export interface MultiplicationFact {
@@ -9,7 +9,7 @@ export interface MultiplicationFact {
   readonly product: number
 }
 
-/** ID факта для неупорядоченной пары: `min(a,b):max(a,b)`. */
+/** Fact id of an unordered pair in the `min:max` format. */
 export function factId(a: number, b: number): string {
   return a <= b ? `${a}:${b}` : `${b}:${a}`
 }
@@ -24,23 +24,23 @@ export function makeFact(a: number, b: number): MultiplicationFact {
   }
 }
 
-/** Простой множитель: разбирается стратегией равных групп (0, 1, 2, 5, 10). */
+/** A factor that has a direct one-line hint rule: 0, 1, 2, 5, 10. */
 export function isSimpleFactor(factor: number): boolean {
   return factor === 0 || factor === 1 || factor === 2 || factor === 5 || factor === 10
 }
 
-/** Простой факт: хотя бы один множитель простой; иначе — трудный. */
+/** A simple fact has at least one simple factor; otherwise it is a hard fact. */
 export function isSimpleFact(fact: MultiplicationFact): boolean {
   return isSimpleFactor(fact.factors[0]) || isSimpleFactor(fact.factors[1])
 }
 
-/** Факт по ID `min:max`. */
+/** Builds a fact from an id in the `min:max` format. */
 export function factFromId(id: string): MultiplicationFact {
   const [a, b] = id.split(':').map(Number)
   return makeFact(a, b)
 }
 
-/** Каталог всех фактов: множители 0–10 включительно, 66 уникальных неупорядоченных пар. */
+/** Every fact: factors 0–10 inclusive, 66 unique unordered pairs. */
 export function allFacts(): readonly MultiplicationFact[] {
   const facts: MultiplicationFact[] = []
   for (let a = 0; a <= 10; a += 1) {

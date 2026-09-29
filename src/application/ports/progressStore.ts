@@ -1,9 +1,9 @@
 import type { ProgressState } from '@/domain/progress/progressState'
 
 /**
- * Port (DIP): хранилище прогресса. Реализация — в infrastructure/storage.
- * Один версионированный снимок `localStorage`; повреждённые или неизвестные
- * версии не очищаются молча (PRD §4 «Сохранение»).
+ * Port (DIP): progress storage. The implementation lives in
+ * infrastructure/storage. One versioned `localStorage` snapshot; corrupt or
+ * unknown versions are never silently cleared (PRD §4, "Saving").
  */
 
 export type SaveProgressResult = { ok: true } | { ok: false; reason: 'storage-unavailable' | 'write-failed' }
@@ -17,8 +17,8 @@ export type LoadProgressResult =
 
 export interface ProgressStore {
   load(): LoadProgressResult
-  /** Сохранение атомарно: одна запись на принятое действие. */
+  /** Writes are atomic: one write per accepted action. */
   save(state: ProgressState): SaveProgressResult
-  /** Сброс — только после явного подтверждения (UI). */
+  /** A reset happens only after an explicit confirmation in the UI. */
   reset(): void
 }

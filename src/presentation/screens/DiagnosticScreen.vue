@@ -19,8 +19,8 @@ import { today } from '@/presentation/utils/clock'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
 
 /**
- * Диагностика (PRD §3): 10 карточек без таймера; ответы и подсказки —
- * только после окончания проверки. Можно пропустить. Без XP и серии.
+ * Diagnostics (PRD §3): 10 cards without a timer; answers and hints only
+ * after the check. Skippable. No XP, no streak.
  */
 
 const props = defineProps<{ resume: boolean }>()
@@ -52,7 +52,7 @@ onMounted(() => {
 function answer(choseUnknown: boolean): void {
   const current = card.value
   if (current === undefined) return
-  // Пустое поле — не ошибка: подсказка уже видна в плейсхолдере (PRD M2).
+  // An empty field is not an error: the hint already sits in the placeholder (PRD M2).
   if (!choseUnknown && answerInput.value.trim() === '') return
 
   const result = submitCardAnswer(session.state.value, {

@@ -1,34 +1,34 @@
-# Обучение таблице умножения
+# Multiplication Table Practice
 
-Общий язык домашней игры с карточками и космической экспедицией.
+Shared language for the home flashcard game and its space-expedition theme.
 
-## Термины
+## Terms
 
-**Факт умножения:** пара множителей и их произведение. Перестановка множителей представляет тот же факт.
-_Не использовать_: карточка как синоним факта.
+**Multiplication fact:** a pair of factors and their product. Swapping the factors represents the same fact.
+_Do not use_: card as a synonym for fact.
 
-**Карточка:** одно предъявление факта ребёнку для ответа и обратной связи.
+**Card:** one presentation of a fact to the child, for an answer and feedback.
 
-**Миссия:** короткое занятие с определённым набором карточек и понятным завершением.
-_Не использовать_: уровень как синоним занятия.
+**Mission:** a short session with a defined set of cards and a clear completion.
+_Do not use_: level as a synonym for session.
 
-**Объясняющая подсказка:** короткая стратегия получения ответа, например разложение на знакомые произведения или равные группы предметов.
-_Не использовать_: показ готового ответа как синоним объяснения.
+**Explanatory hint:** a short strategy for obtaining the answer, for example a decomposition into known products or equal groups of objects.
+_Do not use_: showing the finished answer as a synonym for explanation.
 
-**XP:** игровой опыт за завершение миссий и регулярность. Не измеряет точность ответов или знание таблицы.
-_Не использовать_: XP как валюту для звёзд.
+**XP:** game experience for completing missions and for regularity. It does not measure answer accuracy or knowledge of the table.
+_Do not use_: XP as a currency for stars.
 
-**Звезда достижения:** постоянная отметка того, что факт хотя бы однажды прошёл подтверждение освоения. Последующая ошибка не отнимает звезду.
-В интерфейсе — «звезда знаний»; одну звезду можно увидеть на «Карте звёзд» у соответствующего примера.
-_Не использовать_: текущее знание как синоним достижения.
+**Achievement star:** a permanent mark that a fact has at least once passed mastery confirmation. A later error never takes the star away.
+In the interface it appears as «звезда знаний» (knowledge star); one star per fact can be seen on the «Карта звёзд» screen.
+_Do not use_: current knowledge as a synonym for achievement.
 
-**Подтверждение освоения:** самостоятельное правильное воспроизведение факта в разные дни с необходимой отсрочкой и без промежуточной ошибки.
+**Mastery confirmation:** an independent correct recall of the fact on different days, with the required delay and with no intervening error.
 
-**Пора повторить:** текущая необходимость вернуться к факту после ошибки или наступления срока проверки. Может сочетаться с уже открытой звездой.
+**«Пора повторить» (due for review):** the current need to return to a fact after an error or after its review date has come. It can combine with an already opened star.
 
-**Серия дней:** последовательность календарных дней с завершённой миссией.
-_Не использовать_: серия правильных ответов.
+**Daily streak:** a sequence of local calendar days with a completed mission.
+_Do not use_: a streak of correct answers.
 
-**Завершённая экспедиция:** постоянное достижение после открытия звёзд для всех фактов таблицы. Не означает, что ошибки или забывание в будущем невозможны.
+**Completed expedition:** a permanent achievement after stars are opened for every fact of the table. It does not mean that errors or forgetting are impossible later.
 
-**Поддерживающий режим:** практика после завершения экспедиции, ориентированная на сохранение знаний через повторения, без ежедневной серии.
+**Maintenance mode:** practice after the expedition is complete, oriented at retaining knowledge through reviews, with no daily streak.

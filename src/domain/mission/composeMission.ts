@@ -2,10 +2,10 @@ import type { FactCandidate } from '@/domain/mission/mission'
 import { shuffle } from '@/domain/mission/shuffle'
 
 /**
- * Состав миссии (PRD §3): до 10 разных фактов — зарезервировать два места
- * для новых (если они остались), затем ожидающие повторения, затем знакомые.
- * Если новых меньше двух, свободные места отдаются повторениям;
- * если известных мало, миссия короче.
+ * Mission composition (PRD §3): up to 10 distinct facts — two slots reserved
+ * for new facts (while any remain), then due reviews, then familiar practice.
+ * Fewer than two new facts releases their slots to reviews; with few known
+ * facts the mission is shorter.
  */
 
 export const MISSION_CARD_LIMIT = 10
@@ -19,9 +19,9 @@ export function composeMission(candidates: readonly FactCandidate[]): readonly F
 }
 
 /**
- * Свободная практика (PRD §3 «Поддерживающий режим»): знакомые факты вне
- * срока повторения. Это досрочная практика: ступень она не продвигает
- * и срок не отодвигает (правило применяется в `submitCardAnswer`).
+ * Free practice (PRD §3, maintenance mode): familiar facts outside their
+ * review date — early practice that never advances a step or postpones a
+ * date (that rule lives in `submitCardAnswer`).
  */
 export function composePractice(
   candidates: readonly FactCandidate[],
@@ -32,8 +32,8 @@ export function composePractice(
 }
 
 /**
- * Повторение («Пора повторить», CONTEXT.md): только факты после ошибки
- * или с наступившим сроком проверки — сразу в работу, без новых фактов.
+ * A review session (the "due for review" mark, CONTEXT.md): only facts with a
+ * past error or a reached review date — straight to work, no new facts.
  */
 export function composeReview(candidates: readonly FactCandidate[]): readonly FactCandidate[] {
   return candidates.filter((c) => c.status === 'due').slice(0, MISSION_CARD_LIMIT)

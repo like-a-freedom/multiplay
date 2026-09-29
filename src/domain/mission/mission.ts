@@ -1,6 +1,6 @@
 /**
- * Миссия (CONTEXT.md): короткое занятие с определённым набором карточек.
- * Очередь фиксируется при старте (PRD §3 «Состав миссии»).
+ * A mission (CONTEXT.md): a short session with a fixed set of cards.
+ * The queue is frozen at start (PRD §3).
  */
 
 export type FactPlanningStatus = 'new' | 'due' | 'familiar'

@@ -2,9 +2,9 @@ import type { CalendarDate } from '@/domain/learning/calendarDate'
 import { calendarDayDiff, isCalendarDayBefore } from '@/domain/learning/calendarDate'
 
 /**
- * Серия дней (PRD §3): один завершённый урок за местный календарный день
- * продлевает серию. Рубежи 3, 7, 14, 30 дают +20 XP по разу за текущую серию.
- * Несколько миссий в день серию повторно не увеличивают.
+ * Daily streak (PRD §3): one completed lesson per local calendar day extends it.
+ * Milestones 3, 7, 14, 30 pay +20 XP once per current streak; several missions
+ * in a day never extend it twice.
  */
 
 export const STREAK_MILESTONES = [3, 7, 14, 30] as const
@@ -13,9 +13,9 @@ export const STREAK_MILESTONE_BONUS_XP = 20
 export interface StreakState {
   readonly days: number
   readonly bestDays: number
-  /** Последняя дата, за которую начислена награда; защита от перевода часов назад. */
+  /** Last date a reward was paid — guards against a clock rollback. */
   readonly lastRewardedDate: CalendarDate | null
-  /** Рубежи текущей серии, за которые бонус уже выдан. */
+  /** Milestones of the current streak whose bonus is already paid. */
   readonly earnedMilestoneDays: readonly number[]
 }
 
@@ -23,7 +23,7 @@ export function createStreakState(): StreakState {
   return { days: 0, bestDays: 0, lastRewardedDate: null, earnedMilestoneDays: [] }
 }
 
-/** Дата устройства стала раньше последней награждённой — награды приостановлены. */
+/** The device date moved before the last rewarded date — rewards are paused. */
 export function rewardsSuspended(streak: StreakState, today: CalendarDate): boolean {
   return streak.lastRewardedDate !== null && isCalendarDayBefore(today, streak.lastRewardedDate)
 }

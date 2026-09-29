@@ -1,4 +1,4 @@
-/* Базовая раскладка: одна колонка, максимум 480px (DESIGN.md). */
+/* Base layout: a single column, max 480px (DESIGN.md). */
 * {
   box-sizing: border-box;
 }
@@ -68,7 +68,7 @@ p {
   gap: var(--space-md);
 }
 
-/* Декоративные SVG скрыты от скринридера. */
+/* Decorative SVGs are hidden from screen readers. */
 .decorative {
   position: absolute;
   width: 0;
@@ -76,7 +76,7 @@ p {
   overflow: hidden;
 }
 
-/* Текст для скринридера: озвучка примеров и других элементов с нестандартным чтением. */
+/* Visually hidden text: spoken phrasing for expressions and other elements with an unconventional reading. */
 .visually-hidden {
   position: absolute;
   width: 1px;

@@ -6,9 +6,9 @@ import { allFacts } from '@/domain/fact/multiplicationFact'
 import type { DiagnosticState, ProgressState } from '@/domain/progress/progressState'
 
 /**
- * Use cases диагностики (PRD §3 «Диагностика»): без таймера, без XP и серии,
- * без присвоения освоения. Ответы и подсказки показываются после проверки.
- * Сохранённый набор повторяется для проверки удержания (PRD §5).
+ * Diagnostic use cases (PRD §3): no timer, no XP, no streak, no mastery
+ * assignment. Answers and hints appear only after the check; the persisted set
+ * is reused for the retention check (PRD §5).
  */
 
 export function startDiagnostic(
@@ -36,11 +36,11 @@ export interface DiagnosticCard {
   readonly fact: MultiplicationFact
   readonly expression: string
   readonly explanation: string
-  /** `null` — попытка ещё не сделана. */
+  /** `null` — not attempted yet. */
   readonly outcome: AttemptOutcome | null
 }
 
-/** Материал проверки: набор по порядку; `resume` пропускает уже отвечённые факты. */
+/** The check material in set order; `resume` skips already answered facts. */
 export function diagnosticCards(
   state: ProgressState,
   resume: boolean,

@@ -1,6 +1,6 @@
 /**
- * Проверка ввода (PRD M2): принимаются целые числа 0–100.
- * Пустая строка, знак, дробь и другие символы — подсказка ввода, а не учебная ошибка.
+ * Input validation (PRD M2): integers 0–100 only. An empty string, a sign, a
+ * fraction or any other character triggers the input hint, not a learning mistake.
  */
 
 export type ParsedAnswer = { ok: true; value: number } | { ok: false }

@@ -1,5 +1,6 @@
 /**
- * Позиции точек созвездия: 66 фактов на трёх орбитах (DESIGN.md — карта созвездий).
+ * Star positions for the constellation: 66 facts across three orbits
+ * (DESIGN.md, the knowledge map).
  */
 
 export interface StarPosition {
@@ -25,5 +26,5 @@ export function constellationPositions(count: number, size = 320): readonly Star
   return positions
 }
 
-/** Путь маленькой звезды с центром в начале координат. */
+/** Path of a small star centered on the origin. */
 export const STAR_PATH = 'M 0 -7 L 2 -2.2 L 7 -2.2 L 3 1 L 4.4 6 L 0 3 L -4.4 6 L -3 1 L -7 -2.2 L -2 -2.2 Z'

@@ -2,7 +2,7 @@ import type { LoadProgressResult, ProgressStore, SaveProgressResult } from '@/ap
 import type { ProgressState } from '@/domain/progress/progressState'
 import { parseSnapshot, serializeSnapshot } from '@/infrastructure/storage/snapshot'
 
-/** Минимальный контракт хранилища (DIP): `localStorage` или тестовая заглушка. */
+/** The minimal storage contract (DIP): `localStorage` or a test double. */
 export interface KeyValueStorage {
   getItem(key: string): string | null
   setItem(key: string, value: string): void
@@ -30,7 +30,7 @@ export class LocalStorageProgressStore implements ProgressStore {
       this.storage.setItem(PROGRESS_STORAGE_KEY, serializeSnapshot(state))
       return { ok: true }
     } catch {
-      // При ошибке записи не сообщать об успешном сохранении (PRD M6).
+      // A failed write must never be reported as a successful save (PRD M6).
       return { ok: false, reason: 'write-failed' }
     }
   }
@@ -39,7 +39,8 @@ export class LocalStorageProgressStore implements ProgressStore {
     try {
       this.storage.removeItem(PROGRESS_STORAGE_KEY)
     } catch {
-      // Сброс — явное действие пользователя; ошибка доступа уже показана как «Прогресс не сохраняется».
+      // A reset is an explicit user action; an access failure was already
+      // surfaced as "progress is not being saved".
     }
   }
 }

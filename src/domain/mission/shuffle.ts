@@ -1,4 +1,4 @@
-/** Перемешивание Фишера–Йетса с внедрённым генератором — воспроизводимо в тестах. */
+/** Fisher–Yates with an injected generator — deterministic in tests. */
 export function shuffle<T>(items: readonly T[], random: () => number): T[] {
   const result = [...items]
   for (let i = result.length - 1; i > 0; i -= 1) {

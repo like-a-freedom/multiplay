@@ -5,10 +5,10 @@ import type { ProgressState } from '@/domain/progress/progressState'
 import { starsEarned } from '@/domain/progress/progressState'
 
 /**
- * Завершение миссии и награды (PRD §3 «Завершение и награды»): +10 XP
- * за первые три миссии дня, бонус серии сверх лимита, одна запись на ID миссии.
- * Повторный запуск или восстановление не выдают награду второй раз.
- * Финиш экспедиции сохраняется вместе с завершением миссии.
+ * Mission completion and rewards (PRD §3): +10 XP for the first three missions
+ * of a day, a streak bonus on top of the cap, one record per mission id.
+ * A restart or a recovery never pays twice; the expedition finish is saved
+ * together with the mission that earned it.
  */
 
 export const TOTAL_FACTS = 66
@@ -33,7 +33,7 @@ export function applyMissionRewards(
   const completionsToday = state.rewards.completions.filter((c) => c.date === date).length
   const suspended = rewardsSuspended(state.rewards.streak, date)
 
-  // Практика доступна, но новые награды приостановлены до восстановления даты.
+  // Practice stays available, but new rewards are paused until the date recovers.
   const xpAwarded = suspended ? 0 : missionXp(completionsToday)
 
   let streakUpdate: StreakUpdate = { streak: state.rewards.streak, bonusXp: 0 }
@@ -51,7 +51,7 @@ export function applyMissionRewards(
     },
   }
 
-  // Финиш экспедиции: последняя звезда открыта этой миссией — переход один раз.
+  // Expedition finish: the mission that earned the last star — transition once.
   const expeditionJustFinished =
     withRewards.mode === 'expedition' &&
     !withRewards.expeditionFinished &&
@@ -68,7 +68,7 @@ export function applyMissionRewards(
   }
 }
 
-/** Дата устройства стала раньше последней награждённой даты. */
+/** The device date is before the last rewarded date. */
 export function rewardsPausedByClockRollback(state: ProgressState, today: CalendarDate): boolean {
   return (
     state.rewards.streak.lastRewardedDate !== null &&

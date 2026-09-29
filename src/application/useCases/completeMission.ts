@@ -4,9 +4,9 @@ import { applyMissionRewards } from '@/domain/progress/rewards'
 import type { ProgressState } from '@/domain/progress/progressState'
 
 /**
- * Use case: завершение миссии одним обновлением с ID миссии (PRD M4).
- * Начисления идемпотентны, переход в поддерживающий режим сохраняется
- * вместе с завершением миссии (PRD M7).
+ * Use case: finish a mission in a single update carrying its mission id
+ * (PRD M4). Rewards are idempotent; the move to maintenance mode is saved
+ * with the completion (PRD M7).
  */
 
 export interface CompleteMissionCommand {

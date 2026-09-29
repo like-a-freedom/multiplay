@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Иконки PWA «Математическая экспедиция» (палитра и мотив — DESIGN.md).
+"""PWA icons for "Математическая экспедиция" (palette and motif from DESIGN.md).
 
-Тёмное космическое пространство, тонкая орбита, золотая звезда достижения.
-Запуск: python3 scripts/generate-icons.py (нужен Pillow).
+Dark space background, a thin orbit, a golden achievement star.
+Run: python3 scripts/generate-icons.py (requires Pillow).
 """
 
 import math
@@ -14,7 +14,7 @@ ORBIT = (0x64, 0x74, 0x8B)
 GOLD = (0xF9, 0xBA, 0x43)
 DOT = (0xF7, 0xFA, 0xFF)
 
-SUPersample = 3  # сглаживание через уменьшение
+SUPersample = 3  # antialiasing by downsampling
 
 
 def lerp(a, b, t):
@@ -39,7 +39,7 @@ def draw_icon(size, safe_zone=False):
         for_row = lerp(SPACE, SPACE_RAISED, y / s)
         image.paste(Image.new("RGB", (s, 1), for_row), (0, y))
 
-    # Орбита: кольцо, наклонённое на -18°.
+    # Orbit: a ring tilted by -18°.
     orbit = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     od = ImageDraw.Draw(orbit)
     radius = s * 0.34 * scale
@@ -52,7 +52,7 @@ def draw_icon(size, safe_zone=False):
     orbit = orbit.rotate(-18, resample=Image.BICUBIC)
     image.paste(orbit, (0, 0), orbit)
 
-    # Две далёкие точки света.
+    # Two distant light dots.
     layer = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     ld = ImageDraw.Draw(layer)
     for px, py in ((0.24, 0.28), (0.76, 0.70)):
@@ -61,7 +61,7 @@ def draw_icon(size, safe_zone=False):
         cy = s / 2 + (py - 0.5) * s * scale
         ld.ellipse((cx - dot, cy - dot, cx + dot, cy + dot), fill=DOT + (255,))
 
-    # Звезда достижения.
+    # The achievement star.
     ld.polygon(star_points(s / 2, s / 2, s * 0.19 * scale), fill=GOLD + (255,))
     image.paste(layer, (0, 0), layer)
 

@@ -8,11 +8,11 @@ import XpCounter from '@/presentation/components/XpCounter.vue'
 import { formatDateRu } from '@/presentation/utils/formatDate'
 
 /**
- * Главный экран (PRD §3): «Играть», серия, XP, уровень, звёзды знаний.
- * «К повторению» — не напоминание, а главное действие: когда есть что
- * повторять, первой кнопкой идёт «Повторить» — сразу в работу.
- * В поддерживающем режиме вместо серии — число фактов к повторению
- * и ближайшая дата, когда очередь пуста.
+ * Home screen (PRD §3): play, streak, XP, level, knowledge stars.
+ * "Due for review" is an action, not a reminder: while reviews exist the first
+ * button is "Повторить" and goes straight to work. In maintenance mode the
+ * streak is replaced by the number of facts due and the nearest date when
+ * the queue is empty.
  */
 const props = defineProps<{
   xp: number
@@ -61,7 +61,7 @@ function primaryAction(): void {
     </div>
 
     <div class="screen__actions">
-      <!-- Одно очевидное действие: есть «Пора повторить» — идём повторять. -->
+      <!-- One obvious action: while reviews exist, go review. -->
       <PrimaryButton :label="primaryLabel" @click="primaryAction" />
       <SecondaryButton
         v-if="reviewsToday > 0 && !maintenanceMode"

@@ -7,8 +7,8 @@ import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import { STAR_PATH, constellationPositions } from '@/presentation/utils/constellation'
 
 /**
- * Карта знаний (PRD §3, DESIGN.md): созвездие из 66 фактов на орбитах.
- * Звезда открыта навсегда; «Пора повторить» — отдельная подпись, без гашения звезды.
+ * Knowledge map (PRD §3, DESIGN.md): a constellation of 66 facts on orbits.
+ * A star is permanent; the "due for review" mark is separate and never dims it.
  */
 
 const props = defineProps<{

@@ -1,6 +1,6 @@
 /**
- * Местная календарная дата `YYYY-MM-DD`.
- * Сравнение — по календарным дням, а не по интервалам в 24 часа (PRD §4 «Даты»).
+ * A local calendar date as `YYYY-MM-DD`. Comparisons count calendar days,
+ * never 24-hour intervals (PRD §4, "Dates").
  */
 
 export type CalendarDate = string
@@ -18,7 +18,7 @@ function toUtcMillis(date: CalendarDate): number {
   return Date.UTC(year, month - 1, day)
 }
 
-/** Разница в календарных днях: `to - from`. */
+/** Difference in calendar days: `to - from`. */
 export function calendarDayDiff(from: CalendarDate, to: CalendarDate): number {
   return Math.round((toUtcMillis(to) - toUtcMillis(from)) / 86_400_000)
 }

@@ -8,8 +8,9 @@ import type { FactPlanningStatus, MissionState } from '@/domain/mission/mission'
 import { type StreakState, createStreakState } from '@/domain/game/streak'
 
 /**
- * Агрегат прогресса: факты, попытки, текущая миссия и начисления (PRD §4 «Сохранение»).
- * Учебный прогресс (расписание, освоение) отделён от игрового (XP, серия).
+ * Progress aggregate: facts, attempts, the current mission and rewards (PRD §4,
+ * "Saving"). Learning progress (schedule, mastery) is kept apart from game
+ * progress (XP, streak).
  */
 
 export type FactStatus = 'new' | 'familiar'
@@ -26,9 +27,9 @@ export interface AttemptRecord {
   readonly factId: string
   readonly date: CalendarDate
   readonly outcome: AttemptOutcome
-  /** Самостоятельный ответ: решение не показывалось ранее в этот день. */
+  /** An independent answer: no solution was shown earlier that day. */
   readonly independent: boolean
-  /** `null` — попытка в диагностике, а не в миссии. */
+  /** `null` — an attempt in diagnostics, not in a mission. */
   readonly missionId: string | null
 }
 
@@ -45,7 +46,7 @@ export interface RewardState {
 
 export type GameMode = 'expedition' | 'maintenance'
 
-/** Сохранённый диагностический набор (PRD §3): повторяется для проверки удержания. */
+/** The persisted diagnostic set (PRD §3), reused for the retention check. */
 export interface DiagnosticState {
   readonly factIds: readonly string[]
   readonly skipped: boolean
@@ -84,7 +85,6 @@ export function createProgressState(): ProgressState {
   }
 }
 
-/** Число открытых звёзд достижений. */
 export function starsEarned(state: ProgressState): number {
   return Object.values(state.facts).filter((fact) => fact.mastery.hasStar).length
 }
@@ -96,12 +96,12 @@ export function planningStatus(fact: FactProgress, today: CalendarDate): FactPla
   return reviewIsDue ? 'due' : 'familiar'
 }
 
-/** «Пора повторить» (CONTEXT.md): ошибка либо наступивший срок проверки. */
+/** The "due for review" mark (CONTEXT.md): a past error or a reached review date. */
 export function factNeedsReview(fact: FactProgress, today: CalendarDate): boolean {
   return planningStatus(fact, today) === 'due'
 }
 
-/** Решение показывалось сегодня: была ошибка или «Не знаю» по этому факту. */
+/** The solution was shown today: an error or "Don't know" happened for this fact. */
 export function solutionShownOnDate(
   state: ProgressState,
   factId: string,
@@ -112,7 +112,7 @@ export function solutionShownOnDate(
   )
 }
 
-/** Ближайшая будущая дата повторения (для поддерживающего режима, PRD §3). */
+/** The nearest future review date (maintenance mode, PRD §3). */
 export function upcomingReviewDate(state: ProgressState, today: CalendarDate): CalendarDate | null {
   const dates = Object.values(state.facts)
     .map((fact) => fact.review?.nextReviewDate)
@@ -121,7 +121,7 @@ export function upcomingReviewDate(state: ProgressState, today: CalendarDate): C
   return dates[0] ?? null
 }
 
-/** Карточки замороженной очереди, на которые ещё не было ответа (восстановление миссии, PRD M4). */
+/** Cards of the frozen queue that were not answered yet (mission recovery, PRD M4). */
 export function unansweredCardFactIds(mission: MissionState): string[] {
   return mission.cardFactIds.filter((factId) => !mission.answeredFactIds.includes(factId))
 }

@@ -2,18 +2,18 @@ import type { CalendarDate } from '@/domain/learning/calendarDate'
 import { calendarDayDiff } from '@/domain/learning/calendarDate'
 
 /**
- * Подтверждение освоения (PRD §3 «Освоение»): два самостоятельных успеха
- * в разные дни с промежутком ≥7 календарных дней и без ошибки между ними.
- * Звезда достижения постоянна; поздняя ошибка добавляет «Пора повторить»
- * и перезапускает учебное подтверждение, но не гасит звезду.
+ * Mastery confirmation (PRD §3): two independent successes on different days
+ * at least 7 calendar days apart with no error in between. The achievement
+ * star is permanent; a later error adds the "review" mark and restarts the
+ * learning confirmation but never removes the star.
  */
 
 export interface MasteryProgress {
-  /** Даты самостоятельных успехов после последней ошибки (без повторов дня). */
+  /** Dates of independent successes since the last error (one per day). */
   readonly independentSuccessDates: readonly CalendarDate[]
-  /** Звезда достижения открыта хотя бы однажды — уже навсегда. */
+  /** The achievement star was opened at least once — now permanent. */
   readonly hasStar: boolean
-  /** Отметка «Пора повторить» после ошибки; снимается новым циклом подтверждения. */
+  /** The "review" mark after an error; cleared by a new confirmation cycle. */
   readonly needsReview: boolean
 }
 

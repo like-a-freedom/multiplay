@@ -1,17 +1,16 @@
 import { type CalendarDate, addCalendarDays, isCalendarDayBefore } from '@/domain/learning/calendarDate'
 
 /**
- * Расписание повторений (PRD §3 «Расписание»): после первого самостоятельного
- * успеха повтор через 1 день, после следующих успешных плановых повторов —
- * через 3, 7, затем каждый раз через 14 дней от даты ответа.
- * Ошибка или «Не знаю» сбрасывает счётчик успехов и назначает повтор на завтра.
- * Досрочная практика ступень не продвигает и срок не отодвигает.
+ * Review schedule (PRD §3): one day after the first independent success, then
+ * 3, 7 and 14 days from the answer date of each following planned review.
+ * An error or "Don't know" resets the success counter and schedules the next
+ * review for tomorrow. Early practice never advances a step or postpones a date.
  */
 
 export const REVIEW_INTERVALS = [1, 3, 7, 14] as const
 
 export interface ReviewSchedule {
-  /** Сколько самостоятельных успехов зафиксировано после последней ошибки. */
+  /** Independent successes recorded since the last error. */
   readonly completedSuccesses: number
   readonly nextReviewDate: CalendarDate
 }
@@ -44,8 +43,8 @@ export function scheduleFromDiagnosticAnswer(
   answerDate: CalendarDate,
   outcome: 'correct' | 'wrong' | 'unknown',
 ): ReviewSchedule {
-  // Диагностический успех не запускает отсчёт: верный ответ доступен завтра,
-  // ошибочный — на повтор сразу.
+  // A diagnostic success never starts the counter: a correct answer becomes
+  // due tomorrow, a wrong one immediately.
   return {
     completedSuccesses: 0,
     nextReviewDate: addCalendarDays(answerDate, outcome === 'correct' ? 1 : 0),

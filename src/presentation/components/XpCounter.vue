@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** XP — обычный текстовый счётчик; XP не измеряет знание таблицы (CONTEXT.md). */
+/** XP as a plain text counter; XP never measures knowledge of the table (CONTEXT.md). */
 defineProps<{ xp: number; level: number }>()
 </script>
 

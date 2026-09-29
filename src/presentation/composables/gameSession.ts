@@ -7,8 +7,8 @@ import type { ProgressState } from '@/domain/progress/progressState'
 import type { CalendarDate } from '@/domain/learning/calendarDate'
 
 /**
- * Разделяемое игровое состояние (AGENTS.md): тонкая обёртка над ProgressStore.
- * Повреждённые или неизвестные данные не перезаписываются до явного сброса (PRD §4).
+ * Shared game session (AGENTS.md): a thin wrapper over ProgressStore.
+ * Corrupt or unknown data is never overwritten until an explicit reset (PRD §4).
  */
 
 export type StorageStatus = 'ok' | 'write-failed' | 'corrupt' | 'unknown-version' | 'storage-unavailable'
@@ -40,7 +40,7 @@ export function createGameSession(store: ProgressStore): GameSession {
   const state = ref<ProgressState>(loadedState)
   const storageStatus = ref<StorageStatus>(statusFromLoad(loaded))
 
-  // Запись заблокирована, пока пользователь не подтвердит сброс повреждённых данных.
+  // Writes are blocked until the user confirms a reset of damaged data.
   const writeBlocked = () =>
     storageStatus.value === 'corrupt' || storageStatus.value === 'unknown-version'
 

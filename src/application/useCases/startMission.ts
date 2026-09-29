@@ -5,9 +5,9 @@ import type { ProgressState } from '@/domain/progress/progressState'
 import { planningStatus } from '@/domain/progress/progressState'
 
 /**
- * Use case: старт миссии. Очередь фиксируется при старте (PRD §3).
- * `kind: 'practice'` — свободная практика, `kind: 'review'` — повторение
- * фактов «Пора повторить» вместо плановой миссии.
+ * Use case: start a mission. The queue is frozen at start (PRD §3).
+ * `kind: 'practice'` is free practice; `kind: 'review'` is a review session
+ * of the "due for review" facts instead of the planned mission.
  */
 
 export type MissionKind = 'mission' | 'practice' | 'review'

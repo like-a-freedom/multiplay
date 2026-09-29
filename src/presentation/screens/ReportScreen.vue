@@ -4,9 +4,9 @@ import { ref } from 'vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 
 /**
- * Отчёт для взрослого (PRD §4–5): раздельно XP, звёзды и факты для повторения;
- * показатель удержания с числителем и знаменателем; надпись об отсутствии
- * резервной копии; сброс — с подтверждением.
+ * Adult report (PRD §4–5): XP, stars and facts due listed separately; the
+ * retention metric with numerator and denominator; the no-backup note; a
+ * confirmed reset.
  */
 defineProps<{
   xp: number
