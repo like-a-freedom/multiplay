@@ -124,3 +124,35 @@ function maintenanceWithReview(): ProgressState {
     },
   }
 }
+
+test('карта звёзд отмечает собранные звёзды на созвездии', async ({ page }) => {
+  await page.addInitScript(
+    ([key, snapshot]) => {
+      window.localStorage.setItem(key, snapshot)
+    },
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(stateWithStars(5))],
+  )
+  await page.goto('/')
+
+  await expect(page.getByText('Открыто звёзд: 5 из 66')).toHaveCount(0) // заголовок ещё на главной
+  await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+
+  await expect(page.getByText('Открыто звёзд: 5 из 66')).toBeVisible()
+  await expect(page.locator('.map__star--earned')).toHaveCount(5)
+  await expect(page.locator('.map__star--idle')).toHaveCount(61)
+
+  // Текстовая альтернатива: каждый факт назван со статусом в архиве.
+  await page.getByRole('button', { name: /Все факты и достижения/ }).click()
+  await expect(page.getByText('Звезда открыта')).toHaveCount(5)
+  await expect(page.getByText('Звезда впереди')).toHaveCount(61)
+})
+
+/** Exactly `count` stars earned; the rest of the fact set stays unearned. */
+function stateWithStars(count: number): ProgressState {
+  const base = finishedExpedition()
+  const facts: Record<string, FactProgress> = {}
+  for (const [index, [factId, fact]] of Object.entries(base.facts).entries()) {
+    facts[factId] = { ...fact, mastery: { ...fact.mastery, hasStar: index < count } }
+  }
+  return { ...base, facts }
+}
