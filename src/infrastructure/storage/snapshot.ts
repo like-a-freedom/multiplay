@@ -31,7 +31,9 @@ export function parseSnapshot(raw: string): LoadProgressResult {
   if (version !== SNAPSHOT_VERSION) return { kind: 'unknown-version', version }
   if (!isProgressState(state)) return { kind: 'corrupt' }
 
-  return { kind: 'saved', state }
+  // Снимки ранних прототипов не содержат diagnostic — нормализуем в null,
+  // иначе экраны падают на undefined (белый экран).
+  return { kind: 'saved', state: { ...state, diagnostic: state.diagnostic ?? null } }
 }
 
 function isProgressState(value: unknown): value is ProgressState {

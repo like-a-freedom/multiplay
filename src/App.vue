@@ -25,7 +25,7 @@ const lessonActive = computed(() => screen.value === 'mission' || screen.value =
 
 const needsDiagnostic = computed(() => {
   const diagnostic = session.state.value.diagnostic
-  return diagnostic === null || (!diagnostic.completed && !diagnostic.skipped)
+  return diagnostic == null || (!diagnostic.completed && !diagnostic.skipped)
 })
 
 const screen = ref<Screen>(needsDiagnostic.value ? 'diagnostic' : 'home')

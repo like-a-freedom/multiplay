@@ -15,7 +15,7 @@ export function startDiagnostic(
   state: ProgressState,
   random: () => number = Math.random,
 ): ProgressState {
-  if (state.diagnostic !== null) return state
+  if (state.diagnostic != null) return state
   const diagnostic: DiagnosticState = {
     factIds: pickDiagnosticFacts(allFacts(), random).map((fact) => fact.id),
     skipped: false,
