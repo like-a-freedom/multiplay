@@ -16,7 +16,7 @@ test('ошибка в 0 × 5 показывает спокойную карто�
     serializeSnapshot(progress),
   ])
   await page.setViewportSize({ width: 428, height: 926 })
-  await page.goto('/')
+  await page.goto('./')
   await page.getByRole('button', { name: 'Играть' }).click()
   await expect(page.locator('.question-card__expression')).toContainText('0 × 5 = ?')
   await page.getByLabel('Ответ на пример').fill('5')
@@ -54,7 +54,7 @@ test('«Не знаю» открывает спокойную подсказку
     serializeSnapshot(progress),
   ])
   await page.setViewportSize({ width: 428, height: 926 })
-  await page.goto('/')
+  await page.goto('./')
   await page.getByRole('button', { name: 'Играть' }).click()
   await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Введи целое число от 0 до 100')
   await page.getByRole('button', { name: 'Не знаю' }).click()

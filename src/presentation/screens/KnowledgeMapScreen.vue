@@ -4,7 +4,8 @@ import { computed, ref } from 'vue'
 import { factFromId } from '@/domain/fact/multiplicationFact'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
-import { STAR_PATH, constellationPositions } from '@/presentation/utils/constellation'
+import StarGlyph from '@/presentation/components/StarGlyph.vue'
+import { constellationPositions } from '@/presentation/utils/constellation'
 
 /**
  * Knowledge map (PRD §3, DESIGN.md): a constellation of 66 facts on orbits.
@@ -38,7 +39,7 @@ function factLabel(factId: string): string {
     <h1 class="screen__title">Карта звёзд</h1>
 
     <p class="map__count">Открыто звёзд: {{ earnedFactIds.length }} из {{ factIds.length }}</p>
-    <p class="map__rule">Одна звезда — один пример, который ты правильно решил сам и повторил не раньше чем через неделю. Ошибка до второй проверки начинает путь заново. Открытая звезда остаётся; XP на неё не влияют.</p>
+    <p class="map__rule">Одна звезда открывается за один пример, который ты правильно решил сам и повторил не раньше чем через неделю. Ошибка до второй проверки начинает путь заново. Открытая звезда остаётся; XP на неё не влияют.</p>
 
     <svg
       class="map__sky"
@@ -54,14 +55,20 @@ function factLabel(factId: string): string {
         :r="radius"
         class="map__orbit"
       />
-      <path
+      <StarGlyph
         v-for="(position, index) in positions"
         :key="factIds[index]"
-        :d="STAR_PATH"
-        :transform="`translate(${position.x} ${position.y})`"
+        :x="position.x - 9"
+        :y="position.y - 9"
+        :size="18"
+        :earned="isEarned(factIds[index])"
         :class="isEarned(factIds[index]) ? 'map__star--earned' : 'map__star--idle'"
       />
     </svg>
+    <div class="map__legend">
+      <span><StarGlyph :size="20" />Открыта</span>
+      <span><StarGlyph :size="20" :earned="false" />Впереди</span>
+    </div>
 
     <section class="map__reviews" aria-labelledby="map-review-title">
       <div class="map__review-heading">
@@ -96,7 +103,10 @@ function factLabel(factId: string): string {
       <div v-show="factsExpanded" id="map-facts" class="map__archive-content">
         <ul class="map__facts" aria-label="Достижения по каждому факту">
           <li v-for="factId in factIds" :key="factId">
-            <strong>{{ factLabel(factId) }}</strong>
+            <div class="map__fact-heading">
+              <StarGlyph :size="24" :earned="isEarned(factId)" />
+              <strong>{{ factLabel(factId) }}</strong>
+            </div>
             <span>{{ isEarned(factId) ? 'Звезда открыта' : 'Звезда впереди' }}</span>
             <span v-if="reviewFactIds.includes(factId)">Пора повторить</span>
           </li>
@@ -126,19 +136,14 @@ function factLabel(factId: string): string {
 
 .map__orbit {
   fill: none;
-  stroke: var(--color-divider);
-  stroke-width: 1;
-}
-
-.map__star--earned {
-  fill: var(--color-on-space);
-}
-
-.map__star--idle {
-  fill: none;
   stroke: var(--color-control-outline);
-  stroke-width: 2;
+  stroke-width: 1;
+  opacity: .35;
 }
+
+.map__legend { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-xl); font-size: var(--font-size-label); }
+.map__legend span,
+.map__fact-heading { display: flex; align-items: center; gap: var(--space-sm); }
 
 .map__reviews {
   display: flex;

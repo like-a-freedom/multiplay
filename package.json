@@ -1,8 +1,12 @@
 {
-  "name": "math-expedition",
+  "name": "multiplay",
   "version": "0.1.0",
   "private": true,
-  "description": "Математическая экспедиция — таблица умножения короткими миссиями (PWA для одного ребёнка)",
+  "packageManager": "bun@1.4.2",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "description": "Russian-language multiplication practice PWA with short game missions",
   "type": "module",
   "scripts": {
     "dev": "vite",

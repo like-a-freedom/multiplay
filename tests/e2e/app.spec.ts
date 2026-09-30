@@ -6,16 +6,16 @@ import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 
 test('первый запуск: диагностика, пропуск ведёт на главный экран', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
 
   await expect(page.getByRole('heading', { name: 'Короткая проверка' })).toBeVisible()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Математическая экспедиция' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Умножайка' })).toBeVisible()
 })
 
 test('миссия: ошибка называет введённое, Enter отправляет ответ, XP переживает перезагрузку', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
 
@@ -51,7 +51,7 @@ test('поддерживающий режим: свободная практик
     },
     [PROGRESS_STORAGE_KEY, serializeSnapshot(finishedExpedition())],
   )
-  await page.goto('/')
+  await page.goto('./')
 
   await expect(page.getByText('На сегодня повторений нет')).toBeVisible()
   await page.getByRole('button', { name: 'Свободная практика' }).click()
@@ -73,7 +73,7 @@ test('«Пора повторить» ведёт сразу в повторен�
     },
     [PROGRESS_STORAGE_KEY, serializeSnapshot(maintenanceWithReview())],
   )
-  await page.goto('/')
+  await page.goto('./')
 
   await expect(page.getByText('К повторению: 1')).toBeVisible()
   await page.getByRole('button', { name: 'Повторить', exact: true }).click()
@@ -132,7 +132,7 @@ test('карта звёзд отмечает собранные звёзды н�
     },
     [PROGRESS_STORAGE_KEY, serializeSnapshot(stateWithStars(5))],
   )
-  await page.goto('/')
+  await page.goto('./')
 
   await expect(page.getByText('Открыто звёзд: 5 из 66')).toHaveCount(0) // заголовок ещё на главной
   await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()

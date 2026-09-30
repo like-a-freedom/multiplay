@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PWA icons for "Математическая экспедиция" (palette and motif from DESIGN.md).
+"""PWA icons for "Умножайка" (palette and motif from DESIGN.md).
 
 Dark space background, a thin orbit, a golden achievement star.
 Run: python3 scripts/generate-icons.py (requires Pillow).

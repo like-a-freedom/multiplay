@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "math-expedition",
+      "name": "multiplay",
       "dependencies": {
         "vue": "^3.5.43",
       },

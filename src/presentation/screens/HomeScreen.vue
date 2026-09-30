@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StreakBadge from '@/presentation/components/StreakBadge.vue'
+import StarGlyph from '@/presentation/components/StarGlyph.vue'
 import XpCounter from '@/presentation/components/XpCounter.vue'
 import { formatDateRu } from '@/presentation/utils/formatDate'
 
@@ -40,7 +41,7 @@ function primaryAction(): void {
 
 <template>
   <section class="screen home">
-    <h1 class="screen__title">Математическая экспедиция</h1>
+    <h1 class="screen__title">Умножайка</h1>
 
     <svg class="home__orbit" viewBox="0 0 320 96" aria-hidden="true">
       <ellipse cx="160" cy="48" rx="136" ry="30" />
@@ -57,7 +58,7 @@ function primaryAction(): void {
             · ближайшее {{ formatDateRu(nextReviewDate) }}</template>
         </template>
       </p>
-      <p class="home__stars">Звёзды знаний: {{ stars }} из {{ totalFacts }}</p>
+      <p class="home__stars"><StarGlyph :size="24" :earned="stars > 0" />Звёзды знаний: {{ stars }} из {{ totalFacts }}</p>
     </div>
 
     <div class="screen__actions">
@@ -98,6 +99,7 @@ function primaryAction(): void {
   line-height: var(--line-height-label);
   color: var(--color-on-space);
 }
+.home__stars { display: flex; align-items: center; gap: var(--space-sm); }
 .home__orbit {
   width: 100%;
   height: 96px;

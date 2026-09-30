@@ -4,19 +4,26 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { configDefaults, defineConfig } from 'vitest/config'
 
+// Root hosting (Cloudflare/custom domain) or a GitHub Pages project subpath.
+const configuredBase = process.env.APP_BASE_PATH || '/'
+const base = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
+
 // registerType 'prompt' — the update is offered between missions so a lesson is never reloaded (PRD §4).
 export default defineConfig({
+  base,
   plugins: [
     vue(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
-        name: 'Математическая экспедиция',
-        short_name: 'Экспедиция',
+        name: 'Умножайка',
+        short_name: 'Умножайка',
         description: 'Таблица умножения: короткие миссии с карточками',
         lang: 'ru',
-        start_url: '/',
+        id: base,
+        start_url: base,
+        scope: base,
         display: 'standalone',
         background_color: '#0B1020',
         theme_color: '#0B1020',

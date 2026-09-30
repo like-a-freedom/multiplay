@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 async function openMission(page: import('@playwright/test').Page) {
-  await page.goto('/')
+  await page.goto('./')
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
 }

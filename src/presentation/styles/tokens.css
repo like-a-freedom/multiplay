@@ -1,4 +1,4 @@
-/* Design tokens for "Математическая экспедиция" (DESIGN.md). The YAML front matter of DESIGN.md is the source of truth. */
+/* Design tokens for "Умножайка" (DESIGN.md). The YAML front matter of DESIGN.md is the source of truth. */
 :root {
   /* colors */
   --color-space: #0b1020;
@@ -13,6 +13,10 @@
   --color-on-space: #f7faff;
   --color-focus-on-space: #f9ba43;
   --color-streak: #f9ba43;
+  --color-star: #f9ba43;
+  --color-star-highlight: #ffe3a1;
+  --color-star-edge: #c88024;
+  --color-star-idle: #64748b;
   --color-success: #0b6b62;
   --color-success-surface: #e0f4e8;
   --color-review-surface: #fff3dd;

@@ -19,16 +19,16 @@ describe('KnowledgeMapScreen star marking', () => {
     const collected = [factIds[0], factIds[7]]
     const wrapper = mountMap(collected)
 
-    const earned = wrapper.findAll('path.map__star--earned')
-    const idle = wrapper.findAll('path.map__star--idle')
+    const earned = wrapper.findAll('.map__star--earned')
+    const idle = wrapper.findAll('.map__star--idle')
     expect(earned).toHaveLength(2)
     expect(idle).toHaveLength(factIds.length - 2)
 
     // The mark follows each fact's position, not just a count.
-    expect(wrapper.findAll('.map__sky path[class*="map__star"]').at(0)?.classes()).toContain(
+    expect(wrapper.findAll('.map__sky svg[class*="map__star"]').at(0)?.classes()).toContain(
       'map__star--earned',
     )
-    expect(wrapper.findAll('.map__sky path[class*="map__star"]').at(7)?.classes()).toContain(
+    expect(wrapper.findAll('.map__sky svg[class*="map__star"]').at(7)?.classes()).toContain(
       'map__star--earned',
     )
     wrapper.unmount()
@@ -39,7 +39,7 @@ describe('KnowledgeMapScreen star marking', () => {
     expect(wrapper.text()).toContain('Открыто звёзд: 5 из 66')
     await wrapper.setProps({ earnedFactIds: factIds.slice(0, 6) })
     expect(wrapper.text()).toContain('Открыто звёзд: 6 из 66')
-    expect(wrapper.findAll('path.map__star--earned')).toHaveLength(6)
+    expect(wrapper.findAll('.map__star--earned')).toHaveLength(6)
     wrapper.unmount()
   })
 

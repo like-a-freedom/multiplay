@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import StarGlyph from '@/presentation/components/StarGlyph.vue'
 
 /**
  * The question card (DESIGN.md): the answer is hidden until an attempt; after
@@ -54,7 +55,10 @@ const visibleExpression = computed(() =>
       <span v-if="celebrate && answerValue !== undefined" class="visually-hidden">
         Правильный ответ: {{ answerValue }}
       </span>
-      <p v-if="starUnlocked" class="question-card__star-unlocked">Новая звезда открыта на карте!</p>
+      <p v-if="starUnlocked" class="question-card__star-unlocked">
+        <StarGlyph :size="40" class="question-card__new-star" />
+        <span>Новая звезда открыта на карте!</span>
+      </p>
       <div v-if="review && answerValue !== undefined" class="question-card__answer-row">
         <p v-if="submittedValue !== null && submittedValue !== undefined" class="question-card__submitted">
           Твой ответ: {{ submittedValue }}
@@ -156,11 +160,14 @@ const visibleExpression = computed(() =>
 }
 
 .question-card__star-unlocked {
-  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
   margin: 0;
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-star-edge);
   border-radius: var(--radius-control);
-  background: var(--color-streak);
+  background: var(--color-review-surface);
   color: var(--color-ink);
   font-weight: 700;
 }
@@ -240,6 +247,10 @@ const visibleExpression = computed(() =>
     animation: review-appear 320ms 120ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
+  .question-card__new-star {
+    animation: star-unlock 480ms 120ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
   .question-card--review .question-card__answer-row,
   .question-card--review .question-card__hint {
     animation: review-appear 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -259,6 +270,11 @@ const visibleExpression = computed(() =>
 @keyframes review-appear {
   from { opacity: 0.7; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes star-unlock {
+  from { opacity: .5; transform: scale(.7) rotate(-12deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
 }
 
 @keyframes correct-card {

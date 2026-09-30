@@ -14,9 +14,9 @@ import MissionProgress from '@/presentation/components/MissionProgress.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import QuestionCard from '@/presentation/components/QuestionCard.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
+import StarGlyph from '@/presentation/components/StarGlyph.vue'
 import { useGameSession } from '@/presentation/composables/gameSession'
 import { today } from '@/presentation/utils/clock'
-import { STAR_PATH } from '@/presentation/utils/constellation'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
 
 /**
@@ -230,19 +230,20 @@ function feedbackText(outcome: AttemptOutcome): string {
           aria-hidden="true"
         >
           <template v-if="expeditionJustFinished">
-            <path
+            <StarGlyph
               v-for="n in 66"
               :key="n"
-              :d="STAR_PATH"
-              :transform="`translate(${15 + ((n - 1) % 11) * 30} ${15 + Math.floor((n - 1) / 11) * 30})`"
+              :x="4 + ((n - 1) % 11) * 30"
+              :y="4 + Math.floor((n - 1) / 11) * 30"
+              :size="22"
               class="mission__finish-star"
             />
           </template>
           <template v-else>
             <path class="mission__finish-orbit" d="M -24 88 C 74 5 201 127 345 18" />
-            <path :d="STAR_PATH" transform="translate(54 66) scale(.7)" class="mission__finish-star mission__finish-star--small" />
-            <path :d="STAR_PATH" transform="translate(163 73) scale(2.5)" class="mission__finish-star mission__finish-star--hero" />
-            <path :d="STAR_PATH" transform="translate(271 30) scale(.9)" class="mission__finish-star mission__finish-star--small" />
+            <StarGlyph :x="47" :y="59" :size="14" :earned="false" />
+            <StarGlyph :x="135" :y="36" :size="56" :earned="session.stars.value > 0" class="mission__finish-star--hero" />
+            <StarGlyph :x="263" :y="22" :size="16" :earned="false" />
           </template>
         </svg>
         <div class="mission__finish-content">
@@ -265,8 +266,11 @@ function feedbackText(outcome: AttemptOutcome): string {
             <span class="mission__award-total">Всего {{ session.totalXp.value }} XP · уровень {{ session.level.value }}</span>
           </div>
           <div class="mission__stars">
-            <strong>Звёзды знаний: {{ session.stars.value }} из 66</strong>
-            <p>Звезда — за пример, который ты решил сам и повторил спустя неделю. XP на звёзды не влияют.</p>
+            <div class="mission__stars-heading">
+              <StarGlyph :size="32" :earned="session.stars.value > 0" />
+              <strong>Звёзды знаний: {{ session.stars.value }} из 66</strong>
+            </div>
+            <p>Звезда открывается за пример, который ты решил сам и повторил спустя неделю. XP на звёзды не влияют.</p>
           </div>
         </div>
       </div>
@@ -317,9 +321,6 @@ function feedbackText(outcome: AttemptOutcome): string {
   stroke-width: 2;
   stroke-dasharray: 4 8;
 }
-
-.mission__finish-star { fill: var(--color-streak); }
-.mission__finish-star--small { fill: var(--color-on-space); }
 
 .mission__finish-content {
   display: flex;
@@ -374,6 +375,7 @@ function feedbackText(outcome: AttemptOutcome): string {
 }
 
 .mission__stars {
+  --star-empty-fill: var(--color-white);
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -384,6 +386,7 @@ function feedbackText(outcome: AttemptOutcome): string {
 }
 
 .mission__stars strong { color: var(--color-ink); }
+.mission__stars-heading { display: flex; align-items: center; gap: var(--space-md); }
 .mission__stars p {
   margin: 0;
   color: var(--color-ink-muted);
@@ -392,7 +395,8 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 @media (prefers-reduced-motion: no-preference) {
   .mission__finish-star--hero {
-    transform-origin: 163px 73px;
+    transform-box: fill-box;
+    transform-origin: center;
     animation: mission-star-arrive 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 

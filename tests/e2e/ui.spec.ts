@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'desktop', width: 1280, height: 900 }, { name: 'zoom', width: 320, height: 740 }]) {
   test(`design system and core flow: ${size.name}`, async ({ page }) => {
     await page.setViewportSize(size)
-    await page.goto('/')
+    await page.goto('./')
     if (size.name === 'zoom') await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
     const checkLayout = async () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -25,7 +25,7 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     await expect(page.locator('.answer-field__error')).toHaveCount(0)
     await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('aria-describedby', 'answer-help')
     await page.getByRole('button', { name: 'Пропустить проверку' }).click()
-    await expect(page.getByRole('heading', { name: 'Математическая экспедиция' })).toBeFocused()
+    await expect(page.getByRole('heading', { name: 'Умножайка' })).toBeFocused()
     await checkLayout()
     await page.screenshot({ path: `/tmp/math-ui-home-${size.name}.png`, fullPage: true })
     await page.getByRole('button', { name: 'Играть', exact: true }).click()

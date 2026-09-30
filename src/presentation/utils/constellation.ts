@@ -11,20 +11,20 @@ export interface StarPosition {
 export function constellationPositions(count: number, size = 320): readonly StarPosition[] {
   const center = size / 2
   const radii = [size * 0.18, size * 0.3, size * 0.42]
-  const perOrbit = Math.ceil(count / radii.length)
+  // Allocate by circumference so the inner ring is as airy as the outer one.
+  const innerCount = Math.round(count * 0.18)
+  const middleCount = Math.round(count * 0.33)
+  const counts = [innerCount, middleCount, count - innerCount - middleCount]
   const positions: StarPosition[] = []
 
-  for (let index = 0; index < count; index += 1) {
-    const orbit = Math.floor(index / perOrbit)
-    const step = index % perOrbit
-    const angle = (step / perOrbit) * Math.PI * 2 - Math.PI / 2 + orbit * 0.35
-    positions.push({
-      x: center + radii[orbit] * Math.cos(angle),
-      y: center + radii[orbit] * Math.sin(angle),
-    })
+  for (let orbit = 0; orbit < radii.length; orbit += 1) {
+    for (let step = 0; step < counts[orbit]; step += 1) {
+      const angle = (step / counts[orbit]) * Math.PI * 2 - Math.PI / 2 + orbit * 0.35
+      positions.push({
+        x: center + radii[orbit] * Math.cos(angle),
+        y: center + radii[orbit] * Math.sin(angle),
+      })
+    }
   }
   return positions
 }
-
-/** Path of a small star centered on the origin. */
-export const STAR_PATH = 'M 0 -7 L 2 -2.2 L 7 -2.2 L 3 1 L 4.4 6 L 0 3 L -4.4 6 L -3 1 L -7 -2.2 L -2 -2.2 Z'

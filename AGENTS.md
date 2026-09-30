@@ -22,6 +22,8 @@ Use two-space indentation, PascalCase Vue component files and camelCase TypeScri
 
 ## Testing
 
+Deployment checks use Chromium for manifest paths, worker scope and offline reload; UI flows use WebKit. Install both with `bun x playwright install webkit chromium` (add `--with-deps` on Linux). `APP_BASE_PATH` selects the hosting path for both build and tests. CI checks `/` and `/multiplay/`; see `DEPLOYMENT.md` before publishing. Node and Bun versions are pinned in `.node-version` and `packageManager`; use `bun install --frozen-lockfile`.
+
 Vitest covers the domain rules and persistence: question generation, answer checking, review scheduling, progress persistence, reward idempotency, calendar boundaries, lapses, and failed storage writes. Playwright (WebKit, iPhone 12 Pro Max emulation) runs the e2e flows. No coverage percentage is mandated. Verify that saved progress survives a reload and that the core practice flow works offline on the target iPhone (`tests/device-checklist.md`).
 
 ## Commits and Pull Requests

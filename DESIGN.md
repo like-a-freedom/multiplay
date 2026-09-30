@@ -1,5 +1,5 @@
 ---
-name: "Математическая экспедиция"
+name: "Умножайка"
 description: "Design system for a short flashcard game that teaches the multiplication table on iPhone"
 colors:
   space: "#0B1020"
@@ -14,6 +14,10 @@ colors:
   on-space: "#F7FAFF"
   focus-on-space: "#F9BA43"
   streak: "#F9BA43"
+  star: "#F9BA43"
+  star-highlight: "#FFE3A1"
+  star-edge: "#C88024"
+  star-idle: "#64748B"
   success: "#0B6B62"
   success-surface: "#E0F4E8"
   error: "#B42335"
@@ -95,7 +99,7 @@ components:
     padding: "8px 12px"
 ---
 
-# Design System: Математическая экспедиция
+# Design System: Умножайка
 
 ## Overview
 
@@ -138,7 +142,9 @@ Depth is built from two planes: the dark sky and the light card. No glass, blur,
 
 ## Shapes
 
-The card has the soft `card` radius; fields and buttons the smaller `control`; the streak indicator the `badge` capsule. Orbits and route dots are drawn as thin SVG lines, while interactive elements remain standard buttons and fields. All icons are one set of simple 2px-stroke SVGs; emoji and Unicode symbols do not replace interface icons.
+**Achievement stars:** use the rounded `star-fill` silhouette from Phosphor Icons (MIT, vendored in `StarGlyph.vue`; license in `public/licenses/phosphor-icons.txt`). Earned stars have a restrained gold fill from `star-highlight` through `star` to `star-edge`, with a fine edge and no outer glow. Future stars use a quiet `star-idle` outline with a fill matching the surrounding surface. Use the same glyph on the map, counters, mission finish, and new-star feedback. The 66 stars are distributed 12/22/32 across the three orbits, keeping similar spacing on every ring. Orbit lines stay subdued; a text legend and per-fact labels explain the states. The map stays still; new-star feedback receives a short scale/rotation entrance and the finish illustration appears once. Reduced motion shows both immediately. Never recolor an earned star after a later error.
+
+The card has the soft `card` radius; fields and buttons the smaller `control`; the streak indicator the `badge` capsule. Orbits and route dots are drawn as thin SVG lines, while interactive elements remain standard buttons and fields. Control icons use simple 2px-stroke SVGs; achievement stars follow the distinct filled treatment above. Emoji and Unicode symbols do not replace interface icons.
 
 ## Components
 
