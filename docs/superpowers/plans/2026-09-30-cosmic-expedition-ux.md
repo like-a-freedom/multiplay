@@ -75,11 +75,11 @@
 
 **Interfaces:** Preserve QuestionCard's existing props and answer feedback copy. Remove only the eight card-confetti pieces and their CSS; success green, warm error/unknown, answer explanation, and new-star text remain.
 
-- [ ] **Step 1: Rewrite failing feedback tests.** Assert zero particles over a question, the success and review surfaces remain readable, the correct/typed answers are still stated, and focus moves to `Продолжить` after an answer and back to the field on the next card. Add a refresh-after-answer assertion: the accepted attempt persists and cannot be rewarded twice.
-- [ ] **Step 2: Verify red.** Run `rtk proxy bun run build`, then `rtk proxy bun run test:e2e tests/e2e/success-feedback.spec.ts tests/e2e/review-feedback.spec.ts`. Expect failure because the existing card renders eight confetti pieces.
-- [ ] **Step 3: Implement and align `DESIGN.md`.** Remove card particles and replace both conflicting statements in `DESIGN.md` (the Question Card row and Motion section): celebration belongs to earned mission/star events, not every answer. Keep the existing signal colors, text, and no-auto-advance behavior.
-- [ ] **Step 4: Verify green.** Run `rtk proxy bun run test src/presentation/screens/missionScreen.test.ts`, `rtk proxy bun run build`, and `rtk proxy bun run test:e2e tests/e2e/success-feedback.spec.ts tests/e2e/review-feedback.spec.ts`. Expected: all pass in WebKit, including reduced motion and 320 px width.
-- [ ] **Step 5: Commit.** Stage Task 3 files and commit `refine: keep question feedback focused`.
+- [x] **Step 1: Rewrite failing feedback tests.** Assert zero particles over a question, the success and review surfaces remain readable, the correct/typed answers are still stated, and focus moves to `Продолжить` after an answer and back to the field on the next card. Add a refresh-after-answer assertion: the accepted attempt persists and cannot be rewarded twice.
+- [x] **Step 2: Verify red.** Run `rtk proxy bun run build`, then `rtk proxy bun run test:e2e tests/e2e/success-feedback.spec.ts tests/e2e/review-feedback.spec.ts`. Expect failure because the existing card renders eight confetti pieces.
+- [x] **Step 3: Implement and align `DESIGN.md`.** Remove card particles and replace both conflicting statements in `DESIGN.md` (the Question Card row and Motion section): celebration belongs to earned mission/star events, not every answer. Keep the existing signal colors, text, and no-auto-advance behavior.
+- [x] **Step 4: Verify green.** Run `rtk proxy bun run test src/presentation/screens/missionScreen.test.ts`, `rtk proxy bun run build`, and `rtk proxy bun run test:e2e tests/e2e/success-feedback.spec.ts tests/e2e/review-feedback.spec.ts`. Expected: all pass in WebKit, including reduced motion and 320 px width.
+- [x] **Step 5: Commit.** Stage Task 3 files and commit `refine: keep question feedback focused`.
 
 ### Task 4: Mission result with XP, ship flight, and clear narration
 
