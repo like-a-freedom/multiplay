@@ -118,6 +118,11 @@ test('a fourth +0 mission leaves the ship in place after reload', async ({ page 
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
   await expect(page.getByText('Миссия завершена!')).toBeVisible()
   await expect(page.getByText('+0 XP')).toBeVisible()
+  await expect(page.locator('.xp-route--finish')).toBeVisible()
+  await expect(page.locator('.xp-route--finish')).toHaveAttribute('data-earned-in-level', '30')
+  await expect(page.locator('.xp-route__beam')).toHaveCount(0)
+  await expect(page.locator('.xp-award__visual')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toBeEnabled()
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
 
   const ship = page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 30 из 100 XP' })
@@ -126,4 +131,29 @@ test('a fourth +0 mission leaves the ship in place after reload', async ({ page 
   await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 30 из 100 XP' })).toBeVisible()
   await expect(page.getByText('Всего XP: 30')).toBeVisible()
   expect(await page.getByText('Карточка 1 из 1').count()).toBe(0)
+})
+
+test('reduced motion presents the final XP and route without a flight or beam', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const initial = createProgressState()
+  const seeded = {
+    ...initial,
+    currentMission: { id: 'reduced-motion-finish', cardFactIds: ['0:0'], answeredFactIds: [] },
+    diagnostic: { factIds: [], skipped: true, completed: true },
+  }
+  await page.goto('./')
+  await page.evaluate(
+    ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
+  )
+  await page.reload()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+  await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+  await page.getByLabel('Ответ на пример').fill('0')
+  await page.getByLabel('Ответ на пример').press('Enter')
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+
+  await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
+  await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 10 из 100 XP' })).toBeVisible()
+  await expect(page.locator('.xp-route__beam')).toHaveCount(0)
 })

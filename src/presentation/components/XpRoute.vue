@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { XP_PER_LEVEL } from '@/domain/game/experience'
+import AnimatedBeam from '@/presentation/components/inspira/AnimatedBeam.vue'
 import ExpeditionShip from '@/presentation/components/ExpeditionShip.vue'
 import { xpRoute } from '@/presentation/utils/xpRoute'
 
@@ -9,10 +10,15 @@ type Point = { x: number; y: number }
 
 const props = withDefaults(defineProps<{
   totalXp: number
+  fromXp?: number | null
+  variant?: 'home' | 'finish'
   launching?: boolean
-}>(), { launching: false })
+}>(), {
+  fromXp: null,
+  variant: 'home',
+  launching: false,
+})
 
-// Point zero is the launch pad; the ten remaining points are earned at 10 XP steps.
 const routePoints: readonly Point[] = [
   { x: 32, y: 148 },
   { x: 59, y: 137 },
@@ -27,37 +33,152 @@ const routePoints: readonly Point[] = [
   { x: 331, y: 33 },
 ]
 const waypoints = routePoints.slice(1).map((point, index) => ({ ...point, xp: (index + 1) * 10 }))
-const progress = computed(() => xpRoute(props.totalXp))
-const shipPosition = computed(() => {
-  const routeStep = progress.value.fraction * (routePoints.length - 1)
+const target = computed(() => xpRoute(props.totalXp))
+const start = computed(() => xpRoute(Math.max(0, props.fromXp ?? props.totalXp)))
+const hasEarnedXp = computed(() =>
+  props.variant === 'finish' && props.fromXp !== null && props.fromXp !== undefined && props.totalXp > props.fromXp,
+)
+const displayLevel = ref(hasEarnedXp.value ? start.value.level : target.value.level)
+const displayFraction = ref(hasEarnedXp.value ? start.value.fraction : target.value.fraction)
+const isAnimating = ref(false)
+const beamFinished = ref(false)
+const prefersReducedMotion = ref(false)
+const phaseStart = ref(start.value.fraction)
+const phaseEnd = ref(target.value.fraction)
+const phaseDuration = ref(650)
+const beamKey = ref(0)
+const containerRef = ref<HTMLElement | null>(null)
+const fromRef = ref<SVGCircleElement | null>(null)
+const toRef = ref<SVGCircleElement | null>(null)
+let frameId = 0
+let mounted = true
+
+const beamActive = computed(() =>
+  isAnimating.value && !beamFinished.value && !prefersReducedMotion.value && phaseEnd.value > phaseStart.value,
+)
+const currentProgress = computed(() => ({
+  level: displayLevel.value,
+  earnedInLevel: Math.round(displayFraction.value * XP_PER_LEVEL),
+  fraction: displayFraction.value,
+}))
+const shipPosition = computed(() => pointAtFraction(currentProgress.value.fraction))
+const beamFromPosition = computed(() => pointAtFraction(phaseStart.value))
+const beamToPosition = computed(() => pointAtFraction(phaseEnd.value))
+const shipLabel = computed(
+  () => `Корабль экспедиции: уровень ${target.value.level}, ${target.value.earnedInLevel} из ${XP_PER_LEVEL} XP`,
+)
+
+function pointAtFraction(fraction: number): Point {
+  const routeStep = Math.max(0, Math.min(1, fraction)) * (routePoints.length - 1)
   const startIndex = Math.floor(routeStep)
   const endIndex = Math.min(startIndex + 1, routePoints.length - 1)
   const blend = routeStep - startIndex
-  const start = routePoints[startIndex]
-  const end = routePoints[endIndex]
+  const from = routePoints[startIndex]
+  const to = routePoints[endIndex]
   return {
-    x: start.x + (end.x - start.x) * blend,
-    y: start.y + (end.y - start.y) * blend,
+    x: from.x + (to.x - from.x) * blend,
+    y: from.y + (to.y - from.y) * blend,
   }
+}
+
+function animateFraction(from: number, to: number, durationMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    let startedAt: number | null = null
+    const tick = (timestamp: number) => {
+      if (!mounted) {
+        resolve()
+        return
+      }
+      startedAt ??= timestamp
+      const fraction = Math.min((timestamp - startedAt) / Math.max(1, durationMs), 1)
+      const eased = 1 - (1 - fraction) ** 3
+      displayFraction.value = from + (to - from) * eased
+      if (fraction < 1) frameId = window.requestAnimationFrame(tick)
+      else resolve()
+    }
+    frameId = window.requestAnimationFrame(tick)
+  })
+}
+
+async function flyToEarnedPosition(): Promise<void> {
+  if (!hasEarnedXp.value) return
+  prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (prefersReducedMotion.value) {
+    displayLevel.value = target.value.level
+    displayFraction.value = target.value.fraction
+    return
+  }
+
+  const startLevel = start.value.level
+  const crossedLevels = Math.max(0, target.value.level - startLevel)
+  const segmentCount = crossedLevels + 1
+  const duration = 650 / segmentCount
+  isAnimating.value = true
+  let fraction = start.value.fraction
+
+  for (let level = startLevel; level < target.value.level && mounted; level += 1) {
+    displayLevel.value = level
+    displayFraction.value = fraction
+    phaseStart.value = fraction
+    phaseEnd.value = 1
+    phaseDuration.value = duration
+    beamFinished.value = false
+    beamKey.value += 1
+    await nextTick()
+    await animateFraction(fraction, 1, duration)
+    fraction = 0
+    displayLevel.value = level + 1
+    displayFraction.value = 0
+  }
+
+  if (!mounted) return
+  if (target.value.fraction > fraction) {
+    displayLevel.value = target.value.level
+    displayFraction.value = fraction
+    phaseStart.value = fraction
+    phaseEnd.value = target.value.fraction
+    phaseDuration.value = duration
+    beamFinished.value = false
+    beamKey.value += 1
+    await nextTick()
+    await animateFraction(fraction, target.value.fraction, duration)
+  }
+  if (mounted) {
+    displayLevel.value = target.value.level
+    displayFraction.value = target.value.fraction
+    isAnimating.value = false
+  }
+}
+
+onMounted(() => {
+  void flyToEarnedPosition()
 })
-const shipLabel = computed(
-  () => `Корабль экспедиции: уровень ${progress.value.level}, ${progress.value.earnedInLevel} из ${XP_PER_LEVEL} XP`,
-)
+
+onBeforeUnmount(() => {
+  mounted = false
+  if (frameId !== 0) window.cancelAnimationFrame(frameId)
+})
 </script>
 
 <template>
-  <section class="xp-route" aria-label="Маршрут опыта">
+  <section
+    ref="containerRef"
+    :class="['xp-route', { 'xp-route--finish': variant === 'finish' }]"
+    :aria-label="variant === 'finish' ? 'Полёт по маршруту опыта' : 'Маршрут опыта'"
+    :data-level="currentProgress.level"
+    :data-earned-in-level="currentProgress.earnedInLevel"
+  >
     <div class="xp-route__heading">
-      <h2 class="xp-route__title">Экспедиция</h2>
-      <span class="xp-route__level">Уровень {{ progress.level }}</span>
+      <h2 class="xp-route__title">{{ variant === 'finish' ? 'Полёт по маршруту' : 'Экспедиция' }}</h2>
+      <span class="xp-route__level">Уровень {{ currentProgress.level }}</span>
     </div>
     <svg
       class="xp-route__map"
       viewBox="0 0 360 184"
       role="img"
       :aria-label="shipLabel"
-      :data-level="progress.level"
-      :data-earned-in-level="progress.earnedInLevel"
+      :data-level="currentProgress.level"
+      :data-earned-in-level="currentProgress.earnedInLevel"
     >
       <defs>
         <linearGradient id="xp-route-glow" x1="0" y1="1" x2="1" y2="0">
@@ -70,20 +191,50 @@ const shipLabel = computed(
       <path d="M 32 148 C 53 121 70 164 91 139 C 112 114 132 77 153 96 C 176 117 181 146 205 111 C 226 80 242 49 262 67 C 282 85 298 43 331 33" class="xp-route__track" />
       <circle cx="32" cy="148" r="7" class="xp-route__launch-pad" />
       <g v-for="point in waypoints" :key="point.xp">
-        <circle :cx="point.x" :cy="point.y" :r="point.xp <= progress.earnedInLevel ? 6 : 4.5" :class="['xp-route__waypoint', { 'xp-route__waypoint--earned': point.xp <= progress.earnedInLevel }]" />
-        <circle v-if="point.xp <= progress.earnedInLevel" :cx="point.x" :cy="point.y" r="10" class="xp-route__waypoint-halo" />
+        <circle :cx="point.x" :cy="point.y" :r="point.xp <= currentProgress.earnedInLevel ? 6 : 4.5" :class="['xp-route__waypoint', { 'xp-route__waypoint--earned': point.xp <= currentProgress.earnedInLevel }]" />
+        <circle v-if="point.xp <= currentProgress.earnedInLevel" :cx="point.x" :cy="point.y" r="10" class="xp-route__waypoint-halo" />
       </g>
+      <circle
+        ref="fromRef"
+        class="xp-route__beam-anchor"
+        :cx="beamFromPosition.x"
+        :cy="beamFromPosition.y"
+        r="1"
+      />
+      <circle
+        ref="toRef"
+        class="xp-route__beam-anchor"
+        :cx="beamToPosition.x"
+        :cy="beamToPosition.y"
+        r="1"
+      />
       <ExpeditionShip :x="shipPosition.x" :y="shipPosition.y" :launching="launching" />
     </svg>
-    <p class="xp-route__progress">{{ progress.earnedInLevel }} из {{ XP_PER_LEVEL }} XP до следующего уровня</p>
+    <AnimatedBeam
+      v-if="beamActive"
+      :key="beamKey"
+      :container-ref="containerRef"
+      :from-ref="fromRef"
+      :to-ref="toRef"
+      :active="beamActive"
+      :duration-ms="phaseDuration"
+      @finished="beamFinished = true"
+    />
+    <p class="xp-route__progress">{{ target.earnedInLevel }} из {{ XP_PER_LEVEL }} XP до следующего уровня</p>
   </section>
 </template>
 
 <style scoped>
 .xp-route {
+  position: relative;
   display: grid;
   gap: var(--space-sm);
   width: 100%;
+}
+.xp-route--finish {
+  padding: var(--space-md);
+  border-radius: var(--radius-card);
+  background: var(--color-space);
 }
 .xp-route__heading {
   display: flex;
@@ -145,6 +296,7 @@ const shipLabel = computed(
   stroke-width: 1;
   opacity: 0.2;
 }
+.xp-route__beam-anchor { opacity: 0; }
 .xp-route__progress {
   color: var(--color-on-space);
   font-variant-numeric: tabular-nums;
@@ -156,5 +308,4 @@ const shipLabel = computed(
     gap: var(--space-xs);
   }
 }
-
 </style>

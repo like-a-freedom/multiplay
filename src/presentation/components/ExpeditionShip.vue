@@ -18,7 +18,7 @@ defineProps<{
       :style="{ transformBox: 'fill-box', transformOrigin: 'center' }"
       aria-hidden="true"
     >
-      <g :transform="`translate(${x} ${y})`" class="expedition-ship">
+      <g :transform="`translate(${x} ${y})`" class="expedition-ship expedition-ship-position">
         <path d="M -23 -6 L 8 -11 L 23 0 L 8 11 L -23 6 Z" fill="var(--color-paper)" />
         <path d="M -10 -7 L 0 -15 L 4 -7 Z M -10 7 L 0 15 L 4 7 Z" fill="var(--color-star)" />
         <path d="M -22 -5 L -12 0 L -22 5 Z" fill="var(--color-action)" />

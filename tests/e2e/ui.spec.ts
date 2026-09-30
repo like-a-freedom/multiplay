@@ -40,7 +40,7 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     await expect(page.getByText('Звёзды знаний: 0 из 66')).toBeVisible()
     await expect(page.getByText('Всего 10 XP · уровень 1')).toBeVisible()
     await checkLayout()
-    await page.locator('.mission__award').evaluate((element) => element.getAnimations().forEach((animation) => animation.finish()))
+    await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
     await page.screenshot({ path: `/tmp/math-ui-summary-${size.name}.png`, fullPage: true })
     await page.getByRole('button', { name: 'Карта звёзд' }).click()
     await expect(page.getByRole('heading', { name: 'Карта звёзд' })).toBeVisible()

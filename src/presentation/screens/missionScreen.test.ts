@@ -2,6 +2,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import type { CalendarDate } from '@/domain/learning/calendarDate'
 import MissionScreen from '@/presentation/screens/MissionScreen.vue'
 import { today } from '@/presentation/utils/clock'
 import { fakeGameSession, sessionMountOptions } from '../../../tests/support/fakeGameSession'
@@ -141,6 +142,103 @@ describe('MissionScreen answer flow', () => {
     expect(wrapper.text()).toContain('+0 XP')
     expect(wrapper.text()).toContain('Дневные 30 XP уже получены')
     expect(session.totalXp.value).toBe(30)
+    expect(wrapper.get('[role="status"]').attributes('aria-label')).toContain('+0 XP')
+    expect(wrapper.get('[role="status"]').attributes('aria-label')).toContain('Дневные 30 XP уже получены')
+    expect(wrapper.find('.xp-award__visual').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('announces the final +10 XP immediately while the visual number is separate', async () => {
+    const session = fakeGameSession()
+    session.state.value = {
+      ...session.state.value,
+      currentMission: { id: 'ten-xp', cardFactIds: ['0:0'], answeredFactIds: [] },
+    }
+    const wrapper = mountMission(session)
+    await wrapper.vm.$nextTick()
+
+    await answer(wrapper, '0')
+    await buttons(wrapper).find((button) => button.text() === 'Продолжить')!.trigger('click')
+
+    const award = wrapper.get('[role="status"]')
+    expect(award.attributes('aria-label')).toContain('+10 XP')
+    expect(award.attributes('aria-label')).toContain('Всего 10 XP')
+    expect(wrapper.get('.xp-award__visual').attributes('aria-hidden')).toBe('true')
+    expect(wrapper.text()).toContain('Звёзды знаний: 0 из 66')
+    wrapper.unmount()
+  })
+
+  it('announces a +20 streak bonus separately when it carries the ship from 90 to 120 XP', async () => {
+    const session = fakeGameSession()
+    const date = today()
+    session.state.value = {
+      ...session.state.value,
+      rewards: {
+        ...session.state.value.rewards,
+        totalXp: 90,
+        streak: {
+          days: 2,
+          bestDays: 2,
+          lastRewardedDate: dayBefore(date),
+          earnedMilestoneDays: [],
+        },
+      },
+      currentMission: { id: 'streak-milestone', cardFactIds: ['0:0'], answeredFactIds: [] },
+    }
+    const wrapper = mountMission(session)
+    await wrapper.vm.$nextTick()
+
+    await answer(wrapper, '0')
+    await buttons(wrapper).find((button) => button.text() === 'Продолжить')!.trigger('click')
+
+    const award = wrapper.get('[role="status"]')
+    expect(award.attributes('aria-label')).toContain('+30 XP')
+    expect(award.attributes('aria-label')).toContain('10 XP за миссию')
+    expect(award.attributes('aria-label')).toContain('20 XP за серию дней')
+    expect(award.attributes('aria-label')).toContain('Всего 120 XP')
+    expect(award.attributes('aria-label')).toContain('Уровень 2')
+    expect(session.totalXp.value).toBe(120)
+    wrapper.unmount()
+  })
+
+  it('keeps a clock-rollback reward at +0 XP and explains the pause', async () => {
+    const session = fakeGameSession()
+    session.state.value = {
+      ...session.state.value,
+      rewards: {
+        ...session.state.value.rewards,
+        totalXp: 30,
+        streak: {
+          days: 3,
+          bestDays: 3,
+          lastRewardedDate: dayAfter(today()),
+          earnedMilestoneDays: [3],
+        },
+      },
+      currentMission: { id: 'clock-rollback', cardFactIds: ['0:0'], answeredFactIds: [] },
+    }
+    const wrapper = mountMission(session)
+    await wrapper.vm.$nextTick()
+
+    await answer(wrapper, '0')
+    await buttons(wrapper).find((button) => button.text() === 'Продолжить')!.trigger('click')
+
+    expect(wrapper.get('[role="status"]').attributes('aria-label')).toContain('+0 XP')
+    expect(wrapper.get('[role="status"]').attributes('aria-label')).toContain('приостановлены из-за даты устройства')
+    expect(wrapper.find('.xp-award__visual').exists()).toBe(false)
+    expect(session.totalXp.value).toBe(30)
     wrapper.unmount()
   })
 })
+
+function dayBefore(date: CalendarDate): CalendarDate {
+  const value = new Date(`${date}T12:00:00.000Z`)
+  value.setUTCDate(value.getUTCDate() - 1)
+  return value.toISOString().slice(0, 10) as CalendarDate
+}
+
+function dayAfter(date: CalendarDate): CalendarDate {
+  const value = new Date(`${date}T12:00:00.000Z`)
+  value.setUTCDate(value.getUTCDate() + 1)
+  return value.toISOString().slice(0, 10) as CalendarDate
+}

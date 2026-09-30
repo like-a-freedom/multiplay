@@ -15,6 +15,8 @@ import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import QuestionCard from '@/presentation/components/QuestionCard.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
+import XpAward from '@/presentation/components/XpAward.vue'
+import XpRoute from '@/presentation/components/XpRoute.vue'
 import { useGameSession } from '@/presentation/composables/gameSession'
 import { today } from '@/presentation/utils/clock'
 import { spokenExpression } from '@/presentation/utils/spokenExpression'
@@ -47,6 +49,7 @@ const finished = ref(false)
 const expeditionJustFinished = ref(false)
 const awardedXp = ref(0)
 const bonusXp = ref(0)
+const xpBeforeCompletion = ref<number | null>(null)
 const xpPausedByClock = ref(false)
 const cardRegion = ref<HTMLElement | null>(null)
 const actions = ref<HTMLElement | null>(null)
@@ -146,6 +149,7 @@ function next(): void {
 
 function finish(): void {
   const date = today()
+  xpBeforeCompletion.value = session.totalXp.value
   xpPausedByClock.value = rewardsPausedByClockRollback(session.state.value, date)
   const result = completeMission(session.state.value, { missionId: missionId.value, date })
   session.state.value = result.state
@@ -252,19 +256,18 @@ function feedbackText(outcome: AttemptOutcome): string {
           <p class="mission__finish-copy">
             {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты прошёл маршрут. Можно сыграть ещё или вернуться позже.' }}
           </p>
-          <div class="mission__award" role="status">
-            <template v-if="awardedXp + bonusXp > 0">
-              <span class="mission__award-label">Опыт за практику</span>
-              <strong class="mission__award-value">+{{ awardedXp + bonusXp }} XP</strong>
-              <span v-if="bonusXp > 0" class="mission__award-bonus">{{ awardedXp }} XP за миссию + {{ bonusXp }} XP за серию дней</span>
-            </template>
-            <template v-else>
-              <span class="mission__award-label">Опыт за практику</span>
-              <strong class="mission__award-value">+0 XP</strong>
-              <span>{{ xpPausedByClock ? 'XP приостановлены из-за даты устройства.' : 'Дневные 30 XP уже получены. Играть дальше можно.' }}</span>
-            </template>
-            <span class="mission__award-total">Всего {{ session.totalXp.value }} XP · уровень {{ session.level.value }}</span>
-          </div>
+          <XpAward
+            :awarded-xp="awardedXp"
+            :bonus-xp="bonusXp"
+            :total-xp="session.totalXp.value"
+            :level="session.level.value"
+            :xp-paused-by-clock="xpPausedByClock"
+          />
+          <XpRoute
+            variant="finish"
+            :total-xp="session.totalXp.value"
+            :from-xp="xpBeforeCompletion"
+          />
           <div class="mission__stars">
             <div class="mission__stars-heading">
               <StarGlyph :size="32" :earned="session.stars.value > 0" />
@@ -344,36 +347,6 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 .mission__finish-copy { color: var(--color-ink-muted); }
 
-.mission__award {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-xs);
-  padding: var(--space-lg);
-  border: 1px solid var(--color-review-outline);
-  border-radius: var(--radius-control);
-  background: var(--color-review-surface);
-  color: var(--color-review-ink);
-}
-
-.mission__award-label,
-.mission__award-bonus {
-  font-size: var(--font-size-label);
-}
-
-.mission__award-total {
-  padding-top: var(--space-sm);
-  border-top: 1px solid var(--color-review-outline);
-  font-size: var(--font-size-label);
-}
-
-.mission__award-value {
-  color: var(--color-ink);
-  font-size: var(--font-size-title);
-  line-height: var(--line-height-title);
-  font-variant-numeric: tabular-nums;
-}
-
 .mission__stars {
   --star-empty-fill: var(--color-white);
   display: flex;
@@ -400,7 +373,7 @@ function feedbackText(outcome: AttemptOutcome): string {
     animation: mission-star-arrive 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .mission__award {
+  .xp-award {
     animation: award-arrive 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }

@@ -15,6 +15,7 @@ test('первый запуск: диагностика, пропуск ведё
 })
 
 test('миссия: ошибка называет введённое, Enter отправляет ответ, XP переживает перезагрузку', async ({ page }) => {
+  await page.clock.install()
   await page.goto('./')
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
@@ -35,6 +36,29 @@ test('миссия: ошибка называет введённое, Enter от
   await page.getByRole('button', { name: 'Продолжить' }).click()
 
   await expect(page.getByText('Миссия завершена!')).toBeVisible()
+  const finishAward = page.getByRole('status', {
+    name: 'Опыт за практику: +10 XP. Всего 10 XP. Уровень 1.',
+  })
+  await expect(finishAward).toBeVisible()
+  const finishShip = page.locator('.xp-route--finish .expedition-ship-position')
+  const initialPosition = await finishShip.getAttribute('transform')
+  await page.clock.runFor(300)
+  const movingPosition = await finishShip.getAttribute('transform')
+  expect(movingPosition).not.toBe(initialPosition)
+  const beamProgress = Number(await page.locator('.xp-route__beam').getAttribute('data-progress'))
+  expect(beamProgress).toBeGreaterThan(0)
+  expect(beamProgress).toBeLessThan(1)
+  expect(Number(await page.locator('.xp-route__beam').getAttribute('data-path-length'))).toBeGreaterThan(40)
+  const beamFlare = page.locator('.xp-route__beam-flare')
+  await expect(beamFlare).toHaveCount(1)
+  expect(Number(await beamFlare.getAttribute('data-intensity'))).toBeGreaterThan(0)
+  await page.screenshot({ path: '/tmp/math-task4-flight-progress.png', fullPage: true })
+  await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 10 из 100 XP' })).toBeVisible()
+  await expect(page.locator('.xp-route__beam')).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Карта звёзд', exact: true })).toBeEnabled()
+  await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
+  await expect(page.locator('.xp-route__beam')).toHaveCount(0)
   await page.getByRole('button', { name: 'Продолжить' }).click()
 
   await expect(page.getByText('Всего XP: 10')).toBeVisible()
@@ -42,6 +66,48 @@ test('миссия: ошибка называет введённое, Enter от
   // Незаконченная сессия не теряет награду: прогресс живёт после перезагрузки.
   await page.reload()
   await expect(page.getByText('Всего XP: 10')).toBeVisible()
+})
+
+test('streak bonus carries the finish route across the level boundary', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-30T12:00:00+03:00') })
+  const initial = createProgressState()
+  const seeded = {
+    ...initial,
+    currentMission: { id: 'streak-level-crossing', cardFactIds: ['0:0'], answeredFactIds: [] },
+    rewards: {
+      ...initial.rewards,
+      totalXp: 90,
+      streak: {
+        days: 2,
+        bestDays: 2,
+        lastRewardedDate: '2026-09-29' as const,
+        earnedMilestoneDays: [],
+      },
+    },
+    diagnostic: { factIds: [], skipped: true, completed: true },
+  }
+  await page.goto('./')
+  await page.evaluate(
+    ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
+  )
+  await page.reload()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+  await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+  await page.getByLabel('Ответ на пример').fill('0')
+  await page.getByLabel('Ответ на пример').press('Enter')
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+
+  const award = page.getByRole('status', {
+    name: 'Опыт за практику: +30 XP: 10 XP за миссию и 20 XP за серию дней. Всего 120 XP. Уровень 2.',
+  })
+  await expect(award).toBeVisible()
+  await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 2, 20 из 100 XP' })).toBeVisible()
+  await expect(page.locator('.xp-route--finish')).toHaveAttribute('data-earned-in-level', '20')
+  await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toBeEnabled()
+  await page.clock.runFor(400)
+  await expect(page.locator('.xp-route--finish')).toHaveAttribute('data-level', '2')
+  await expect(page.locator('.xp-route--finish')).toHaveAttribute('data-earned-in-level', '20')
 })
 
 test('поддерживающий режим: свободная практика доступна всегда', async ({ page }) => {
