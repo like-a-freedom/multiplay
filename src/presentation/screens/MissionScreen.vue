@@ -36,7 +36,7 @@ interface Feedback {
 }
 
 const props = defineProps<{ kind?: MissionKind }>()
-const emit = defineEmits<{ exit: []; completed: []; map: [] }>()
+const emit = defineEmits<{ exit: []; completed: []; map: []; 'star-unlocked': [factId: string] }>()
 const session = useGameSession()
 
 const missionId = ref('')
@@ -133,6 +133,7 @@ function applyAccepted(
     hintText: outcome === 'correct' ? null : explanationFor(fact.value),
     starUnlocked,
   }
+  if (starUnlocked) emit('star-unlocked', fact.value.id)
   focusPrimaryAction()
 }
 

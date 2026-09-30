@@ -29,6 +29,7 @@ describe('MissionScreen answer flow', () => {
     // Первая карточка свежей миссии — 0 × 0
     await answer(wrapper, '0')
     expect(wrapper.text()).toContain('Верно')
+    expect(wrapper.emitted('star-unlocked')).toBeUndefined()
 
     await buttons(wrapper).find((b) => b.text() === 'Продолжить')!.trigger('click')
     await wrapper.vm.$nextTick()
@@ -98,6 +99,11 @@ describe('MissionScreen answer flow', () => {
 
   it('announces a new star on its answer and links the mission finish to the map', async () => {
     const session = fakeGameSession()
+    const savedStarIds: string[] = []
+    session.save = () => {
+      if (session.state.value.facts['0:0'].mastery.hasStar) savedStarIds.push('0:0')
+      return true
+    }
     const initial = session.state.value
     session.state.value = {
       ...initial,
@@ -116,6 +122,8 @@ describe('MissionScreen answer flow', () => {
     await answer(wrapper, '0')
     expect(wrapper.text()).toContain('Новая звезда открыта на карте!')
     expect(session.stars.value).toBe(1)
+    expect(savedStarIds).toEqual(['0:0'])
+    expect(wrapper.emitted('star-unlocked')).toEqual([['0:0']])
     await buttons(wrapper).find((b) => b.text() === 'Продолжить')!.trigger('click')
     expect(wrapper.text()).toContain('Звёзды знаний: 1 из 66')
     expect(wrapper.text()).toContain('Всего 10 XP · уровень 1')

@@ -117,10 +117,12 @@ test('поддерживающий режим: свободная практик
     },
     [PROGRESS_STORAGE_KEY, serializeSnapshot(finishedExpedition())],
   )
+  await page.clock.install()
   await page.goto('./')
 
   await expect(page.getByText('На сегодня повторений нет')).toBeVisible()
   await page.getByRole('button', { name: 'Свободная практика' }).click()
+  await page.clock.runFor(240)
 
   await expect(page.getByText('Карточка 1 из 10')).toBeVisible()
 
@@ -201,16 +203,104 @@ test('карта звёзд отмечает собранные звёзды н�
   await page.goto('./')
 
   await expect(page.getByText('Открыто звёзд: 5 из 66')).toHaveCount(0) // заголовок ещё на главной
+  const homeSky = page.locator('.home .constellation-sky--preview')
+  await expect(homeSky.locator('.constellation-sky__star')).toHaveCount(66)
+  await expect(homeSky.locator('.constellation-sky__star--earned')).toHaveCount(5)
+  const firstStarPosition = await homeSky.locator('.constellation-sky__star[data-fact-id="0:1"]').evaluate((star) => [
+    Number(star.getAttribute('x')) + Number(star.getAttribute('width')) / 2,
+    Number(star.getAttribute('y')) + Number(star.getAttribute('height')) / 2,
+  ])
+  await page.screenshot({ path: '/tmp/math-task5-home-preview-earned.png', fullPage: true })
   await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
 
   await expect(page.getByText('Открыто звёзд: 5 из 66')).toBeVisible()
-  await expect(page.locator('.map__star--earned')).toHaveCount(5)
-  await expect(page.locator('.map__star--idle')).toHaveCount(61)
+  const mapSky = page.locator('.map .constellation-sky--map')
+  await expect(mapSky.locator('.constellation-sky__star--earned')).toHaveCount(5)
+  await expect(mapSky.locator('.constellation-sky__star--idle')).toHaveCount(61)
+  const mapStarPosition = await mapSky.locator('.constellation-sky__star[data-fact-id="0:1"]').evaluate((star) => [
+    Number(star.getAttribute('x')) + Number(star.getAttribute('width')) / 2,
+    Number(star.getAttribute('y')) + Number(star.getAttribute('height')) / 2,
+  ])
+  expect(mapStarPosition).toEqual(firstStarPosition)
+  await page.screenshot({ path: '/tmp/math-task5-map.png', fullPage: true })
 
   // Текстовая альтернатива: каждый факт назван со статусом в архиве.
   await page.getByRole('button', { name: /Все факты и достижения/ }).click()
   await expect(page.getByText('Звезда открыта')).toHaveCount(5)
   await expect(page.getByText('Звезда впереди')).toHaveCount(61)
+  const archiveFacts = page.locator('.map__facts li')
+  await expect(archiveFacts).toHaveCount(66)
+  await expect(archiveFacts.nth(0)).toHaveAttribute('data-fact-id', '0:0')
+  await expect(archiveFacts.nth(65)).toHaveAttribute('data-fact-id', '10:10')
+})
+
+test('reveals newly earned stars once on the map and preserves their canonical positions', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-30T12:00:00+03:00') })
+  const seeded = readyToUnlockTwoStars()
+  await page.goto('./')
+  await page.evaluate(
+    ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
+  )
+  await page.reload()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+
+  for (let card = 1; card <= 2; card += 1) {
+    await expect(page.getByText(`Карточка ${card} из 2`)).toBeVisible()
+    const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+    const [left, right] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
+    await page.getByLabel('Ответ на пример').fill(String(left * right))
+    await page.getByLabel('Ответ на пример').press('Enter')
+    await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  }
+  await expect(page.getByText('Миссия завершена!')).toBeVisible()
+  await expect(page.getByText('Звёзды знаний: 2 из 66')).toBeVisible()
+  await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+
+  const mapSky = page.locator('.map .constellation-sky--map')
+  await expect(page.getByText('Открыто звёзд: 2 из 66')).toBeVisible()
+  await expect(mapSky.locator('.constellation-sky__star--earned')).toHaveCount(2)
+  await expect(mapSky.locator('.constellation-sky__reveal-line')).toHaveCount(2)
+  await expect(mapSky.locator('.constellation-sky__star[data-fact-id="0:0"]')).toHaveAttribute('data-earned', 'true')
+  await expect(mapSky.locator('.constellation-sky__star[data-fact-id="0:1"]')).toHaveAttribute('data-earned', 'true')
+  await expect(mapSky.locator('.constellation-sky__star[data-fact-id="0:2"]')).toHaveAttribute('data-earned', 'false')
+  await expect(mapSky.locator('.constellation-sky__reveal-line').first()).toHaveCSS('stroke-dashoffset', '0px')
+  await page.screenshot({ path: '/tmp/math-task5-reveal.png', fullPage: true })
+  await expect(mapSky.locator('.constellation-sky__reveal-line')).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Назад', exact: true }).click()
+  await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+  await expect(page.locator('.map .constellation-sky__reveal-line')).toHaveCount(0)
+  await expect(page.getByText('Открыто звёзд: 2 из 66')).toBeVisible()
+  await page.reload()
+  await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+  await expect(page.locator('.map .constellation-sky__reveal-line')).toHaveCount(0)
+  await expect(page.locator('.map .constellation-sky__star--earned')).toHaveCount(2)
+})
+
+test('reduced motion displays newly earned stars without reveal lines', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.clock.install({ time: new Date('2026-09-30T12:00:00+03:00') })
+  await page.goto('./')
+  await page.evaluate(
+    ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(readyToUnlockTwoStars())],
+  )
+  await page.reload()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+  for (let card = 1; card <= 2; card += 1) {
+    await expect(page.getByText(`Карточка ${card} из 2`)).toBeVisible()
+    const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+    const [left, right] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
+    await page.getByLabel('Ответ на пример').fill(String(left * right))
+    await page.getByLabel('Ответ на пример').press('Enter')
+    await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  }
+  await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+
+  const mapSky = page.locator('.map .constellation-sky--map')
+  await expect(mapSky.locator('.constellation-sky__star--earned')).toHaveCount(2)
+  await expect(mapSky.locator('.constellation-sky__reveal-line')).toHaveCount(0)
 })
 
 /** Exactly `count` stars earned; the rest of the fact set stays unearned. */
@@ -221,4 +311,26 @@ function stateWithStars(count: number): ProgressState {
     facts[factId] = { ...fact, mastery: { ...fact.mastery, hasStar: index < count } }
   }
   return { ...base, facts }
+}
+
+function readyToUnlockTwoStars(): ProgressState {
+  const base = createProgressState()
+  const facts: Record<string, FactProgress> = { ...base.facts }
+  for (const factId of ['0:0', '0:1']) {
+    const fact = facts[factId]
+    facts[factId] = {
+      ...fact,
+      status: 'familiar',
+      mastery: {
+        ...createMasteryProgress(),
+        independentSuccessDates: ['2026-09-20'],
+      },
+    }
+  }
+  return {
+    ...base,
+    facts,
+    currentMission: { id: 'unlock-two-stars', cardFactIds: ['0:0', '0:1'], answeredFactIds: [] },
+    diagnostic: { factIds: [], skipped: true, completed: true },
+  }
 }

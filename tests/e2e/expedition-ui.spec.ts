@@ -89,6 +89,7 @@ test('home route reflects earned XP while mastery stars stay separate', async ({
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
   await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 10 из 100 XP' })).toBeVisible()
   await expect(page.getByText('Звёзды знаний: 0 из 66')).toBeVisible()
+  await page.screenshot({ path: '/tmp/math-task5-home-preview.png', fullPage: true })
 })
 
 test('a fourth +0 mission leaves the ship in place after reload', async ({ page }) => {

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import { factFromId } from '@/domain/fact/multiplicationFact'
+import ConstellationSky from '@/presentation/components/ConstellationSky.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
-import { constellationPositions } from '@/presentation/utils/constellation'
 
 /**
  * Knowledge map (PRD §3, DESIGN.md): a constellation of 66 facts on orbits.
@@ -16,12 +16,10 @@ const props = defineProps<{
   factIds: readonly string[]
   earnedFactIds: readonly string[]
   reviewFactIds: readonly string[]
+  newlyUnlockedFactIds?: readonly string[]
 }>()
-defineEmits<{ back: []; review: [] }>()
+const emit = defineEmits<{ back: []; review: []; 'reveals-consumed': [] }>()
 
-const size = 320
-const positions = computed(() => constellationPositions(props.factIds.length, size))
-const orbits = [size * 0.18, size * 0.3, size * 0.42]
 const factsExpanded = ref(false)
 
 function isEarned(factId: string): boolean {
@@ -39,32 +37,13 @@ function factLabel(factId: string): string {
     <h1 class="screen__title">Карта звёзд</h1>
 
     <p class="map__count">Открыто звёзд: {{ earnedFactIds.length }} из {{ factIds.length }}</p>
-    <p class="map__rule">Одна звезда открывается за один пример, который ты правильно решил сам и повторил не раньше чем через неделю. Ошибка до второй проверки начинает путь заново. Открытая звезда остаётся; XP на неё не влияют.</p>
-
-    <svg
+    <ConstellationSky
       class="map__sky"
-      :viewBox="`0 0 ${size} ${size}`"
-      role="img"
-      aria-hidden="true"
-    >
-      <circle
-        v-for="radius in orbits"
-        :key="radius"
-        :cx="size / 2"
-        :cy="size / 2"
-        :r="radius"
-        class="map__orbit"
-      />
-      <StarGlyph
-        v-for="(position, index) in positions"
-        :key="factIds[index]"
-        :x="position.x - 9"
-        :y="position.y - 9"
-        :size="18"
-        :earned="isEarned(factIds[index])"
-        :class="isEarned(factIds[index]) ? 'map__star--earned' : 'map__star--idle'"
-      />
-    </svg>
+      :earned-fact-ids="earnedFactIds"
+      :newly-unlocked-fact-ids="newlyUnlockedFactIds"
+      variant="map"
+      @reveals-consumed="emit('reveals-consumed')"
+    />
     <div class="map__legend">
       <span><StarGlyph :size="20" />Открыта</span>
       <span><StarGlyph :size="20" :earned="false" />Впереди</span>
@@ -101,8 +80,9 @@ function factLabel(factId: string): string {
         </svg>
       </button>
       <div v-show="factsExpanded" id="map-facts" class="map__archive-content">
+        <p class="map__rule">Одна звезда открывается за один пример, который ты правильно решил сам и повторил не раньше чем через неделю. Ошибка до второй проверки начинает путь заново. Открытая звезда остаётся; XP на неё не влияют.</p>
         <ul class="map__facts" aria-label="Достижения по каждому факту">
-          <li v-for="factId in factIds" :key="factId">
+          <li v-for="factId in factIds" :key="factId" :data-fact-id="factId">
             <div class="map__fact-heading">
               <StarGlyph :size="24" :earned="isEarned(factId)" />
               <strong>{{ factLabel(factId) }}</strong>
@@ -128,18 +108,7 @@ function factLabel(factId: string): string {
 .map__count { margin: 0; font-weight: 700; }
 .map__rule { margin: 0; color: var(--color-on-space); }
 
-.map__sky {
-  width: 100%;
-  max-width: 320px;
-  align-self: center;
-}
-
-.map__orbit {
-  fill: none;
-  stroke: var(--color-control-outline);
-  stroke-width: 1;
-  opacity: .35;
-}
+.map__sky { align-self: center; }
 
 .map__legend { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-xl); font-size: var(--font-size-label); }
 .map__legend span,
@@ -154,11 +123,6 @@ function factLabel(factId: string): string {
   background: var(--color-paper);
   color: var(--color-ink);
 }
-.map__sky {
-  background: var(--color-space-raised);
-  border-radius: var(--radius-card);
-}
-
 .map__review-heading {
   display: flex;
   align-items: center;

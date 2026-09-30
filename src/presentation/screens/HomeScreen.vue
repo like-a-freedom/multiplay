@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import ConstellationSky from '@/presentation/components/ConstellationSky.vue'
 import LaunchButton from '@/presentation/components/LaunchButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StreakBadge from '@/presentation/components/StreakBadge.vue'
@@ -20,6 +21,7 @@ const props = defineProps<{
   xp: number
   streakDays: number
   stars: number
+  earnedFactIds: readonly string[]
   totalFacts: number
   reviewsToday: number
   maintenanceMode: boolean
@@ -42,9 +44,10 @@ function primaryAction(): void {
 
 <template>
   <section class="screen home">
-    <h1 class="screen__title">Умножайка</h1>
+    <h1 class="screen__title">Умножай<wbr />ка</h1>
 
     <XpRoute :total-xp="xp" :launching="launching" />
+    <ConstellationSky :earned-fact-ids="earnedFactIds" variant="preview" />
     <div class="home__status">
       <XpCounter :xp="xp" />
       <StreakBadge v-if="!maintenanceMode" :days="streakDays" />
@@ -99,4 +102,5 @@ function primaryAction(): void {
   color: var(--color-on-space);
 }
 .home__stars { display: flex; align-items: center; gap: var(--space-sm); }
+.home .screen__title { hyphens: none; }
 </style>

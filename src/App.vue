@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 import type { MissionKind } from '@/application/useCases/startMission'
+import { allFacts } from '@/domain/fact/multiplicationFact'
 import { retentionSummary } from '@/domain/learning/retention'
 import { TOTAL_FACTS, rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import { factNeedsReview, upcomingReviewDate } from '@/domain/progress/progressState'
@@ -38,6 +39,7 @@ watch(screen, () => {
 })
 const diagnosticResume = ref(true)
 const missionKind = ref<MissionKind>('mission')
+const pendingStarRevealIds = ref<string[]>([])
 
 function play(kind: MissionKind): void {
   missionKind.value = kind
@@ -73,6 +75,16 @@ function openMap(): void {
   screen.value = 'map'
 }
 
+function onStarUnlocked(factId: string): void {
+  if (!pendingStarRevealIds.value.includes(factId)) {
+    pendingStarRevealIds.value = [...pendingStarRevealIds.value, factId]
+  }
+}
+
+function consumeStarReveals(): void {
+  pendingStarRevealIds.value = []
+}
+
 function openReport(): void {
   cancelLaunch()
   screen.value = 'report'
@@ -88,11 +100,9 @@ const clockRolledBack = computed(() =>
   rewardsPausedByClockRollback(session.state.value, todayDate),
 )
 
-const factIds = computed(() => Object.keys(session.state.value.facts))
+const factIds = allFacts().map((fact) => fact.id)
 const earnedFactIds = computed(() =>
-  Object.values(session.state.value.facts)
-    .filter((fact) => fact.mastery.hasStar)
-    .map((fact) => fact.factId),
+  factIds.filter((factId) => session.state.value.facts[factId]?.mastery.hasStar),
 )
 const reviewFactIds = computed(() =>
   Object.values(session.state.value.facts)
@@ -175,6 +185,7 @@ function onDiagnosticFinished(): void {
       :xp="session.totalXp.value"
       :streak-days="session.streakDays.value"
       :stars="session.stars.value"
+      :earned-fact-ids="earnedFactIds"
       :total-facts="TOTAL_FACTS"
       :reviews-today="reviewsToday"
       :maintenance-mode="session.state.value.mode === 'maintenance'"
@@ -193,6 +204,7 @@ function onDiagnosticFinished(): void {
       @exit="screen = 'home'"
       @completed="screen = 'home'"
       @map="screen = 'map'"
+      @star-unlocked="onStarUnlocked"
     />
 
     <KnowledgeMapScreen
@@ -200,8 +212,10 @@ function onDiagnosticFinished(): void {
       :fact-ids="factIds"
       :earned-fact-ids="earnedFactIds"
       :review-fact-ids="reviewFactIds"
+      :newly-unlocked-fact-ids="pendingStarRevealIds"
       @back="screen = 'home'"
       @review="play('review')"
+      @reveals-consumed="consumeStarReveals"
     />
 
     <ReportScreen
