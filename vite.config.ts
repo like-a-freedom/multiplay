@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { configDefaults, defineConfig } from 'vitest/config'
 
@@ -13,6 +14,7 @@ export default defineConfig({
   base,
   plugins: [
     vue(),
+    tailwindcss(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['apple-touch-icon.png'],

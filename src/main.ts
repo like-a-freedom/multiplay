@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import App from '@/App.vue'
 import { LocalStorageProgressStore } from '@/infrastructure/storage/localStorageProgressStore'
 import { createGameSession, gameSessionKey } from '@/presentation/composables/gameSession'
+import '@/presentation/styles/inspira.css'
 import '@/presentation/styles/tokens.css'
 import '@/presentation/styles/base.css'
 

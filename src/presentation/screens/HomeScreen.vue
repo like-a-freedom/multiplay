@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
+import LaunchButton from '@/presentation/components/LaunchButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StreakBadge from '@/presentation/components/StreakBadge.vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
@@ -24,6 +24,7 @@ const props = defineProps<{
   reviewsToday: number
   maintenanceMode: boolean
   nextReviewDate: string | null
+  launching: boolean
 }>()
 const emit = defineEmits<{ play: []; practice: []; review: []; map: []; report: [] }>()
 
@@ -63,15 +64,17 @@ function primaryAction(): void {
 
     <div class="screen__actions">
       <!-- One obvious action: while reviews exist, go review. -->
-      <PrimaryButton :label="primaryLabel" @click="primaryAction" />
+      <LaunchButton :label="primaryLabel" :disabled="launching" :launching="launching" @click="primaryAction" />
       <SecondaryButton
         v-if="reviewsToday > 0 && !maintenanceMode"
         label="Играть"
+        :disabled="launching"
         @click="emit('play')"
       />
       <SecondaryButton
         v-if="reviewsToday > 0 && maintenanceMode"
         label="Свободная практика"
+        :disabled="launching"
         @click="emit('practice')"
       />
       <SecondaryButton label="Карта звёзд" @click="emit('map')" />

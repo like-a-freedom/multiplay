@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 import type { MissionKind } from '@/application/useCases/startMission'
@@ -43,6 +43,42 @@ function play(kind: MissionKind): void {
   missionKind.value = kind
   screen.value = 'mission'
 }
+
+const launching = ref(false)
+let launchTimer: number | undefined
+
+function launch(kind: MissionKind): void {
+  if (launching.value) return
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    play(kind)
+    return
+  }
+  missionKind.value = kind
+  launching.value = true
+  launchTimer = window.setTimeout(() => {
+    launchTimer = undefined
+    launching.value = false
+    play(kind)
+  }, 240)
+}
+
+function cancelLaunch(): void {
+  if (launchTimer !== undefined) window.clearTimeout(launchTimer)
+  launchTimer = undefined
+  launching.value = false
+}
+
+function openMap(): void {
+  cancelLaunch()
+  screen.value = 'map'
+}
+
+function openReport(): void {
+  cancelLaunch()
+  screen.value = 'report'
+}
+
+onBeforeUnmount(cancelLaunch)
 
 const reviewsToday = computed(() => reviewCountToday(session.state.value, todayDate))
 const bestStreakDays = computed(() => session.state.value.rewards.streak.bestDays)
@@ -144,11 +180,12 @@ function onDiagnosticFinished(): void {
       :reviews-today="reviewsToday"
       :maintenance-mode="session.state.value.mode === 'maintenance'"
       :next-review-date="nextReview"
-      @play="play('mission')"
-      @practice="play('practice')"
-      @review="play('review')"
-      @map="screen = 'map'"
-      @report="screen = 'report'"
+      :launching="launching"
+      @play="launch('mission')"
+      @practice="launch('practice')"
+      @review="launch('review')"
+      @map="openMap"
+      @report="openReport"
     />
 
     <MissionScreen

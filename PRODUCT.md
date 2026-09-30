@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Confirmed: Vue 3, TypeScript, Vite, CSS, `vite-plugin-pwa`, local `localStorage`, and Vitest for learning rules. No Pinia or Vue Router in the first version. Static HTTPS hosting; no application server or account system.
+Confirmed: Vue 3, TypeScript, Vite, Tailwind CSS v4 utilities, adapted local Inspira UI components, `vite-plugin-pwa`, local `localStorage`, and Vitest for learning rules. No Pinia or Vue Router in the first version. Static HTTPS hosting; no application server or account system.
 
 ## Users
 
@@ -34,11 +34,11 @@ The child practices on his iPhone, often independently. A mission has up to ten 
 
 ## Brand Commitments
 
-Cosmic expedition is the chosen game world. There is no existing logo, mascot, or asset library to preserve.
+Cosmic expedition is the chosen game world. There is no external brand library or mascot. The existing StarGlyph and PWA icons are part of the current interface and should change only deliberately.
 
 ## Evidence on Hand
 
-The confirmed requirements and research links are in `PRD.md`. There is no existing UI or asset library to preserve. The child's baseline knowledge is not yet measured.
+The confirmed requirements and research links are in `PRD.md`. A playable Vue PWA, an established `DESIGN.md`, and reusable star artwork already exist; preserve their learning behavior during the visual redesign. The child's real-world baseline knowledge has not yet been recorded.
 
 ## Product Principles
 

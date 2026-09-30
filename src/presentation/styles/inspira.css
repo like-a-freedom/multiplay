@@ -1,0 +1,10 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme inline {
+  --color-expedition-space: var(--color-space);
+  --color-expedition-paper: var(--color-paper);
+  --color-expedition-action: var(--color-action);
+  --color-expedition-on-space: var(--color-on-space);
+}

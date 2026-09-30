@@ -10,13 +10,13 @@ The son needs to memorize the multiplication table. We will build a simple Russi
 
 ## 2. Learning principle
 
-A card first shows `7 × 8 = ?`; the child enters a number or presses «Не знаю». Only after an attempt does the answer appear. After an error or «Не знаю» one explanatory strategy is shown, for example `7 × 8 = 7 × 5 + 7 × 3 = 35 + 21`; for simple facts — equal groups of objects. Several pre-written templates are used without a separate theory lesson. An error is not punished: the example returns in the following missions. Familiar facts are mixed with a few new ones. The review intervals for the first prototype are 1, 3, 7, and 14 days; this is a **product setting**, not a scientifically proven optimal schedule.
+A card first shows `7 × 8 = ?`; the child enters a number or presses «Не знаю». Only after an attempt does the answer appear. After an error or «Не знаю» one explanatory strategy is shown, for example `7 × 8 = 7 × 5 + 7 × 3 = 35 + 21`; for simple facts — a short repeated-addition hint in school language (such as «три раза по четыре»). The parent can use equal groups of objects separately to check understanding; card hints need no object diagrams. Several pre-written templates are used without a separate theory lesson. An error is not punished: the example returns in the following missions. Familiar facts are mixed with a few new ones. The review intervals for the first prototype are 1, 3, 7, and 14 days; this is a **product setting**, not a scientifically proven optimal schedule.
 
 This approach draws on research about [retrieval practice](https://pubmed.ncbi.nlm.nih.gov/20951630/), [distributed practice](https://pubmed.ncbi.nlm.nih.gov/40564553/), and [teaching the multiplication table with less interference between similar facts](https://pubmed.ncbi.nlm.nih.gov/36459276/). At the same time, cards primarily train fact recall: an [RCT with children who struggle in mathematics](https://pubmed.ncbi.nlm.nih.gov/24295141/) found no significant between-group differences in applying facts to word problems. That is not proof that no transfer exists. First we will find out whether the son understands what multiplication means, and if needed we will show equal groups of objects as a prompt.
 
 ## 3. One game loop
 
-1. The home screen shows a **«Играть»** button, the current daily streak, total XP, the level, and the number of opened achievement stars.
+1. The home screen shows one main action: **«Играть»**, **«Повторить»** when reviews are due, or **«Свободная практика»** in maintenance without due reviews. It shows the daily streak during the expedition, plus total XP, level, and opened achievement stars.
 2. A mission contains up to **10 cards**: reviews plus up to two new facts, for which slots are reserved. Each card has one answer and immediate calm feedback.
 3. On finish the child gets XP within the daily limit, sees a short congratulation, and their progress. They can stop for today or play one more mission.
 4. The next day the app offers the difficult examples again. The «Карта звёзд» screen with achievements and separate marks for facts due for review is reachable from the home screen and from the mission finish.
@@ -54,7 +54,7 @@ These are starting product rules, not a clinical protocol or a proven dosage of 
 | ID | Acceptance criterion |
 | --- | --- |
 | M1 | On first launch a short timer-free diagnostic gives a baseline knowledge estimate over a sample of facts from the 0–10 range. Unchecked facts do not count as mastered. Profiles and program settings are not needed. |
-| M2 | Cards show the expression before the answer. Input accepts integers 0–100; an empty string, a sign, a fraction, or other characters trigger an input hint rather than a learning mistake; «Не знаю» shows the answer and the hint. After the answer is shown the fact is not marked mastered. `7×8` and `8×7` count as one fact, though they may appear in both orders. |
+| M2 | Cards show the expression before the answer. Input accepts integers 0–100; an empty string, a sign, a fraction, or other characters trigger an input hint rather than a learning mistake; «Не знаю» shows the answer and the hint. Seeing the solution after a wrong or «Не знаю» attempt does not mark the fact mastered; a later independent correct answer can still open its star under the mastery rule. `7×8` and `8×7` count as one fact, though they may appear in both orders. |
 | M3 | A mission has no more than 10 cards. Examples after an error return later; planned independent successes get their next review date from section 3. Skipping sessions does not erase learning progress. |
 | M4 | XP, levels, streak, and bonuses follow the table above. A relaunch or an interrupted mission never pays a reward twice; an unfinished mission keeps the attempts already made. |
 | M5 | The first star requires two independent correct answers on different days at least 7 days apart with no error between them. The screen shows **XP**, **opened stars**, and **facts due for review** separately; an error never reduces the stars. |
@@ -81,6 +81,6 @@ If the link to entertainment is still needed, the PWA can show **proposed** minu
 - **Decided:** once all 66 stars are opened the expedition finishes and moves to maintenance mode without a daily streak; no new topics are added.
 - **Decided:** the game theme is a space expedition; the cards remain the main element of the lesson. Colors, typography, and components are defined in `DESIGN.md`.
 
-**Next step:** build a playable PWA prototype with cards and one game loop, try it with the son, then tune mission length and rewards based on observation. Add other game mechanics only on explicit need.
+**Next step:** try the playable PWA with the son and verify the baseline diagnostic, then refine the cosmic expedition presentation without changing the learning rules. Tune mission length and rewards only if home observation warrants it; add other mechanics only on explicit need.
 
 **Device check:** record the actual iOS version and verify installation, an airplane-mode launch, mission recovery, keyboard input, text zoom, and a PWA update without losing progress. The phone model alone does not confirm compatibility.
