@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import LaunchButton from '@/presentation/components/LaunchButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StreakBadge from '@/presentation/components/StreakBadge.vue'
+import XpRoute from '@/presentation/components/XpRoute.vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
 import XpCounter from '@/presentation/components/XpCounter.vue'
 import { formatDateRu } from '@/presentation/utils/formatDate'
@@ -17,7 +18,6 @@ import { formatDateRu } from '@/presentation/utils/formatDate'
  */
 const props = defineProps<{
   xp: number
-  level: number
   streakDays: number
   stars: number
   totalFacts: number
@@ -44,13 +44,9 @@ function primaryAction(): void {
   <section class="screen home">
     <h1 class="screen__title">Умножайка</h1>
 
-    <svg class="home__orbit" viewBox="0 0 320 96" aria-hidden="true">
-      <ellipse cx="160" cy="48" rx="136" ry="30" />
-      <ellipse cx="160" cy="48" rx="80" ry="20" />
-      <circle cx="160" cy="48" r="9" /><circle cx="24" cy="48" r="4" /><circle cx="240" cy="48" r="4" />
-    </svg>
+    <XpRoute :total-xp="xp" :launching="launching" />
     <div class="home__status">
-      <XpCounter :xp="xp" :level="level" />
+      <XpCounter :xp="xp" />
       <StreakBadge v-if="!maintenanceMode" :days="streakDays" />
       <p v-else class="home__maintenance">
         <template v-if="reviewsToday > 0">К повторению: {{ reviewsToday }}</template>
@@ -103,14 +99,4 @@ function primaryAction(): void {
   color: var(--color-on-space);
 }
 .home__stars { display: flex; align-items: center; gap: var(--space-sm); }
-.home__orbit {
-  width: 100%;
-  height: 96px;
-  fill: none;
-  stroke: var(--color-on-space);
-  stroke-width: 2;
-}
-.home__orbit circle {
-  fill: var(--color-space);
-}
 </style>

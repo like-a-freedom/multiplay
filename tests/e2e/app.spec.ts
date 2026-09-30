@@ -37,11 +37,11 @@ test('миссия: ошибка называет введённое, Enter от
   await expect(page.getByText('Миссия завершена!')).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()
 
-  await expect(page.getByText('XP: 10 · Уровень 1')).toBeVisible()
+  await expect(page.getByText('Всего XP: 10')).toBeVisible()
 
   // Незаконченная сессия не теряет награду: прогресс живёт после перезагрузки.
   await page.reload()
-  await expect(page.getByText('XP: 10 · Уровень 1')).toBeVisible()
+  await expect(page.getByText('Всего XP: 10')).toBeVisible()
 })
 
 test('поддерживающий режим: свободная практика доступна всегда', async ({ page }) => {

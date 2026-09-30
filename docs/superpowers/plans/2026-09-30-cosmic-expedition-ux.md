@@ -53,7 +53,7 @@
 ### Task 2: Original ship and truthful XP route
 
 **Files:**
-- Modify: `package.json`, `bun.lock`, `src/domain/game/experience.ts`, `src/presentation/screens/HomeScreen.vue`
+- Modify: `package.json`, `bun.lock`, `AGENTS.md`, `PRODUCT.md`, `DESIGN.md`, `src/domain/game/experience.ts`, `src/presentation/screens/HomeScreen.vue`, `src/presentation/components/XpCounter.vue`, `src/App.vue`
 - Create: `src/presentation/utils/xpRoute.ts`, `src/presentation/utils/xpRoute.test.ts`, `src/presentation/components/ExpeditionShip.vue`, `src/presentation/components/XpRoute.vue`
 - Test: `tests/e2e/expedition-ui.spec.ts`, `tests/e2e/ui.spec.ts`
 
@@ -61,11 +61,11 @@
 - Export `XP_PER_LEVEL = 100` from `experience.ts` and `xpRoute(totalXp: number): { level: number; earnedInLevel: number; fraction: number }` from `xpRoute.ts`; `fraction` is in `[0,1)`, so exactly 100 XP starts level 2 at 0/100.
 - `XpRoute.vue` receives `totalXp: number` and optional `launching?: boolean`. It draws one curved sector with ten earned waypoints at 10, 20, …, 100 XP and positions `ExpeditionShip.vue` from actual XP; 0 XP is the launch point before the first waypoint. The ship has a one-shot launch transform while `launching` is true; the home route does not replay mission rewards or compute mastery.
 
-- [ ] **Step 1: Write failing tests.** Unit assertions: `xpRoute(0)` gives level 1/fraction 0; `xpRoute(90)` level 1/fraction .9; `xpRoute(100)` level 2/fraction 0; `xpRoute(120)` level 2/fraction .2. E2E: after a +10 mission, the home ship is at the new waypoint while `Звёзды знаний: 0 из 66` remains truthful; a seeded fourth `+0` mission leaves the ship at the same position; reload shows the same static position.
-- [ ] **Step 2: Verify red.** Run `rtk proxy bun run test src/presentation/utils/xpRoute.test.ts`; run `rtk proxy bun run build`, then `rtk proxy bun run test:e2e tests/e2e/expedition-ui.spec.ts`. Expect the route/ship assertions to fail.
-- [ ] **Step 3: Implement.** Run `rtk proxy bun add motion-v`. Add the pure route helper, semantic XP/level labels, a curved ten-waypoint SVG sector, and the original ship. Use Motion-V only for the launch transform; no idle bobbing. In reduced motion show the final frame immediately. The ship never moves for a `+0` reward, and a level change starts it at the next sector's correct position.
-- [ ] **Step 4: Verify green.** Run `rtk proxy bun run test src/domain/game/experience.test.ts src/presentation/utils/xpRoute.test.ts`, `rtk proxy bun run typecheck`, `rtk proxy bun run build`, and `rtk proxy bun run test:e2e tests/e2e/expedition-ui.spec.ts tests/e2e/ui.spec.ts`. Expected: correct level wrap, honest star count, no layout shift or replay on reload.
-- [ ] **Step 5: Commit.** Stage Task 2 files and commit `feat: show xp as a ship route`.
+- [x] **Step 1: Write failing tests.** Unit assertions: `xpRoute(0)` gives level 1/fraction 0; `xpRoute(90)` level 1/fraction .9; `xpRoute(100)` level 2/fraction 0; `xpRoute(120)` level 2/fraction .2. E2E: after a +10 mission, the home ship is at the new waypoint while `Звёзды знаний: 0 из 66` remains truthful; a seeded fourth `+0` mission leaves the ship at the same position; reload shows the same static position.
+- [x] **Step 2: Verify red.** Run `rtk proxy bun run test src/presentation/utils/xpRoute.test.ts`; run `rtk proxy bun run build`, then `rtk proxy bun run test:e2e tests/e2e/expedition-ui.spec.ts`. Expect the route/ship assertions to fail.
+- [x] **Step 3: Implement.** Run `rtk proxy bun add motion-v`. Add the pure route helper, semantic XP/level labels, a curved ten-waypoint SVG sector, and the original ship. Use Motion-V with `LazyMotion` only for the launch transform; no idle bobbing. Keep total XP separate from current-level XP in labels, and document the route semantics in `AGENTS.md`, `PRODUCT.md`, and `DESIGN.md`. In reduced motion show the final frame immediately. The ship never moves for a `+0` reward, and a level change starts it at the next sector's correct position.
+- [x] **Step 4: Verify green.** Run `rtk proxy bun run test src/domain/game/experience.test.ts src/presentation/utils/xpRoute.test.ts`, `rtk proxy bun run typecheck`, `rtk proxy bun run build`, and `rtk proxy bun run test:e2e tests/e2e/expedition-ui.spec.ts tests/e2e/ui.spec.ts`. Expected: correct level wrap, honest star count, no layout shift or replay on reload.
+- [x] **Step 5: Commit.** Stage Task 2 files and commit `feat: show xp as a ship route`.
 
 ### Task 3: Quiet question states and uninterrupted focus
 

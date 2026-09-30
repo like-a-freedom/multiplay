@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Confirmed: Vue 3, TypeScript, Vite, Tailwind CSS v4 utilities, adapted local Inspira UI components, `vite-plugin-pwa`, local `localStorage`, and Vitest for learning rules. No Pinia or Vue Router in the first version. Static HTTPS hosting; no application server or account system.
+Confirmed: Vue 3, TypeScript, Vite, Tailwind CSS v4 utilities, adapted local Inspira UI components, `motion-v` with `LazyMotion` for short one-shot movement, `vite-plugin-pwa`, local `localStorage`, and Vitest for learning rules. No Pinia or Vue Router in the first version. Static HTTPS hosting; no application server or account system.
 
 ## Users
 

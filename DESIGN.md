@@ -146,6 +146,10 @@ Depth is built from two planes: the dark sky and the light card. No glass, blur,
 
 The card has the soft `card` radius; fields and buttons the smaller `control`; the streak indicator the `badge` capsule. Orbits and route dots are drawn as thin SVG lines, while interactive elements remain standard buttons and fields. Control icons use simple 2px-stroke SVGs; achievement stars follow the distinct filled treatment above. Emoji and Unicode symbols do not replace interface icons.
 
+## XP Route
+
+The home screen shows one curved route for the current 100-XP level. Its level label and progress sentence explain the route; `Всего XP` remains a separate cumulative total so crossing a level boundary cannot look like lost progress. Gold route waypoints mean XP earned in this level only; they never represent mastery. Knowledge stars retain their own count and meaning. The ship stays at the saved XP position while idle and after reload. The launch action may tilt and scale it once in place; a zero-XP mission and `prefers-reduced-motion: reduce` leave its position or motion unchanged.
+
 ## Components
 
 | Component | Behavior and states |

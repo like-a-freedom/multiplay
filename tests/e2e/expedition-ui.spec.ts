@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test'
 
+import { createProgressState } from '../../src/domain/progress/progressState'
+import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
+import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
+
 test('home starts one short mission after the launch transition', async ({ page }) => {
+  await page.clock.install()
   await page.goto('./')
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   const offlineNotice = page.getByRole('button', { name: 'Понятно', exact: true })
@@ -13,18 +18,19 @@ test('home starts one short mission after the launch transition', async ({ page 
   await expect(launchButton).toHaveCSS('background-color', 'rgb(23, 92, 211)')
   await expect(launchButton).toHaveCSS('font-size', '17px')
 
-  await page.clock.install()
+  const ship = page.locator('.expedition-ship-motion')
+  const initialTransform = await ship.evaluate((element) => getComputedStyle(element).transform)
   await launchButton.focus()
   await page.keyboard.press('Space')
-  await page.screenshot({ path: '/tmp/math-phase1-launching.png' })
-  await expect(page.locator('.ripple-animation')).toHaveCount(1)
-  await expect(page.locator('.ripple-animation')).toHaveCSS('border-top-color', 'rgb(249, 186, 67)')
-  await expect(homeHeading).toBeVisible()
-  await page.clock.runFor(200)
-  await expect(launchButton).toHaveAttribute('aria-busy', 'true')
-  await expect(launchButton).toHaveCSS('opacity', '1')
-  expect(await page.getByText('Карточка 1 из 2').count()).toBe(0)
-  await page.clock.runFor(40)
+  await page.clock.runFor(100)
+  const launchState = await page.evaluate(() => ({
+    busy: document.querySelector('button[aria-busy="true"]') !== null,
+    missionVisible: document.body.innerText.includes('Карточка 1 из 2'),
+  }))
+  expect(launchState).toEqual({ busy: true, missionVisible: false })
+  expect(await ship.evaluate((element) => getComputedStyle(element).transform)).not.toBe(initialTransform)
+  await page.screenshot({ path: '/tmp/math-phase2-launching-webkit.png' })
+  await page.clock.runFor(140)
   await expect(page.getByText('Карточка 1 из 2')).toBeVisible()
 })
 
@@ -62,4 +68,62 @@ test('reloading during launch leaves a valid home and does not create a mission'
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Умножайка' })).toBeVisible()
   expect(await page.getByText(/Карточка 1 из/).count()).toBe(0)
+})
+
+
+test('home route reflects earned XP while mastery stars stay separate', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', { name: 'Пропустить проверку' }).click()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+
+  for (let card = 1; card <= 2; card += 1) {
+    await expect(page.getByText(`Карточка ${card} из 2`)).toBeVisible()
+    const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+    const [left, right] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
+    await page.getByLabel('Ответ на пример').fill(String(left * right))
+    await page.getByLabel('Ответ на пример').press('Enter')
+    await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  }
+
+  await expect(page.getByText('Миссия завершена!')).toBeVisible()
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 10 из 100 XP' })).toBeVisible()
+  await expect(page.getByText('Звёзды знаний: 0 из 66')).toBeVisible()
+})
+
+test('a fourth +0 mission leaves the ship in place after reload', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-30T12:00:00+03:00') })
+  const initial = createProgressState()
+  const today = '2026-09-30'
+  const seeded = {
+    ...initial,
+    currentMission: { id: 'fourth-mission', cardFactIds: ['0:0'], answeredFactIds: [] },
+    rewards: {
+      ...initial.rewards,
+      totalXp: 30,
+      completions: [1, 2, 3].map((number) => ({ missionId: `mission-${number}`, date: today })),
+    },
+    diagnostic: { factIds: [], skipped: true, completed: true },
+  }
+  await page.goto('./')
+  await page.evaluate(
+    ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
+  )
+  await page.reload()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+  await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+  await page.getByLabel('Ответ на пример').fill('0')
+  await page.getByLabel('Ответ на пример').press('Enter')
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  await expect(page.getByText('Миссия завершена!')).toBeVisible()
+  await expect(page.getByText('+0 XP')).toBeVisible()
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+
+  const ship = page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 30 из 100 XP' })
+  await expect(ship).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 30 из 100 XP' })).toBeVisible()
+  await expect(page.getByText('Всего XP: 30')).toBeVisible()
+  expect(await page.getByText('Карточка 1 из 1').count()).toBe(0)
 })

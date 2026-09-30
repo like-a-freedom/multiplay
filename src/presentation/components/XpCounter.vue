@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /** XP as a plain text counter; XP never measures knowledge of the table (CONTEXT.md). */
-defineProps<{ xp: number; level: number }>()
+defineProps<{ xp: number }>()
 </script>
 
 <template>
-  <p class="xp-counter">XP: {{ xp }} · Уровень {{ level }}</p>
+  <p class="xp-counter">Всего XP: {{ xp }}</p>
 </template>
 
 <style scoped>

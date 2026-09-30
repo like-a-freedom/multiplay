@@ -4,11 +4,12 @@
  * XP never measures knowledge of the table.
  */
 
+export const XP_PER_LEVEL = 100
 export const XP_PER_MISSION = 10
 export const DAILY_MISSION_XP_LIMIT = 30
 
 export function levelFromXp(totalXp: number): number {
-  return 1 + Math.floor(totalXp / 100)
+  return 1 + Math.floor(totalXp / XP_PER_LEVEL)
 }
 
 /** XP for the next completed mission, given how many were completed today. */

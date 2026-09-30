@@ -173,7 +173,6 @@ function onDiagnosticFinished(): void {
     <HomeScreen
       v-else-if="screen === 'home'"
       :xp="session.totalXp.value"
-      :level="session.level.value"
       :streak-days="session.streakDays.value"
       :stars="session.stars.value"
       :total-facts="TOTAL_FACTS"
