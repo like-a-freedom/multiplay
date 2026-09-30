@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { configDefaults, defineConfig } from 'vitest/config'
 
-// Root hosting (Cloudflare/custom domain) or a GitHub Pages project subpath.
+// GitHub Pages uses a repository subpath; root deployments use '/'.
 const configuredBase = process.env.APP_BASE_PATH || '/'
 const base = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
 

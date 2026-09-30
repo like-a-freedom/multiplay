@@ -1,7 +1,10 @@
 name: Deploy GitHub Pages
 
-# Deployment is deliberately manual until a hosting provider is chosen.
+# Enable GitHub Pages in repository settings before the first deployment.
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:

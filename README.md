@@ -33,7 +33,7 @@ APP_BASE_PATH=/multiplay/ bun run preview
 
 The local URL is `http://localhost:4173/multiplay/`. Rebuild after changing the base path. See [DEPLOYMENT.md](DEPLOYMENT.md) for host settings and PWA checks.
 
-CI runs unit tests, builds the app, and checks the UI in WebKit. Chromium checks PWA paths and offline reload at `/` and `/multiplay/`. The GitHub Pages workflow runs manually after Pages is enabled. Cloudflare Pages can build directly from the Git repository without a separate deployment workflow.
+CI runs unit tests, builds the app, and checks the UI in WebKit. Chromium checks PWA paths and offline reload at `/` and `/multiplay/`. Enable GitHub Pages with **Settings → Pages → GitHub Actions**, then run **Deploy GitHub Pages** once from **Actions**. Later pushes to `main` deploy automatically.
 
 ## Documentation
 

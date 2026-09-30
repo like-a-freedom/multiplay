@@ -52,7 +52,7 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     await expect(page.getByRole('list', { name: 'Достижения по каждому факту' }).getByRole('listitem')).toHaveCount(66)
     await checkLayout()
     await page.locator('.map__archive-content').evaluate((element) => element.getAnimations().forEach((animation) => animation.finish()))
-    await page.screenshot({ path: `/tmp/math-ui-map-expanded-${size.name}.png`, fullPage: true })
+    await page.screenshot({ path: `/tmp/math-ui-map-expanded-${size.name}.png` })
     await factsToggle.click()
     await expect(page.getByRole('list', { name: 'Достижения по каждому факту' })).toHaveCount(0)
     await page.locator('.map__archive-chevron').evaluate((element) => element.getAnimations().forEach((animation) => animation.finish()))
