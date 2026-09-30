@@ -20,12 +20,14 @@
   "dependencies": {
     "@inspira-ui/plugins": "^0.0.2",
     "@vueuse/core": "^15.0.0",
+    "canvas-confetti": "^1.9.4",
     "motion-v": "^2.5.1",
     "vue": "^3.5.43"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^26.6.3",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vue/test-utils": "^2.5.1",

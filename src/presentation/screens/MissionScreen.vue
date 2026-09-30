@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { submitCardAnswer } from '@/application/useCases/submitCardAnswer'
 import { completeMission } from '@/application/useCases/completeMission'
 import { startMission, type MissionKind } from '@/application/useCases/startMission'
-import { factFromId } from '@/domain/fact/multiplicationFact'
+import { allFacts, factFromId } from '@/domain/fact/multiplicationFact'
 import type { AttemptOutcome } from '@/domain/learning/answer'
 import { explanationFor } from '@/domain/learning/explanation'
 import { unansweredCardFactIds, type ProgressState } from '@/domain/progress/progressState'
 import { rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import AnswerField from '@/presentation/components/AnswerField.vue'
+import ConstellationSky from '@/presentation/components/ConstellationSky.vue'
+import ExpeditionCelebration from '@/presentation/components/ExpeditionCelebration.vue'
 import MissionProgress from '@/presentation/components/MissionProgress.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import QuestionCard from '@/presentation/components/QuestionCard.vue'
@@ -51,13 +53,23 @@ const awardedXp = ref(0)
 const bonusXp = ref(0)
 const xpBeforeCompletion = ref<number | null>(null)
 const xpPausedByClock = ref(false)
+const prefersReducedMotion = ref(false)
 const cardRegion = ref<HTMLElement | null>(null)
 const actions = ref<HTMLElement | null>(null)
+const allFactIds = allFacts().map((fact) => fact.id)
+let motionQuery: MediaQueryList | undefined
+
+const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
+  prefersReducedMotion.value = event.matches
+}
 
 const fact = computed(() => factFromId(cardFactIds.value[cardIndex.value] ?? '0:0'))
 const allAnswered = computed(() => cardIndex.value >= cardFactIds.value.length)
 
 onMounted(() => {
+  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  prefersReducedMotion.value = motionQuery.matches
+  motionQuery.addEventListener?.('change', onMotionPreferenceChange)
   // A planned mission or a review resumes an unfinished session (PRD M4, §7);
   // free practice starts a new one and freezes a new queue.
   const kind = props.kind ?? 'mission'
@@ -81,6 +93,10 @@ onMounted(() => {
   } else {
     focusCard()
   }
+})
+
+onBeforeUnmount(() => {
+  motionQuery?.removeEventListener?.('change', onMotionPreferenceChange)
 })
 
 function check(): void {
@@ -228,28 +244,11 @@ function feedbackText(outcome: AttemptOutcome): string {
 
     <template v-else>
       <div ref="cardRegion" class="mission__finish" tabindex="-1">
-        <svg
-          class="mission__finish-art"
-          :class="{ 'mission__finish-art--expedition': expeditionJustFinished }"
-          :viewBox="expeditionJustFinished ? '0 0 330 180' : '0 0 320 112'"
-          aria-hidden="true"
-        >
-          <template v-if="expeditionJustFinished">
-            <StarGlyph
-              v-for="n in 66"
-              :key="n"
-              :x="4 + ((n - 1) % 11) * 30"
-              :y="4 + Math.floor((n - 1) / 11) * 30"
-              :size="22"
-              class="mission__finish-star"
-            />
-          </template>
-          <template v-else>
-            <path class="mission__finish-orbit" d="M -24 88 C 74 5 201 127 345 18" />
-            <StarGlyph :x="47" :y="59" :size="14" :earned="false" />
-            <StarGlyph :x="135" :y="36" :size="56" :earned="session.stars.value > 0" class="mission__finish-star--hero" />
-            <StarGlyph :x="263" :y="22" :size="16" :earned="false" />
-          </template>
+        <svg v-if="!expeditionJustFinished" class="mission__finish-art" viewBox="0 0 320 112" aria-hidden="true">
+          <path class="mission__finish-orbit" d="M -24 88 C 74 5 201 127 345 18" />
+          <StarGlyph :x="47" :y="59" :size="14" :earned="false" />
+          <StarGlyph :x="135" :y="36" :size="56" :earned="session.stars.value > 0" class="mission__finish-star--hero" />
+          <StarGlyph :x="263" :y="22" :size="16" :earned="false" />
         </svg>
         <div class="mission__finish-content">
           <p class="mission__finish-eyebrow">Маршрут пройден</p>
@@ -257,6 +256,13 @@ function feedbackText(outcome: AttemptOutcome): string {
           <p class="mission__finish-copy">
             {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты прошёл маршрут. Можно сыграть ещё или вернуться позже.' }}
           </p>
+          <div v-if="expeditionJustFinished" class="mission__final-sky">
+            <ConstellationSky :earned-fact-ids="allFactIds" variant="final" />
+            <ExpeditionCelebration
+              :active="expeditionJustFinished"
+              :reduced-motion="prefersReducedMotion"
+            />
+          </div>
           <XpAward
             :awarded-xp="awardedXp"
             :bonus-xp="bonusXp"
@@ -317,8 +323,6 @@ function feedbackText(outcome: AttemptOutcome): string {
   background: var(--color-space-raised);
 }
 
-.mission__finish-art--expedition { height: 180px; }
-
 .mission__finish-orbit {
   fill: none;
   stroke: var(--color-control-outline);
@@ -347,6 +351,16 @@ function feedbackText(outcome: AttemptOutcome): string {
 }
 
 .mission__finish-copy { color: var(--color-ink-muted); }
+
+.mission__final-sky {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  isolation: isolate;
+}
 
 .mission__stars {
   --star-empty-fill: var(--color-white);

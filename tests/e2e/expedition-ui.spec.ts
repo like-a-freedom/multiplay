@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 
+import { createLastStarExpeditionState } from '../support/expeditionFixture'
 import { createProgressState } from '../../src/domain/progress/progressState'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
@@ -157,4 +158,81 @@ test('reduced motion presents the final XP and route without a flight or beam', 
   await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
   await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 10 из 100 XP' })).toBeVisible()
   await expect(page.locator('.xp-route__beam')).toHaveCount(0)
+})
+
+for (const size of [
+  { name: 'mobile', width: 428, height: 926 },
+  { name: 'zoom', width: 320, height: 740 },
+  { name: 'desktop', width: 1280, height: 900 },
+]) {
+  test(`final expedition sky and celebration fit ${size.name}`, async ({ page }) => {
+    await page.setViewportSize(size)
+    await page.goto('./')
+    await page.evaluate(
+      ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+      [PROGRESS_STORAGE_KEY, serializeSnapshot(createLastStarExpeditionState())],
+    )
+    await page.reload()
+    if (size.name === 'zoom') {
+      await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+    }
+
+    await page.getByRole('button', { name: 'Играть', exact: true }).click()
+    await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+    await page.getByLabel('Ответ на пример').fill('100')
+    await page.getByLabel('Ответ на пример').press('Enter')
+    await expect(page.getByText('Новая звезда открыта на карте!')).toBeVisible()
+    await expect(page.locator('.expedition-celebration')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+
+    await expect(page.getByRole('heading', { name: 'Экспедиция завершена!' })).toBeVisible()
+    await expect(page.locator('.mission__final-sky .constellation-sky__star--earned')).toHaveCount(66)
+    await expect(page.locator('.expedition-celebration canvas')).toHaveAttribute('data-fired', 'true')
+    await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
+    expect(await page.locator('.mission__final-sky').evaluate((sky) =>
+      sky.contains(sky.querySelector('.expedition-celebration canvas')),
+    )).toBe(true)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    for (const button of await page.getByRole('button').all()) {
+      const bounds = await button.boundingBox()
+      if (bounds) {
+        expect(bounds.width).toBeGreaterThanOrEqual(48)
+        expect(bounds.height).toBeGreaterThanOrEqual(48)
+      }
+    }
+    await page.screenshot({ path: `/tmp/math-task6-final-sky-${size.name}.png`, fullPage: true })
+    if (size.name === 'mobile') {
+      await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+      await expect(page.getByRole('heading', { name: 'Карта звёзд' })).toBeVisible()
+      await expect(page.locator('.expedition-celebration')).toHaveCount(0)
+      await page.getByRole('button', { name: 'Назад', exact: true }).click()
+      await expect(page.getByRole('heading', { name: 'Умножайка' })).toBeVisible()
+      await page.getByRole('button', { name: 'Карта звёзд', exact: true }).click()
+      await expect(page.getByRole('heading', { name: 'Карта звёзд' })).toBeVisible()
+      await expect(page.locator('.constellation-sky__reveal-line')).toHaveCount(0)
+      await expect(page.locator('.expedition-celebration')).toHaveCount(0)
+    }
+  })
+}
+
+test('reduced motion shows the final sky without loading a celebration canvas', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('./')
+  await page.evaluate(
+    ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
+    [PROGRESS_STORAGE_KEY, serializeSnapshot(createLastStarExpeditionState())],
+  )
+  await page.reload()
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+  await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+  await page.getByLabel('Ответ на пример').fill('100')
+  await page.getByLabel('Ответ на пример').press('Enter')
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+
+  await expect(page.getByRole('heading', { name: 'Экспедиция завершена!' })).toBeVisible()
+  await expect(page.locator('.mission__final-sky .constellation-sky__star--earned')).toHaveCount(66)
+  await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
+  await expect(page.locator('.expedition-celebration')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toBeEnabled()
+  await page.screenshot({ path: '/tmp/math-task6-final-sky-reduced.png', fullPage: true })
 })
