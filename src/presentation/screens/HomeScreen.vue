@@ -6,7 +6,6 @@ import LaunchButton from '@/presentation/components/LaunchButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StreakBadge from '@/presentation/components/StreakBadge.vue'
 import XpRoute from '@/presentation/components/XpRoute.vue'
-import StarGlyph from '@/presentation/components/StarGlyph.vue'
 import XpCounter from '@/presentation/components/XpCounter.vue'
 import { formatDateRu } from '@/presentation/utils/formatDate'
 
@@ -44,22 +43,19 @@ function primaryAction(): void {
 
 <template>
   <section class="screen home">
-    <h1 class="screen__title">Умножай<wbr />ка</h1>
-
-    <XpRoute :total-xp="xp" :launching="launching" />
-    <ConstellationSky :earned-fact-ids="earnedFactIds" variant="preview" />
+    <h1 class="screen__title">Умножайка</h1>
     <div class="home__status">
       <XpCounter :xp="xp" />
       <StreakBadge v-if="!maintenanceMode" :days="streakDays" />
-      <p v-else class="home__maintenance">
-        <template v-if="reviewsToday > 0">К повторению: {{ reviewsToday }}</template>
-        <template v-else>
-          На сегодня повторений нет<template v-if="nextReviewDate">
-            · ближайшее {{ formatDateRu(nextReviewDate) }}</template>
-        </template>
-      </p>
-      <p class="home__stars"><StarGlyph :size="24" :earned="stars > 0" />Звёзды знаний: {{ stars }} из {{ totalFacts }}</p>
     </div>
+    <XpRoute :total-xp="xp" :launching="launching" />
+    <p v-if="maintenanceMode" class="home__maintenance">
+      <template v-if="reviewsToday > 0">К повторению: {{ reviewsToday }}</template>
+      <template v-else>
+        На сегодня повторений нет<template v-if="nextReviewDate">
+          · ближайшее {{ formatDateRu(nextReviewDate) }}</template>
+      </template>
+    </p>
 
     <div class="screen__actions">
       <!-- One obvious action: while reviews exist, go review. -->
@@ -76,21 +72,45 @@ function primaryAction(): void {
         :disabled="launching"
         @click="emit('practice')"
       />
-      <SecondaryButton label="Карта звёзд" @click="emit('map')" />
-      <SecondaryButton label="Отчёт для взрослого" @click="emit('report')" />
     </div>
+    <section class="home__knowledge" aria-label="Звёзды знаний">
+      <ConstellationSky :earned-fact-ids="earnedFactIds" variant="preview" />
+      <div class="home__knowledge-content">
+        <p class="home__stars">Звёзды знаний: {{ stars }} из {{ totalFacts }}</p>
+        <SecondaryButton label="Карта звёзд" @click="emit('map')" />
+      </div>
+    </section>
+    <SecondaryButton class="home__report" label="Отчёт для взрослого" @click="emit('report')" />
   </section>
 </template>
 
 <style scoped>
 .home__status {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-md);
-  background: var(--color-space-raised);
-  border-radius: var(--radius-card);
-  padding: var(--space-xl);
+}
+
+.home__knowledge {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-lg);
+  padding-block: var(--space-lg);
+  border-block: 1px solid var(--color-control-outline);
+}
+.home__knowledge-content { display: grid; gap: var(--space-md); }
+.home__report {
+  background: transparent;
+  color: var(--color-on-space);
+  border-color: transparent;
+  font-size: var(--font-size-label);
+}
+.home__report:active:not(:disabled) { background: var(--color-space-raised); }
+@media (hover: hover) {
+  .home__report:hover:not(:disabled) { background: var(--color-space-raised); }
 }
 
 .home__stars,
@@ -101,6 +121,5 @@ function primaryAction(): void {
   line-height: var(--line-height-label);
   color: var(--color-on-space);
 }
-.home__stars { display: flex; align-items: center; gap: var(--space-sm); }
-.home .screen__title { hyphens: none; }
+.home .screen__title { overflow-wrap: normal; }
 </style>

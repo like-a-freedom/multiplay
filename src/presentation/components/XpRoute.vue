@@ -234,8 +234,9 @@ onBeforeUnmount(() => {
 .xp-route--finish {
   padding: var(--space-md);
   border-radius: var(--radius-card);
-  background: var(--color-space);
+  background: var(--color-space-raised);
 }
+.xp-route--finish .xp-route__surface { stroke: none; }
 .xp-route__heading {
   display: flex;
   align-items: baseline;

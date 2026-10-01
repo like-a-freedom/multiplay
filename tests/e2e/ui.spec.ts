@@ -13,8 +13,17 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
       }
     }
     await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Введи целое число от 0 до 100')
+    const placeholder = page.locator('.answer-field__placeholder')
+    await expect(placeholder).toHaveText('Введи целое число от 0 до 100')
+    const hintBounds = await placeholder.boundingBox()
+    const inputBounds = await page.getByLabel('Ответ на пример').boundingBox()
+    expect(hintBounds).not.toBeNull()
+    expect(inputBounds).not.toBeNull()
+    expect(hintBounds!.width).toBeLessThanOrEqual(inputBounds!.width)
+    expect(hintBounds!.height).toBeLessThanOrEqual(inputBounds!.height)
     await page.screenshot({ path: `/tmp/math-ui-answer-placeholder-${size.name}.png`, fullPage: true })
     await page.getByLabel('Ответ на пример').fill('abc')
+    await expect(placeholder).toHaveCount(0)
     await page.getByRole('button', { name: 'Далее', exact: true }).click()
     await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('aria-invalid', 'true')
     await expect(page.locator('.answer-field__error')).toHaveCSS('background-color', 'rgb(247, 250, 255)')
@@ -27,6 +36,13 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     await page.getByRole('button', { name: 'Пропустить проверку' }).click()
     await expect(page.getByRole('heading', { name: 'Умножайка' })).toBeFocused()
     await checkLayout()
+    await page.evaluate(() => window.scrollTo(0, 0))
+    const launchBounds = await page.getByRole('button', { name: 'Играть', exact: true }).boundingBox()
+    const knowledgeBounds = await page.getByRole('region', { name: 'Звёзды знаний', exact: true }).boundingBox()
+    expect(launchBounds!.y + launchBounds!.height).toBeLessThan(knowledgeBounds!.y)
+    if (size.name !== 'zoom') {
+      expect(launchBounds!.y + launchBounds!.height).toBeLessThanOrEqual(size.height)
+    }
     await page.screenshot({ path: `/tmp/math-ui-home-${size.name}.png`, fullPage: true })
     await page.getByRole('button', { name: 'Играть', exact: true }).click()
     for (let index = 0; index < 2; index++) {
@@ -45,6 +61,7 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     await page.getByRole('button', { name: 'Карта звёзд' }).click()
     await expect(page.getByRole('heading', { name: 'Карта звёзд' })).toBeVisible()
     await expect(page.getByText('Открыто звёзд: 0 из 66')).toBeVisible()
+    await expect(page.locator('.map__intro')).toContainText('XP на звёзды не влияют.')
     const factsToggle = page.getByRole('button', { name: /Все факты и достижения/ })
     await expect(factsToggle).toHaveAttribute('aria-expanded', 'false')
     await factsToggle.click()

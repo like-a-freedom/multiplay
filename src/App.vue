@@ -136,11 +136,6 @@ function onDiagnosticFinished(): void {
 
 <template>
   <main>
-    <div v-if="offlineReady && !offlineNoticeDismissed && !lessonActive" class="banner" role="status">
-      <span>Готово без интернета</span>
-      <SecondaryButton label="Понятно" @click="offlineNoticeDismissed = true" />
-    </div>
-
     <div v-if="needRefresh && !updateDismissed && !lessonActive" class="banner" role="status">
       <span>Обновление готово</span>
       <SecondaryButton label="Обновить" @click="updateServiceWorker(true)" />
@@ -233,6 +228,10 @@ function onDiagnosticFinished(): void {
       @reset="onReset"
       @recheck="onRecheck"
     />
+    <div v-if="offlineReady && !offlineNoticeDismissed && !lessonActive" class="banner banner--offline" role="status">
+      <span>Готово без интернета</span>
+      <SecondaryButton label="Понятно" @click="offlineNoticeDismissed = true" />
+    </div>
   </main>
 </template>
 
@@ -252,5 +251,10 @@ function onDiagnosticFinished(): void {
 
 .banner--error {
   border: 1px solid var(--color-error);
+}
+.banner--offline {
+  margin-top: var(--space-lg);
+  margin-bottom: 0;
+  font-size: var(--font-size-label);
 }
 </style>

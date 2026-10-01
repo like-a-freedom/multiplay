@@ -55,11 +55,9 @@ const accessibleLabel = computed(() => {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-xs);
-  padding: var(--space-lg);
-  border: 1px solid var(--color-review-outline);
-  border-radius: var(--radius-control);
-  background: var(--color-review-surface);
-  color: var(--color-review-ink);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-divider);
+  color: var(--color-ink-muted);
 }
 
 .xp-award__content {
@@ -82,11 +80,10 @@ const accessibleLabel = computed(() => {
   font-variant-numeric: tabular-nums;
 }
 
-.xp-award__breakdown { color: var(--color-review-ink); }
+.xp-award__breakdown { color: var(--color-ink); }
 
 .xp-award__total {
   padding-top: var(--space-sm);
-  border-top: 1px solid var(--color-review-outline);
   font-size: var(--font-size-label);
 }
 </style>

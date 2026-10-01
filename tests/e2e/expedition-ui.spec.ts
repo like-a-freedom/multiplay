@@ -186,7 +186,12 @@ for (const size of [
     await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
 
     await expect(page.getByRole('heading', { name: 'Экспедиция завершена!' })).toBeVisible()
+    if (size.name === 'zoom') {
+      await expect(page.locator('.mission__finish-title')).toHaveCSS('hyphens', 'auto')
+      await expect(page.locator('.mission__finish-title')).toHaveCSS('overflow-wrap', 'normal')
+    }
     await expect(page.locator('.mission__final-sky .constellation-sky__star--earned')).toHaveCount(66)
+    await expect(page.locator('.mission .xp-route')).toHaveCount(0)
     await expect(page.locator('.expedition-celebration canvas')).toHaveAttribute('data-fired', 'true')
     await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
     expect(await page.locator('.mission__final-sky').evaluate((sky) =>

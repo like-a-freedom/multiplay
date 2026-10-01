@@ -141,10 +141,8 @@ const visibleExpression = computed(() =>
 
 .question-card__hint {
   color: var(--color-ink);
-  padding: var(--space-md) var(--space-lg);
-  border-left: 3px solid var(--color-review-outline);
-  border-radius: 0 var(--radius-control) var(--radius-control) 0;
-  background: var(--color-white);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-review-outline);
 }
 
 .question-card__hint p {

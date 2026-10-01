@@ -16,21 +16,24 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
 <template>
   <div class="answer-field">
     <label class="answer-field__label" for="answer-input">{{ label ?? 'Твой ответ' }}</label>
-    <input
-      id="answer-input"
-      class="answer-field__input"
-      :value="modelValue"
-      type="text"
-      inputmode="numeric"
-      placeholder="Введи целое число от 0 до 100"
-      autocomplete="off"
-      :disabled="disabled"
-      :aria-invalid="errorText ? true : undefined"
-      enterkeyhint="done"
-      :aria-describedby="errorText ? 'answer-error' : 'answer-help'"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      @keyup.enter.stop.prevent="$emit('submit')"
-    />
+    <div class="answer-field__control">
+      <input
+        id="answer-input"
+        class="answer-field__input"
+        :value="modelValue"
+        type="text"
+        inputmode="numeric"
+        placeholder="Введи целое число от 0 до 100"
+        autocomplete="off"
+        :disabled="disabled"
+        :aria-invalid="errorText ? true : undefined"
+        enterkeyhint="done"
+        :aria-describedby="errorText ? 'answer-error' : 'answer-help'"
+        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+        @keyup.enter.stop.prevent="$emit('submit')"
+      />
+      <span v-if="modelValue === ''" class="answer-field__placeholder" aria-hidden="true">Введи целое число от 0 до 100</span>
+    </div>
     <p v-if="errorText" id="answer-error" class="answer-field__error" aria-live="polite">
       {{ errorText }}
     </p>
@@ -68,13 +71,26 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
   caret-color: var(--color-action);
 }
 
+.answer-field__control { display: grid; }
+.answer-field__control > * { grid-area: 1 / 1; }
+.answer-field__placeholder {
+  align-self: center;
+  padding: 12px 16px;
+  border: 1px solid transparent;
+  color: var(--color-ink-muted);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  overflow-wrap: normal;
+  pointer-events: none;
+}
+
 .answer-field__input:focus-visible {
   outline: 2px solid var(--color-focus-on-space);
   outline-offset: 2px;
 }
 
 .answer-field__input::placeholder {
-  color: var(--color-ink-muted);
+  color: transparent;
   font-size: var(--font-size-body);
   font-weight: 400;
 }

@@ -244,14 +244,7 @@ function feedbackText(outcome: AttemptOutcome): string {
 
     <template v-else>
       <div ref="cardRegion" class="mission__finish" tabindex="-1">
-        <svg v-if="!expeditionJustFinished" class="mission__finish-art" viewBox="0 0 320 112" aria-hidden="true">
-          <path class="mission__finish-orbit" d="M -24 88 C 74 5 201 127 345 18" />
-          <StarGlyph :x="47" :y="59" :size="14" :earned="false" />
-          <StarGlyph :x="135" :y="36" :size="56" :earned="session.stars.value > 0" class="mission__finish-star--hero" />
-          <StarGlyph :x="263" :y="22" :size="16" :earned="false" />
-        </svg>
         <div class="mission__finish-content">
-          <p class="mission__finish-eyebrow">Маршрут пройден</p>
           <h2 class="mission__finish-title">{{ expeditionJustFinished ? 'Экспедиция завершена!' : 'Миссия завершена!' }}</h2>
           <p class="mission__finish-copy">
             {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты прошёл маршрут. Можно сыграть ещё или вернуться позже.' }}
@@ -271,6 +264,7 @@ function feedbackText(outcome: AttemptOutcome): string {
             :xp-paused-by-clock="xpPausedByClock"
           />
           <XpRoute
+            v-if="!expeditionJustFinished"
             variant="finish"
             :total-xp="session.totalXp.value"
             :from-xp="xpBeforeCompletion"
@@ -316,20 +310,6 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 .mission__finish:focus { outline: none; }
 
-.mission__finish-art {
-  display: block;
-  width: 100%;
-  height: 112px;
-  background: var(--color-space-raised);
-}
-
-.mission__finish-orbit {
-  fill: none;
-  stroke: var(--color-control-outline);
-  stroke-width: 2;
-  stroke-dasharray: 4 8;
-}
-
 .mission__finish-content {
   display: flex;
   flex-direction: column;
@@ -337,17 +317,13 @@ function feedbackText(outcome: AttemptOutcome): string {
   padding: var(--space-xl);
 }
 
-.mission__finish-eyebrow {
-  color: var(--color-success);
-  font-size: var(--font-size-label);
-  font-weight: 700;
-}
-
 .mission__finish-title {
   margin: 0;
   font-size: var(--font-size-title);
   line-height: var(--line-height-title);
   text-wrap: balance;
+  hyphens: auto;
+  overflow-wrap: normal;
 }
 
 .mission__finish-copy { color: var(--color-ink-muted); }
@@ -357,23 +333,24 @@ function feedbackText(outcome: AttemptOutcome): string {
   display: flex;
   justify-content: center;
   width: 100%;
+  max-width: 280px;
+  align-self: center;
   overflow: hidden;
   border-radius: var(--radius-card);
   isolation: isolate;
 }
 
 .mission__stars {
-  --star-empty-fill: var(--color-white);
+  --star-empty-fill: var(--color-paper);
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-lg);
-  border: 1px solid var(--color-control-outline);
-  border-radius: var(--radius-control);
-  background: var(--color-white);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-divider);
 }
 
 .mission__stars strong { color: var(--color-ink); }
+.xp-award + .mission__stars { border-top: 0; padding-top: 0; }
 .mission__stars-heading { display: flex; align-items: center; gap: var(--space-md); }
 .mission__stars p {
   margin: 0;
@@ -382,20 +359,9 @@ function feedbackText(outcome: AttemptOutcome): string {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .mission__finish-star--hero {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: mission-star-arrive 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
   .xp-award {
     animation: award-arrive 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-}
-
-@keyframes mission-star-arrive {
-  from { opacity: .45; scale: .75; }
-  to { opacity: 1; scale: 1; }
 }
 
 @keyframes award-arrive {

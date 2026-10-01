@@ -48,6 +48,7 @@ function factLabel(factId: string): string {
       <span><StarGlyph :size="20" />Открыта</span>
       <span><StarGlyph :size="20" :earned="false" />Впереди</span>
     </div>
+    <p v-if="earnedFactIds.length === 0" class="map__intro">Звезда открывается за пример, который ты решил сам и повторил спустя неделю. XP на звёзды не влияют.</p>
 
     <section class="map__reviews" aria-labelledby="map-review-title">
       <div class="map__review-heading">
@@ -106,6 +107,7 @@ function factLabel(factId: string): string {
 
 <style scoped>
 .map__count { margin: 0; font-weight: 700; }
+.map__intro { font-size: var(--font-size-label); }
 .map__rule { margin: 0; color: var(--color-on-space); }
 
 .map__sky { align-self: center; }

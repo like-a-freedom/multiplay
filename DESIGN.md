@@ -148,6 +148,8 @@ The card has the soft `card` radius; fields and buttons the smaller `control`; t
 
 ## XP Route
 
+**Home hierarchy:** show total XP and the streak in one wrapping row, then the ship route and the launch action. Group the small constellation preview, its knowledge-star count, and «Карта звёзд» in one secondary section below the action. The parent report uses a quiet text button with the same minimum touch target. Cache readiness belongs after the screen content so its asynchronous appearance cannot move a control under the child's finger.
+
 The home screen shows one curved route for the current 100-XP level. Its level label and progress sentence explain the route; `Всего XP` remains a separate cumulative total so crossing a level boundary cannot look like lost progress. Gold route waypoints mean XP earned in this level only; they never represent mastery. Knowledge stars retain their own count and meaning. The ship stays at the saved XP position while idle and after reload. The launch action may tilt and scale it once in place; a zero-XP mission and `prefers-reduced-motion: reduce` leave its position or motion unchanged.
 
 ## Components
@@ -163,6 +165,10 @@ The home screen shows one curved route for the current 100-XP level. Its level l
 | **Knowledge map** | The screen is titled «Карта звёзд» in the heading and both entry points. It explains that a star belongs to one specific expression after two independent successes at least 7 days apart, is never bought with XP, and survives a later error. Facts due for review are separate small light cards with the expression and its route number. The list of 66 facts opens with a large button carrying `aria-expanded` and a visible arrow; the content expands in the page flow, with no modal layer. |
 
 **Accessibility:** the visible label is tied to the field; the result is announced with `aria-live="polite"`, the input error with `aria-describedby`. After an answer the result and «Продолжить» are available with no auto-advance. The next card receives a predictable focus; every action is keyboard reachable. The expression has a sensible spoken form «Семь умножить на восемь». Decorative SVGs are hidden from screen readers. Verify VoiceOver, 200% zoom, and a narrow screen with no horizontal scrolling; do not disable pinch-to-zoom.
+
+**Large-text input:** the empty-field hint stays inside the input surface and wraps when necessary; the field grows with it. A non-interactive, screen-reader-hidden overlay renders the wrapping text, while the native numeric input, placeholder attribute, label, and accessible description remain intact. Entering a value removes the overlay. Do not shrink the hint or clip its 0–100 range.
+
+**Finish hierarchy:** begin with the completion heading, without an extra eyebrow or decorative star banner. Present XP on the paper surface, then the actual ship route, then the separate knowledge-star explanation. Use spacing and thin dividers rather than a stack of boxed panels. On the first 66-star finish, the full constellation is the only illustration (up to 280px wide); omit the repeated XP route while retaining the numeric XP award, totals, and star count. The empty map shows the star-earning explanation before its disclosure is opened.
 
 **Screen states:** before the first stars the map shows «Открыто звёзд: 0 из 66» and explains the path to the first one; overdue or forgotten facts show «Пора повторить» without dimming an opened star or lowering the star count. A new star is marked at the answer result, with no XP animation and no false hint of conversion. When no reviews are scheduled, free practice stays available. Cache readiness is «Готово без интернета»; a storage failure is «Прогресс не сохраняется» with a retry. Data reset lives in the report and requires confirmation. Mastery status and map colors follow the PRD.
 
