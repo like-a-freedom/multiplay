@@ -73,7 +73,6 @@ onBeforeUnmount(() => {
       :r="radius"
       class="constellation-sky__orbit"
     />
-    <circle :cx="size / 2" :cy="size / 2" r="4" class="constellation-sky__beacon" />
     <line
       v-for="factId in revealFactIds"
       :key="factId"
@@ -130,7 +129,7 @@ onBeforeUnmount(() => {
 
 .constellation-sky__veil {
   fill: var(--color-cosmos);
-  opacity: .48;
+  opacity: .62;
 }
 
 .constellation-sky__orbit {
@@ -138,12 +137,6 @@ onBeforeUnmount(() => {
   stroke: var(--color-lilac);
   stroke-width: .8;
   opacity: .3;
-}
-
-.constellation-sky__beacon {
-  fill: var(--color-control-outline);
-  stroke: var(--color-space);
-  stroke-width: 2;
 }
 
 .constellation-sky__reveal-line {

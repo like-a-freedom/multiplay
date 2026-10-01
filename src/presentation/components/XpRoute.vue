@@ -233,7 +233,7 @@ onBeforeUnmount(() => {
       :duration-ms="phaseDuration"
       @finished="beamFinished = true"
     />
-    <p class="xp-route__progress">{{ target.earnedInLevel }} из {{ XP_PER_LEVEL }} XP до следующего уровня</p>
+    <p class="xp-route__progress">{{ target.earnedInLevel }} из {{ XP_PER_LEVEL }} XP <span>До уровня {{ target.level + 1 }} — ещё {{ XP_PER_LEVEL - target.earnedInLevel }} XP</span></p>
   </section>
 </template>
 
@@ -264,6 +264,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   line-height: var(--line-height-label);
 }
+.xp-route__progress span { display: block; margin-top: var(--space-xs); font-size: var(--font-size-meta); font-weight: 600; }
 .xp-route__title { font-weight: 700; }
 .xp-route__level {
   color: var(--color-focus);

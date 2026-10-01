@@ -19,7 +19,7 @@ _Do not use_: level as a synonym for session.
 **Explanatory hint:** a short strategy for obtaining the answer, for example a decomposition into known products or equal groups of objects.
 _Do not use_: showing the finished answer as a synonym for explanation.
 
-**XP:** game experience for completing missions and for regularity. It does not measure answer accuracy or knowledge of the table.
+**XP:** game experience for completed missions with at least one entered answer, correct or wrong, and for regularity. A hints-only mission completes without XP. It does not measure answer accuracy or knowledge of the table.
 _Do not use_: XP as a currency for stars.
 
 **Achievement star:** a permanent mark that a fact has at least once passed mastery confirmation. A later error never takes the star away.
@@ -30,7 +30,7 @@ _Do not use_: current knowledge as a synonym for achievement.
 
 **«Пора повторить» (due for review):** the current need to return to a fact after an error or after its review date has come. It can combine with an already opened star.
 
-**Daily streak:** a sequence of local calendar days with a completed mission.
+**Daily streak:** a sequence of local calendar days with a completed mission containing at least one entered answer.
 _Do not use_: a streak of correct answers.
 
 **Completed expedition:** a permanent achievement after stars are opened for every fact of the table. It does not mean that errors or forgetting are impossible later.

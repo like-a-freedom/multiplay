@@ -33,6 +33,9 @@
   --color-review-ink: #704900;
   --color-review-outline: #946200;
   --color-error: #b42335;
+  --color-danger-surface: #fff0f1;
+  --color-help-surface: #e8f5fa;
+  --color-help-ink: #245c73;
   --color-control-outline: #8a88a1;
   --color-divider: #e0ddef;
   --color-shadow: rgb(41 31 88 / .10);
@@ -53,12 +56,18 @@
   --font-size-body: 1.0625rem;
   --font-size-label: .875rem;
   --font-size-button: 1.125rem;
+  --font-size-heading: 1.25rem;
+  --font-size-heading-compact: 1.375rem;
+  --font-size-meta: .8125rem;
+  --font-size-caption: .75rem;
+  --font-size-symbol: 1.875rem;
   --line-height-question: 1.15;
   --line-height-title: 1.15;
   --line-height-body: 1.5;
   --line-height-label: 1.4;
   --line-height-button: 1.3;
   --radius-control: 18px;
+  --radius-icon: 12px;
   --radius-card: 28px;
   --radius-badge: 999px;
   --space-xs: 4px;

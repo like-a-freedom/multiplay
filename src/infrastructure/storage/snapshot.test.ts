@@ -19,6 +19,18 @@ describe('progress snapshot', () => {
     expect(parseSnapshot(JSON.stringify({ version: SNAPSHOT_VERSION, state: {} })).kind).toBe('corrupt')
   })
 
+  it('preserves eligibility flags and historical XP without a migration', () => {
+    const initial = createProgressState()
+    const state = { ...initial, rewards: { ...initial.rewards, totalXp: 10, completions: [
+      { missionId: 'historical', date: '2026-01-01' as const },
+      { missionId: 'hints-only', date: '2026-01-01' as const, xpEligible: false },
+      { missionId: 'entered', date: '2026-01-02' as const, xpEligible: true },
+    ] } }
+    const result = parseSnapshot(serializeSnapshot(state))
+    expect(result.kind).toBe('saved')
+    if (result.kind === 'saved') expect(result.state.rewards).toEqual(state.rewards)
+  })
+
   it('normalizes early snapshots without the diagnostic field instead of crashing', () => {
     const legacy = JSON.parse(serializeSnapshot(createProgressState()))
     delete legacy.state.diagnostic

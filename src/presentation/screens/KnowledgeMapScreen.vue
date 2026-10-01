@@ -98,11 +98,13 @@ function factLabel(factId: string): string {
         <ul class="map__facts" aria-label="Достижения по каждому факту">
           <li v-for="factId in factIds" :key="factId" :data-fact-id="factId">
             <div class="map__fact-heading">
-              <StarGlyph :size="24" :earned="isEarned(factId)" />
+              <span class="map__fact-star"><StarGlyph :size="24" :earned="isEarned(factId)" /></span>
               <strong>{{ factLabel(factId) }}</strong>
             </div>
-            <span>{{ isEarned(factId) ? 'Звезда открыта' : 'Звезда впереди' }}</span>
-            <span v-if="reviewFactIds.includes(factId)">Пора повторить</span>
+            <div class="map__fact-statuses">
+              <span :class="['map__fact-status', isEarned(factId) ? 'map__fact-status--earned' : 'map__fact-status--future']">{{ isEarned(factId) ? 'Звезда открыта' : 'Звезда впереди' }}</span>
+              <span v-if="reviewFactIds.includes(factId)" class="map__fact-status map__fact-status--review">Пора повторить</span>
+            </div>
           </li>
         </ul>
       </div>
@@ -124,11 +126,11 @@ function factLabel(factId: string): string {
 .map__galaxy { position: relative; padding: var(--space-xl); overflow: hidden; border-radius: var(--radius-card); background: var(--color-cosmos); color: var(--color-on-cosmos); box-shadow: 0 12px 32px rgb(32 39 65 / .18); }
 .map__galaxy > :not(.inspira-sparkles) { position: relative; z-index: 1; }
 .map__chart { position: relative; max-width: 320px; margin-inline: auto; }
-.map__gauge { position: absolute; width: 82px; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: var(--color-cosmos); }
-.map__galaxy .map__count { text-align: center; font-size: 1rem; font-weight: 900; }
+.map__gauge { position: absolute; width: 25.625%; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: var(--color-cosmos); }
+.map__galaxy .map__count { text-align: center; font-size: var(--font-size-body); font-weight: 900; }
 .map__intro { color: var(--color-ink-muted); line-height: 1.6; }
 .map__intro { font-size: var(--font-size-label); }
-.map__rule { margin: 0; color: var(--color-on-space); }
+.map__rule { margin: 0 0 var(--space-xl); color: var(--color-ink-muted); font-size: var(--font-size-label); }
 
 .map__sky { align-self: center; }
 
@@ -147,16 +149,19 @@ function factLabel(factId: string): string {
 }
 .map__review-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
 }
 
 .map__review-heading h2 {
+  flex: 1 1 12rem;
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-heading);
   font-weight: 900;
   line-height: var(--line-height-body);
+  overflow-wrap: normal;
 }
 
 .map__review-count {
@@ -278,7 +283,7 @@ function factLabel(factId: string): string {
 .map__facts li {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-md);
   min-width: 0;
   padding: var(--space-md);
   border: 1px solid var(--color-divider);
@@ -286,12 +291,16 @@ function factLabel(factId: string): string {
   background: var(--color-space);
 }
 .map__facts strong {
+  font-size: var(--font-size-button);
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
 }
-.map__facts span {
-  font-size: var(--font-size-label);
-  color: var(--color-on-space);
-}
+.map__fact-star { display: grid; flex: 0 0 32px; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-icon); background: var(--color-cosmos); }
+.map__fact-statuses { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.map__fact-status { padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-icon); font-size: var(--font-size-meta); font-weight: 800; line-height: var(--line-height-label); }
+.map__fact-status--earned { background: var(--color-success-surface); color: var(--color-success); }
+.map__fact-status--future { background: var(--color-help-surface); color: var(--color-help-ink); }
+.map__fact-status--review { background: var(--color-review-surface); color: var(--color-review-ink); }
 
 @media (max-width: 360px) {
   .map__review-grid,

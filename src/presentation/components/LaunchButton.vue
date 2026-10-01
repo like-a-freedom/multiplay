@@ -13,6 +13,6 @@ defineEmits<{ click: [] }>()
     :launching="launching"
     @click="$emit('click')"
   >
-    <GameIcon name="rocket" /> {{ label }} <GameIcon name="arrow" :size="20" />
+    <GameIcon name="rocket" /> <span class="launch-button__label">{{ label }}</span> <GameIcon name="arrow" :size="20" />
   </ShimmerButton>
 </template>

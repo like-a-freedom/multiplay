@@ -36,4 +36,7 @@ const buttons = ref<HTMLElement[]>([])
 .inspira-dock button[aria-current] { color: var(--color-focus); background: var(--color-lilac-soft); }
 .inspira-dock__icon { display: flex; transition: transform 220ms var(--ease-playful); }
 @media (prefers-reduced-motion: reduce) { .inspira-dock__icon { transition: none; transform: none !important; } }
+.inspira-dock { flex-wrap: wrap; }
+.inspira-dock button { flex: 1 0 auto; }
+.inspira-dock button > span:last-child { white-space: nowrap; }
 </style>

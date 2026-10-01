@@ -36,6 +36,8 @@ export interface AttemptRecord {
 export interface MissionCompletion {
   readonly missionId: string
   readonly date: CalendarDate
+  /** Missing on older snapshots, whose rewards remain unchanged. */
+  readonly xpEligible?: boolean
 }
 
 export interface RewardState {

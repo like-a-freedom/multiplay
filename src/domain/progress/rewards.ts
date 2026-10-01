@@ -12,12 +12,19 @@ import { starsEarned } from '@/domain/progress/progressState'
  */
 
 export const TOTAL_FACTS = 66
+export type XpBlockedReason = 'no-answer' | 'daily-limit' | 'clock-rollback' | 'already-completed'
 
 export interface MissionRewardOutcome {
   readonly state: ProgressState
   readonly xpAwarded: number
   readonly streakBonusXp: number
   readonly expeditionJustFinished: boolean
+  readonly xpBlockedReason: XpBlockedReason | null
+}
+
+/** Entering an answer is practice, whether it is right or wrong. Hints alone are not an answer. */
+export function missionHasEnteredAnswer(state: ProgressState, missionId: string): boolean {
+  return state.attempts.some((attempt) => attempt.missionId === missionId && attempt.outcome !== 'unknown')
 }
 
 export function applyMissionRewards(
@@ -27,17 +34,18 @@ export function applyMissionRewards(
 ): MissionRewardOutcome {
   const alreadyRewarded = state.rewards.completions.some((c) => c.missionId === missionId)
   if (alreadyRewarded) {
-    return { state, xpAwarded: 0, streakBonusXp: 0, expeditionJustFinished: false }
+    return { state, xpAwarded: 0, streakBonusXp: 0, expeditionJustFinished: false, xpBlockedReason: 'already-completed' }
   }
 
-  const completionsToday = state.rewards.completions.filter((c) => c.date === date).length
+  const xpEligible = missionHasEnteredAnswer(state, missionId)
+  const completionsToday = state.rewards.completions.filter((c) => c.date === date && c.xpEligible !== false).length
   const suspended = rewardsSuspended(state.rewards.streak, date)
 
   // Practice stays available, but new rewards are paused until the date recovers.
-  const xpAwarded = suspended ? 0 : missionXp(completionsToday)
+  const xpAwarded = !xpEligible || suspended ? 0 : missionXp(completionsToday)
 
   let streakUpdate: StreakUpdate = { streak: state.rewards.streak, bonusXp: 0 }
-  if (state.mode === 'expedition' && !suspended) {
+  if (xpEligible && state.mode === 'expedition' && !suspended) {
     streakUpdate = streakAfterCompletion(state.rewards.streak, date)
   }
 
@@ -46,7 +54,7 @@ export function applyMissionRewards(
     currentMission: null,
     rewards: {
       totalXp: state.rewards.totalXp + xpAwarded + streakUpdate.bonusXp,
-      completions: [...state.rewards.completions, { missionId, date }],
+      completions: [...state.rewards.completions, { missionId, date, xpEligible }],
       streak: streakUpdate.streak,
     },
   }
@@ -65,6 +73,7 @@ export function applyMissionRewards(
     xpAwarded,
     streakBonusXp: streakUpdate.bonusXp,
     expeditionJustFinished,
+    xpBlockedReason: !xpEligible ? 'no-answer' : suspended ? 'clock-rollback' : xpAwarded === 0 ? 'daily-limit' : null,
   }
 }
 

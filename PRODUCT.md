@@ -27,7 +27,7 @@ The child practices on his iPhone, often independently. A mission has up to ten 
 - Card shows a multiplication prompt before the answer; the child enters a number or chooses “Не знаю.”
 - Missions mix easy and difficult facts and reserve up to two slots for unseen facts. Errors receive a prepared explanatory strategy.
 - Difficult facts return across days. Mastery requires independent correct recall on separate days, at least seven days apart with no intervening error, as defined in `PRD.md`.
-- Game progress uses XP, levels, a daily streak, milestone bonuses, and a knowledge map. XP rewards completion even when all answers are “Не знаю.” Permanent achievement stars are separate from current recall status. Game points do not define mastery.
+- Game progress uses XP, levels, a daily streak, milestone bonuses, and a knowledge map. XP rewards completed missions containing at least one entered answer; errors count as effort. A hints-only mission earns no XP and consumes no daily reward slot or streak milestone. Existing saved XP is preserved. Permanent achievement stars are separate from current recall status. Game points do not define mastery.
 - Once all 66 stars are earned, the expedition finishes once and enters maintenance: scheduled reviews and optional practice, with no daily streak or streak bonuses. XP and levels remain; later errors do not undo completion. New math topics are outside scope.
 - No login, cloud sync, ads, leaderboard, lives, native iOS app, or automatic phone restrictions.
 - The family chose a cosmic expedition as the game's visual theme. It must not alter the learning rules.

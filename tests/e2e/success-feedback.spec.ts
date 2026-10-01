@@ -139,7 +139,7 @@ test('accepted answer survives refresh and the resumed mission awards XP once', 
   await page.reload()
 
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
-  await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
+  await expect(page.getByText('Карточка 2 из 2')).toBeVisible()
   await expect(page.getByText('Верно')).toHaveCount(0)
   const resumedExpression = await page.locator('.question-card--front .question-card__expression span[aria-hidden]').textContent()
   expect(resumedExpression).not.toBe(firstExpression)

@@ -7,8 +7,8 @@ import { startMission, type MissionKind } from '@/application/useCases/startMiss
 import { allFacts, factFromId } from '@/domain/fact/multiplicationFact'
 import type { AttemptOutcome } from '@/domain/learning/answer'
 import { explanationFor } from '@/domain/learning/explanation'
-import { unansweredCardFactIds, type ProgressState } from '@/domain/progress/progressState'
-import { rewardsPausedByClockRollback } from '@/domain/progress/rewards'
+import type { ProgressState } from '@/domain/progress/progressState'
+import type { XpBlockedReason } from '@/domain/progress/rewards'
 import AnswerField from '@/presentation/components/AnswerField.vue'
 import CompanionCue from '@/presentation/components/CompanionCue.vue'
 import GameIcon from '@/presentation/components/GameIcon.vue'
@@ -57,7 +57,7 @@ const expeditionJustFinished = ref(false)
 const awardedXp = ref(0)
 const bonusXp = ref(0)
 const xpBeforeCompletion = ref<number | null>(null)
-const xpPausedByClock = ref(false)
+const xpBlockedReason = ref<XpBlockedReason | null>(null)
 const prefersReducedMotion = ref(false)
 const cardRegion = ref<HTMLElement | null>(null)
 const actions = ref<HTMLElement | null>(null)
@@ -70,6 +70,12 @@ const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
 
 const fact = computed(() => factFromId(cardFactIds.value[cardIndex.value] ?? '0:0'))
 const allAnswered = computed(() => cardIndex.value >= cardFactIds.value.length)
+const outcomes = computed(() => cardFactIds.value.map((factId) => session.state.value.attempts.filter((attempt) => attempt.missionId === missionId.value && attempt.factId === factId).at(-1)?.outcome))
+const outcomeCounts = computed(() => ({
+  correct: outcomes.value.filter((outcome) => outcome === 'correct').length,
+  wrong: outcomes.value.filter((outcome) => outcome === 'wrong').length,
+  unknown: outcomes.value.filter((outcome) => outcome === 'unknown').length,
+}))
 
 onMounted(() => {
   motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -81,7 +87,9 @@ onMounted(() => {
   const existing = kind === 'practice' ? null : session.state.value.currentMission
   if (existing !== null) {
     missionId.value = existing.id
-    cardFactIds.value = unansweredCardFactIds(existing)
+    cardFactIds.value = [...existing.cardFactIds]
+    const firstUnanswered = existing.cardFactIds.findIndex((factId) => !existing.answeredFactIds.includes(factId))
+    cardIndex.value = firstUnanswered < 0 ? existing.cardFactIds.length : firstUnanswered
   } else {
     const started = startMission(session.state.value, {
       missionId: crypto.randomUUID(),
@@ -93,7 +101,7 @@ onMounted(() => {
     cardFactIds.value = [...started.mission.cardFactIds]
     session.save()
   }
-  if (cardFactIds.value.length === 0) {
+  if (allAnswered.value) {
     finish()
   } else {
     focusCard()
@@ -172,12 +180,12 @@ function next(): void {
 function finish(): void {
   const date = today()
   xpBeforeCompletion.value = session.totalXp.value
-  xpPausedByClock.value = rewardsPausedByClockRollback(session.state.value, date)
   const result = completeMission(session.state.value, { missionId: missionId.value, date })
   session.state.value = result.state
   expeditionJustFinished.value = result.expeditionJustFinished
   awardedXp.value = result.xpAwarded
   bonusXp.value = result.streakBonusXp
+  xpBlockedReason.value = result.xpBlockedReason
   session.save()
   finished.value = true
   focusCard()
@@ -211,7 +219,7 @@ function feedbackText(outcome: AttemptOutcome): string {
     </header>
     <h1 v-else class="visually-hidden">Миссия</h1>
     <template v-if="!finished">
-      <MissionProgress :current="cardIndex + 1" :total="Math.max(cardFactIds.length, 1)" />
+      <MissionProgress :current="cardIndex + 1" :total="Math.max(cardFactIds.length, 1)" :outcomes="outcomes" />
 
       <div ref="cardRegion" class="mission__card" tabindex="-1">
         <QuestionCard
@@ -269,12 +277,17 @@ function feedbackText(outcome: AttemptOutcome): string {
               :reduced-motion="prefersReducedMotion"
             />
           </div>
+          <dl class="mission__results" aria-label="Итоги карточек">
+            <div class="mission__result--correct"><dt>Верно</dt><dd>{{ outcomeCounts.correct }}</dd></div>
+            <div class="mission__result--wrong"><dt>Разобрали</dt><dd>{{ outcomeCounts.wrong }}</dd></div>
+            <div class="mission__result--unknown"><dt>С подсказкой</dt><dd>{{ outcomeCounts.unknown }}</dd></div>
+          </dl>
           <XpAward
             :awarded-xp="awardedXp"
             :bonus-xp="bonusXp"
             :total-xp="session.totalXp.value"
             :level="session.level.value"
-            :xp-paused-by-clock="xpPausedByClock"
+            :xp-blocked-reason="xpBlockedReason"
           />
           <XpRoute
             v-if="!expeditionJustFinished"
@@ -284,7 +297,7 @@ function feedbackText(outcome: AttemptOutcome): string {
           />
           <div class="mission__stars">
             <div class="mission__stars-heading">
-              <StarGlyph :size="32" :earned="session.stars.value > 0" />
+              <span class="mission__stars-symbol"><StarGlyph :size="32" :earned="session.stars.value > 0" /></span>
               <strong>Звёзды знаний: {{ session.stars.value }} из 66</strong>
             </div>
             <p>Звезда открывается за пример, который ты решил сам и повторил спустя неделю. XP на звёзды не влияют.</p>
@@ -342,8 +355,8 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 .mission__finish-copy { color: var(--color-ink-muted); text-align: center; font-size: var(--font-size-label); }
 .mission__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
-.mission__header .screen__title { font-size: 1.375rem; }
-.mission__back { display: grid; place-content: center; width: 48px; height: 48px; border: 1px solid var(--color-divider); border-radius: 16px; background: var(--color-paper); color: var(--color-ink); cursor: pointer; }
+.mission__header .screen__title { font-size: var(--font-size-heading-compact); }
+.mission__back { display: grid; place-content: center; width: 48px; height: 48px; border: 1px solid var(--color-divider); border-radius: var(--radius-control); background: var(--color-paper); color: var(--color-ink); cursor: pointer; }
 .mission__header-icon { margin-inline: var(--space-md); color: var(--color-focus); }
 .mission :deep(.companion-cue) { align-self: center; }
 .mission :deep(.xp-route__level) { color: var(--color-focus); }
@@ -361,7 +374,6 @@ function feedbackText(outcome: AttemptOutcome): string {
 }
 
 .mission__stars {
-  --star-empty-fill: var(--color-paper);
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -372,6 +384,15 @@ function feedbackText(outcome: AttemptOutcome): string {
 .mission__stars strong { color: var(--color-ink); }
 .xp-award + .mission__stars { border-top: 0; padding-top: 0; }
 .mission__stars-heading { display: flex; align-items: center; gap: var(--space-md); }
+.mission__stars-symbol { display: grid; flex-shrink: 0; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-icon); background: var(--color-cosmos); }
+.mission__results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); margin: 0; padding-block: var(--space-md); border-block: 1px solid var(--color-divider); }
+.mission__results > div { display: grid; grid-template-rows: auto 1fr; gap: var(--space-xs); text-align: center; }
+.mission__results dt { font-size: var(--font-size-meta); font-weight: 800; line-height: var(--line-height-label); }
+.mission__results dd { align-self: end; margin: 0; font-size: var(--font-size-heading-compact); font-weight: 900; font-variant-numeric: tabular-nums; }
+.mission__result--correct { color: var(--color-success); }
+.mission__result--wrong { color: var(--color-review-ink); }
+.mission__result--unknown { color: var(--color-help-ink); }
+@media (max-width: 360px) { .mission__results { grid-template-columns: 1fr; gap: var(--space-md); } .mission__results > div { display: flex; justify-content: space-between; align-items: baseline; } }
 .mission__stars p {
   margin: 0;
   color: var(--color-ink-muted);

@@ -169,7 +169,8 @@ test('«Пора повторить» ведёт сразу в повторен�
   const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
   if (await welcome.count()) await welcome.click()
 
-  await expect(page.getByText('Примеры ждут повторения: 1. Орби поможет вспомнить.')).toBeVisible()
+  await expect(page.locator('.home__review-summary')).toContainText('Примеры ждут повторения')
+  await expect(page.locator('.home__review-number')).toHaveText('1')
   await page.getByRole('button', { name: 'Повторить', exact: true }).click()
 
   // Повторение — только факт с наступившим сроком, без новых и практики.

@@ -10,3 +10,6 @@ playwright-report/
 !.env.example
 .aws/
 coverage/
+.impeccable/
+.delta/
+.superpowers/

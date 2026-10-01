@@ -177,13 +177,13 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
   flex-direction: column;
   gap: var(--space-md);
 }
-.diagnostic__brand { display: flex; align-items: center; gap: var(--space-sm); font-size: 1.25rem; font-weight: 900; }
-.diagnostic__brand span { display: grid; place-content: center; width: 32px; height: 32px; border-radius: 11px; background: var(--color-lilac); font-size: 1.8rem; }
+.diagnostic__brand { display: flex; align-items: center; gap: var(--space-sm); font-size: var(--font-size-heading); font-weight: 900; }
+.diagnostic__brand span { display: grid; place-content: center; width: 32px; height: 32px; border-radius: var(--radius-icon); background: var(--color-lilac); font-size: var(--font-size-symbol); }
 .diagnostic__welcome-copy { text-align: center; padding-top: var(--space-xl); }
 .diagnostic__welcome-copy h1 { font-size: var(--font-size-display); margin-bottom: var(--space-sm); }
 .diagnostic__welcome-copy p { color: var(--color-ink-muted); }
 .diagnostic__invite { display: grid; gap: var(--space-lg); padding: var(--space-xl); border-radius: var(--radius-card); background: var(--color-paper); box-shadow: var(--shadow-card); }
-.diagnostic__invite h2 { margin: 0; font-size: 1.375rem; font-weight: 900; }
+.diagnostic__invite h2 { margin: 0; font-size: var(--font-size-heading-compact); font-weight: 900; }
 .diagnostic__invite p { color: var(--color-ink-muted); font-size: var(--font-size-label); }
 .diagnostic__reassurance { text-align: center; color: var(--color-ink-muted); font-size: var(--font-size-label); }
 .diagnostic__summary { padding: 0; list-style: none; }

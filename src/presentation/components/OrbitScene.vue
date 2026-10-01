@@ -30,7 +30,7 @@ const planetUrl = `${import.meta.env.BASE_URL}art/orbit-planet.webp`
 .orbit-scene__planet { position: absolute; width: 210px; height: 210px; object-fit: contain; left: calc(50% - 125px); top: 31px; }
 .orbit-scene__mascot { position: absolute; width: 246px; height: 246px; left: calc(50% - 85px); top: 9px; filter: drop-shadow(0 12px 12px rgb(49 30 87 / .12)); }
 .orbit-scene__mascot img { display: block; width: 100%; height: auto; }
-.orbit-scene__tile { display: grid; place-content: center; width: 40px; height: 40px; border-radius: 14px; font-size: 1.75rem; font-weight: 900; color: var(--color-ink); box-shadow: 0 4px 10px var(--color-shadow); }
+.orbit-scene__tile { display: grid; place-content: center; width: 40px; height: 40px; border-radius: var(--radius-icon); font-size: var(--font-size-symbol); font-weight: 900; color: var(--color-ink); box-shadow: 0 4px 10px var(--color-shadow); }
 .orbit-scene__tile--mint { background: var(--color-mint); }
 .orbit-scene__tile--sun { width: 34px; height: 34px; background: var(--color-star); border-radius: 50%; }
 .orbit-scene__dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; }

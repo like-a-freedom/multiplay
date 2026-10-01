@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { XpBlockedReason } from '@/domain/progress/rewards'
 
 import NumberTicker from '@/presentation/components/inspira/NumberTicker.vue'
 
@@ -8,21 +9,22 @@ const props = defineProps<{
   bonusXp: number
   totalXp: number
   level: number
-  xpPausedByClock: boolean
+  xpBlockedReason: XpBlockedReason | null
 }>()
 
 const awardTotal = computed(() => props.awardedXp + props.bonusXp)
+const reason = computed(() => {
+  if (awardTotal.value > 0) return props.awardedXp > 0 ? 'XP за миссию — за попытку ответить самому.' : ''
+  if (props.xpBlockedReason === 'no-answer') return 'Ты посмотрел подсказки. Попробуй ввести ответ сам — даже ошибка считается попыткой.'
+  if (props.xpBlockedReason === 'clock-rollback') return 'Награды приостановлены из-за даты устройства.'
+  if (props.xpBlockedReason === 'already-completed') return 'Опыт за эту миссию уже учтён.'
+  return 'Дневные 30 XP уже получены. Играть дальше можно.'
+})
 const accessibleLabel = computed(() => {
   const breakdown = props.bonusXp > 0
     ? `: ${props.awardedXp} XP за миссию и ${props.bonusXp} XP за серию дней`
     : ''
-  const reason = awardTotal.value > 0
-    ? ''
-    : props.xpPausedByClock
-      ? ' Награды приостановлены из-за даты устройства.'
-      : ' Дневные 30 XP уже получены. Играть дальше можно.'
-
-  return `Опыт за практику: +${awardTotal.value} XP${breakdown}. Всего ${props.totalXp} XP. Уровень ${props.level}.${reason}`
+  return `Опыт за практику: +${awardTotal.value} XP${breakdown}. Всего ${props.totalXp} XP. Уровень ${props.level}. ${reason.value}`
 })
 </script>
 
@@ -41,8 +43,8 @@ const accessibleLabel = computed(() => {
       <span v-if="bonusXp > 0" class="xp-award__breakdown">
         {{ awardedXp }} XP за миссию <span aria-hidden="true">+</span> {{ bonusXp }} XP за серию дней
       </span>
-      <span v-else-if="awardTotal === 0" class="xp-award__reason">
-        {{ xpPausedByClock ? 'Награды приостановлены из-за даты устройства.' : 'Дневные 30 XP уже получены. Играть дальше можно.' }}
+      <span v-if="reason" class="xp-award__reason">
+        {{ reason }}
       </span>
       <span class="xp-award__total">Всего {{ totalXp }} XP · уровень {{ level }}</span>
     </div>
@@ -57,7 +59,7 @@ const accessibleLabel = computed(() => {
   gap: var(--space-xs);
   padding-bottom: var(--space-lg);
   border-bottom: 1px solid var(--color-divider);
-  color: var(--color-ink-muted);
+  color: var(--color-focus);
   padding: var(--space-lg);
   border-radius: var(--radius-control);
   background: var(--color-lilac-soft);

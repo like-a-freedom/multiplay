@@ -86,7 +86,8 @@ describe('MissionScreen answer flow', () => {
 
     const second = mountMission(session)
     await second.vm.$nextTick()
-    expect(second.text()).toContain('Карточка 1 из 1') // осталась неотвеченная 0 × 1
+    expect(second.text()).toContain('Карточка 2 из 2') // исходный маршрут и предыдущий результат сохранены
+    expect(second.get('[aria-label="Карточка 1: Верно"]').attributes('data-outcome')).toBe('correct')
 
     await answer(second, '0')
     expect(second.text()).toContain('Верно')

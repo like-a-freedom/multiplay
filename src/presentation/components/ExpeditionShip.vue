@@ -21,7 +21,7 @@ defineProps<{
       aria-hidden="true"
     >
       <g :transform="`translate(${x} ${y})`" class="expedition-ship expedition-ship-position">
-        <image :href="shipUrl" x="-45" y="-45" width="90" height="90" class="expedition-ship__art" />
+        <image :href="shipUrl" x="-30" y="-30" width="60" height="60" class="expedition-ship__art" />
       </g>
     </m.g>
   </LazyMotion>

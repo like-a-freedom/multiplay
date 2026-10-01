@@ -1,10 +1,10 @@
 <script setup lang="ts">
-defineProps<{ label: string; disabled?: boolean }>()
+defineProps<{ label: string; disabled?: boolean; variant?: 'danger' | 'danger-solid' }>()
 defineEmits<{ click: [] }>()
 </script>
 
 <template>
-  <button class="button-secondary" type="button" :disabled="disabled" @click="$emit('click')">
+  <button :class="['button-secondary', variant ? `button-secondary--${variant}` : '']" type="button" :disabled="disabled" @click="$emit('click')">
     {{ label }}
   </button>
 </template>
@@ -40,4 +40,8 @@ defineEmits<{ click: [] }>()
 @media (hover: hover) { .button-secondary:hover:not(:disabled) {
   background: var(--color-divider);
 } }
+.button-secondary--danger { color: var(--color-error); border-color: var(--color-error); background: var(--color-danger-surface); }
+.button-secondary--danger-solid { color: var(--color-white); border-color: var(--color-error); background: var(--color-error); }
+.button-secondary--danger:active:not(:disabled), .button-secondary--danger-solid:active:not(:disabled) { background: var(--color-danger-surface); color: var(--color-error); }
+@media (hover: hover) { .button-secondary--danger:hover:not(:disabled), .button-secondary--danger-solid:hover:not(:disabled) { background: var(--color-danger-surface); color: var(--color-error); } }
 </style>
