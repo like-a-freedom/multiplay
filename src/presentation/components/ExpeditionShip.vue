@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { LazyMotion, domAnimation, m } from 'motion-v'
 
+const shipUrl = `${import.meta.env.BASE_URL}art/orbit-ship.webp`
+
 defineProps<{
   x: number
   y: number
@@ -19,20 +21,12 @@ defineProps<{
       aria-hidden="true"
     >
       <g :transform="`translate(${x} ${y})`" class="expedition-ship expedition-ship-position">
-        <path d="M -23 -6 L 8 -11 L 23 0 L 8 11 L -23 6 Z" fill="var(--color-paper)" />
-        <path d="M -10 -7 L 0 -15 L 4 -7 Z M -10 7 L 0 15 L 4 7 Z" fill="var(--color-star)" />
-        <path d="M -22 -5 L -12 0 L -22 5 Z" fill="var(--color-action)" />
-        <path d="M -25 -3 L -34 0 L -25 3 Z" fill="var(--color-star-highlight)" class="expedition-ship__thrust" />
-        <circle cx="5" cy="0" r="4.25" fill="var(--color-action)" stroke="var(--color-star-highlight)" stroke-width="1.5" />
-        <circle cx="6.25" cy="-1.25" r="1.1" fill="var(--color-white)" />
-        <path d="M -13 -1.5 H -7" stroke="var(--color-control-outline)" stroke-linecap="round" stroke-width="1.5" />
+        <image :href="shipUrl" x="-45" y="-45" width="90" height="90" class="expedition-ship__art" />
       </g>
     </m.g>
   </LazyMotion>
 </template>
 
 <style scoped>
-.expedition-ship__thrust {
-  opacity: 0.85;
-}
+.expedition-ship__art { filter: drop-shadow(0 4px 4px rgb(49 30 87 / .12)); }
 </style>

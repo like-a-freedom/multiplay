@@ -8,6 +8,8 @@ import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStor
 test('home starts one short mission after the launch transition', async ({ page }) => {
   await page.clock.install()
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   const offlineNotice = page.getByRole('button', { name: 'Понятно', exact: true })
   if (await offlineNotice.count()) await offlineNotice.click()
@@ -15,9 +17,9 @@ test('home starts one short mission after the launch transition', async ({ page 
   const homeHeading = page.getByRole('heading', { name: 'Умножайка' })
   const launchButton = page.getByRole('button', { name: 'Играть', exact: true })
   await expect(homeHeading).toBeVisible()
-  await expect(launchButton).toHaveCSS('min-height', '56px')
-  await expect(launchButton).toHaveCSS('background-color', 'rgb(23, 92, 211)')
-  await expect(launchButton).toHaveCSS('font-size', '17px')
+  await expect(launchButton).toHaveCSS('min-height', '64px')
+  await expect(launchButton).toHaveCSS('background-color', 'rgb(255, 209, 102)')
+  await expect(launchButton).toHaveCSS('font-size', '18px')
 
   const ship = page.locator('.expedition-ship-motion')
   const initialTransform = await ship.evaluate((element) => getComputedStyle(element).transform)
@@ -37,24 +39,30 @@ test('home starts one short mission after the launch transition', async ({ page 
 
 
 test('touching the play action gives visible golden feedback before the mission', async ({ page }) => {
+  await page.clock.install()
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   const offlineNotice = page.getByRole('button', { name: 'Понятно', exact: true })
   if (await offlineNotice.count()) await offlineNotice.click()
   const launchButton = page.getByRole('button', { name: 'Играть', exact: true })
   await launchButton.click()
-  const ripple = page.locator('.ripple-animation')
-  await expect(ripple).toHaveCount(1)
-  await expect(ripple).toHaveCSS('border-top-color', 'rgb(249, 186, 67)')
+  const shimmer = page.locator('.inspira-shimmer-button__shimmer > span')
+  await expect(shimmer).toHaveCount(1)
+  await expect(shimmer).toHaveCSS('animation-name', /^shimmer-btn-spin-around/)
   await expect(launchButton).toHaveAttribute('aria-busy', 'true')
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
   await page.screenshot({ path: '/tmp/math-phase1-tap.png' })
+  await page.clock.runFor(240)
   await expect(page.getByText('Карточка 1 из 2')).toBeVisible()
 })
 
 test('reduced motion opens the mission without waiting for the launch transition', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
   await expect(page.getByText('Карточка 1 из 2')).toBeVisible()
@@ -63,6 +71,8 @@ test('reduced motion opens the mission without waiting for the launch transition
 
 test('reloading during launch leaves a valid home and does not create a mission', async ({ page }) => {
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.clock.install()
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
@@ -74,6 +84,8 @@ test('reloading during launch leaves a valid home and does not create a mission'
 
 test('home route reflects earned XP while mastery stars stay separate', async ({ page }) => {
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
 
@@ -108,6 +120,8 @@ test('a fourth +0 mission leaves the ship in place after reload', async ({ page 
     diagnostic: { factIds: [], skipped: true, completed: true },
   }
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.evaluate(
     ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
     [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
@@ -144,6 +158,8 @@ test('reduced motion presents the final XP and route without a flight or beam', 
     diagnostic: { factIds: [], skipped: true, completed: true },
   }
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.evaluate(
     ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
     [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
@@ -168,6 +184,8 @@ for (const size of [
   test(`final expedition sky and celebration fit ${size.name}`, async ({ page }) => {
     await page.setViewportSize(size)
     await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
     await page.evaluate(
       ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
       [PROGRESS_STORAGE_KEY, serializeSnapshot(createLastStarExpeditionState())],
@@ -223,6 +241,8 @@ for (const size of [
 test('reduced motion shows the final sky without loading a celebration canvas', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.evaluate(
     ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
     [PROGRESS_STORAGE_KEY, serializeSnapshot(createLastStarExpeditionState())],

@@ -1,0 +1,23 @@
+{
+  "build": "root production with galaxy and raster star sprites",
+  "mode": "code-led",
+  "states": {
+    "mobile": "0/66",
+    "desktop": "0/66",
+    "zoom": "0/66 at 320px and 200% text",
+    "map-partial": "5/66 fixture in isolated test browser",
+    "home-partial": "5/66 fixture in isolated test browser",
+    "final-mobile": "66/66 fixture in isolated test browser",
+    "current-user-map": "actual user state 0/66; no progress mutation"
+  },
+  "captures": {
+    "mobile.png": "/tmp/math-ui-map-mobile.png",
+    "desktop.png": "/tmp/math-ui-map-desktop.png",
+    "zoom.png": "/tmp/math-ui-map-zoom.png",
+    "map-partial.png": "/tmp/math-task5-map.png",
+    "home-partial.png": "/tmp/math-task5-home-preview-earned.png",
+    "final-mobile.png": "/tmp/math-task6-final-sky-mobile.png",
+    "archive-mobile.png": "/tmp/math-ui-map-expanded-mobile.png",
+    "assets.png": "/private/tmp/orbit-galaxy-assets-preview.png"
+  }
+}

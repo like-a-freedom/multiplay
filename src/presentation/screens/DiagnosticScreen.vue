@@ -10,6 +10,9 @@ import {
 } from '@/application/useCases/diagnostic'
 import { submitCardAnswer } from '@/application/useCases/submitCardAnswer'
 import AnswerField from '@/presentation/components/AnswerField.vue'
+import OrbitScene from '@/presentation/components/OrbitScene.vue'
+import CompanionCue from '@/presentation/components/CompanionCue.vue'
+import LaunchButton from '@/presentation/components/LaunchButton.vue'
 import MissionProgress from '@/presentation/components/MissionProgress.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import QuestionCard from '@/presentation/components/QuestionCard.vue'
@@ -24,9 +27,10 @@ import { spokenExpression } from '@/presentation/utils/spokenExpression'
  */
 
 const props = defineProps<{ resume: boolean }>()
-const emit = defineEmits<{ finished: [] }>()
+const emit = defineEmits<{ finished: []; play: [] }>()
 
 const session = useGameSession()
+const welcome = ref(props.resume && session.state.value.diagnostic === null)
 const cards = ref<readonly DiagnosticCard[]>([])
 const cardIndex = ref(0)
 const answerInput = ref('')
@@ -80,10 +84,11 @@ function answer(choseUnknown: boolean): void {
   }
 }
 
-function skip(): void {
+function skip(playImmediately = false): void {
   session.state.value = skipDiagnostic(session.state.value)
   session.save()
-  emit('finished')
+  if (playImmediately) emit('play')
+  else emit('finished')
 }
 
 function complete(): void {
@@ -103,17 +108,31 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
 
 <template>
   <section ref="region" class="screen diagnostic">
-    <template v-if="!summary">
+    <template v-if="welcome">
+      <div class="diagnostic__brand"><span aria-hidden="true">×</span> Умножайка</div>
+      <div class="diagnostic__welcome-copy">
+        <h1 class="screen__title">Привет! Я Орби.</h1>
+        <p>Полетаем по галактике умножения?</p>
+      </div>
+      <OrbitScene />
+      <div class="diagnostic__invite">
+        <h2>Начнём с знакомства</h2>
+        <p>10 коротких примеров. Без таймера и оценок — узнаем, что ты уже умеешь.</p>
+        <LaunchButton label="Начать знакомство" :disabled="false" :launching="false" @click="welcome = false; focusCurrent()" />
+        <SecondaryButton label="Сразу играть" @click="skip(true)" />
+      </div>
+      <p class="diagnostic__reassurance">Не знать — нормально. Разберёмся вместе.</p>
+    </template>
+    <template v-else-if="!summary">
       <h1 class="screen__title" tabindex="-1">Короткая проверка</h1>
-      <p>Без спешки. Если ответ пока неизвестен, нажми «Не знаю».</p>
+      <CompanionCue text="Без спешки. Можно честно сказать «Не знаю»." />
       <MissionProgress :current="cardIndex + 1" :total="Math.max(cards.length, 1)" />
 
       <QuestionCard
         v-if="card"
         :expression="card.expression"
         :spoken="spokenExpression(card.fact.factors[0], card.fact.factors[1])"
-      />
-
+      >
       <AnswerField
         v-model="answerInput"
         :error-text="inputError"
@@ -121,6 +140,7 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
         @update:model-value="inputError = null"
         @submit="answer(false)"
       />
+      </QuestionCard>
 
       <div class="screen__actions">
         <PrimaryButton
@@ -129,7 +149,7 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
           @click="answer(false)"
         />
         <SecondaryButton label="Не знаю" @click="answer(true)" />
-        <SecondaryButton label="Пропустить проверку" @click="skip" />
+        <SecondaryButton label="Пропустить проверку" @click="skip()" />
       </div>
     </template>
 
@@ -157,4 +177,15 @@ function outcomeWord(outcome: DiagnosticCard['outcome']): string {
   flex-direction: column;
   gap: var(--space-md);
 }
+.diagnostic__brand { display: flex; align-items: center; gap: var(--space-sm); font-size: 1.25rem; font-weight: 900; }
+.diagnostic__brand span { display: grid; place-content: center; width: 32px; height: 32px; border-radius: 11px; background: var(--color-lilac); font-size: 1.8rem; }
+.diagnostic__welcome-copy { text-align: center; padding-top: var(--space-xl); }
+.diagnostic__welcome-copy h1 { font-size: var(--font-size-display); margin-bottom: var(--space-sm); }
+.diagnostic__welcome-copy p { color: var(--color-ink-muted); }
+.diagnostic__invite { display: grid; gap: var(--space-lg); padding: var(--space-xl); border-radius: var(--radius-card); background: var(--color-paper); box-shadow: var(--shadow-card); }
+.diagnostic__invite h2 { margin: 0; font-size: 1.375rem; font-weight: 900; }
+.diagnostic__invite p { color: var(--color-ink-muted); font-size: var(--font-size-label); }
+.diagnostic__reassurance { text-align: center; color: var(--color-ink-muted); font-size: var(--font-size-label); }
+.diagnostic__summary { padding: 0; list-style: none; }
+.diagnostic__summary li { padding: var(--space-lg); border-radius: var(--radius-control); background: var(--color-paper); font-size: var(--font-size-label); }
 </style>

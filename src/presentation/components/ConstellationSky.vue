@@ -15,7 +15,8 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{ 'reveals-consumed': [] }>()
 
 const size = 320
-const starSize = computed(() => props.variant === 'preview' ? 16 : props.variant === 'final' ? 20 : 18)
+const starSize = computed(() => props.variant === 'final' ? 24 : 22)
+const galaxyUrl = `${import.meta.env.BASE_URL}art/orbit-galaxy.webp`
 const facts = allFacts()
 const factIds = facts.map((fact) => fact.id)
 const positions = constellationPositions(facts.length, size)
@@ -62,6 +63,8 @@ onBeforeUnmount(() => {
     aria-hidden="true"
     focusable="false"
   >
+    <image class="constellation-sky__galaxy" :href="galaxyUrl" :width="size" :height="size" preserveAspectRatio="xMidYMid slice" />
+    <rect class="constellation-sky__veil" :width="size" :height="size" />
     <circle
       v-for="radius in orbits"
       :key="radius"
@@ -106,7 +109,7 @@ onBeforeUnmount(() => {
   display: block;
   width: 100%;
   height: auto;
-  overflow: visible;
+  overflow: hidden;
   aspect-ratio: 1;
 }
 
@@ -117,19 +120,24 @@ onBeforeUnmount(() => {
 .constellation-sky--map {
   max-width: 320px;
   border-radius: var(--radius-card);
-  background: var(--color-space-raised);
+  background: var(--color-cosmos);
 }
 .constellation-sky--final {
   max-width: 360px;
   border-radius: var(--radius-card);
-  background: var(--color-space-raised);
+  background: var(--color-cosmos);
+}
+
+.constellation-sky__veil {
+  fill: var(--color-cosmos);
+  opacity: .48;
 }
 
 .constellation-sky__orbit {
   fill: none;
-  stroke: var(--color-control-outline);
-  stroke-width: 1;
-  opacity: .35;
+  stroke: var(--color-lilac);
+  stroke-width: .8;
+  opacity: .3;
 }
 
 .constellation-sky__beacon {

@@ -31,7 +31,7 @@ function fireNow(): void {
       ticks: 100,
       scalar: 0.8,
       origin: { x: 0.5, y: 0.28 },
-      colors: ['#F9BA43', '#FFE3A1', '#175CD3', '#F7FAFF'],
+      colors: ['#FFD166', '#B9A5FA', '#8DE2CA', '#FF8E6B'],
       shapes: ['star', 'circle'],
       zIndex: 1,
     })

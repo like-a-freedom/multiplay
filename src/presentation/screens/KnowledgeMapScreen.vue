@@ -6,6 +6,9 @@ import ConstellationSky from '@/presentation/components/ConstellationSky.vue'
 import PrimaryButton from '@/presentation/components/PrimaryButton.vue'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
+import Sparkles from '@/presentation/components/inspira/Sparkles.vue'
+import AnimatedCircularProgressBar from '@/presentation/components/inspira/AnimatedCircularProgressBar.vue'
+import CompanionCue from '@/presentation/components/CompanionCue.vue'
 
 /**
  * Knowledge map (PRD §3, DESIGN.md): a constellation of 66 facts on orbits.
@@ -36,7 +39,11 @@ function factLabel(factId: string): string {
   <section class="screen map">
     <h1 class="screen__title">Карта звёзд</h1>
 
+    <p class="map__subtitle">Каждая звезда — пример, который ты запомнил.</p>
+    <div class="map__galaxy">
+    <Sparkles :particle-density="12" particle-color="#b9a5fa" />
     <p class="map__count">Открыто звёзд: {{ earnedFactIds.length }} из {{ factIds.length }}</p>
+    <div class="map__chart">
     <ConstellationSky
       class="map__sky"
       :earned-fact-ids="earnedFactIds"
@@ -44,11 +51,17 @@ function factLabel(factId: string): string {
       variant="map"
       @reveals-consumed="emit('reveals-consumed')"
     />
+    <AnimatedCircularProgressBar class="map__gauge" :value="earnedFactIds.length" :max="factIds.length">
+      <StarGlyph :size="32" :earned="earnedFactIds.length > 0" />
+    </AnimatedCircularProgressBar>
+    </div>
     <div class="map__legend">
       <span><StarGlyph :size="20" />Открыта</span>
       <span><StarGlyph :size="20" :earned="false" />Впереди</span>
     </div>
+    </div>
     <p v-if="earnedFactIds.length === 0" class="map__intro">Звезда открывается за пример, который ты решил сам и повторил спустя неделю. XP на звёзды не влияют.</p>
+    <CompanionCue v-else :text="earnedFactIds.length === factIds.length ? 'Все звёзды твои! Остаётся иногда вспоминать.' : 'Твоя галактика растёт. Открытые звёзды остаются с тобой.'" />
 
     <section class="map__reviews" aria-labelledby="map-review-title">
       <div class="map__review-heading">
@@ -107,6 +120,13 @@ function factLabel(factId: string): string {
 
 <style scoped>
 .map__count { margin: 0; font-weight: 700; }
+.map__subtitle { color: var(--color-ink-muted); font-size: var(--font-size-label); }
+.map__galaxy { position: relative; padding: var(--space-xl); overflow: hidden; border-radius: var(--radius-card); background: var(--color-cosmos); color: var(--color-on-cosmos); box-shadow: 0 12px 32px rgb(32 39 65 / .18); }
+.map__galaxy > :not(.inspira-sparkles) { position: relative; z-index: 1; }
+.map__chart { position: relative; max-width: 320px; margin-inline: auto; }
+.map__gauge { position: absolute; width: 82px; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: var(--color-cosmos); }
+.map__galaxy .map__count { text-align: center; font-size: 1rem; font-weight: 900; }
+.map__intro { color: var(--color-ink-muted); line-height: 1.6; }
 .map__intro { font-size: var(--font-size-label); }
 .map__rule { margin: 0; color: var(--color-on-space); }
 
@@ -134,7 +154,8 @@ function factLabel(factId: string): string {
 
 .map__review-heading h2 {
   margin: 0;
-  font-size: var(--font-size-body);
+  font-size: 1.25rem;
+  font-weight: 900;
   line-height: var(--line-height-body);
 }
 
@@ -146,7 +167,7 @@ function factLabel(factId: string): string {
   min-height: 36px;
   padding: var(--space-xs);
   border-radius: var(--radius-badge);
-  background: var(--color-space-raised);
+  background: var(--color-mint-soft);
   color: var(--color-on-space);
   font-size: var(--font-size-label);
   font-weight: 700;
@@ -189,7 +210,7 @@ function factLabel(factId: string): string {
 
 .map__archive {
   overflow: hidden;
-  border: 1px solid var(--color-control-outline);
+  border: 1px solid var(--color-divider);
   border-radius: var(--radius-card);
   background: var(--color-space-raised);
   color: var(--color-on-space);
@@ -260,7 +281,7 @@ function factLabel(factId: string): string {
   gap: var(--space-xs);
   min-width: 0;
   padding: var(--space-md);
-  border: 1px solid var(--color-control-outline);
+  border: 1px solid var(--color-divider);
   border-radius: var(--radius-control);
   background: var(--color-space);
 }

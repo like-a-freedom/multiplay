@@ -16,8 +16,8 @@ function waitForFlip(page: import('@playwright/test').Page) {
       element.removeEventListener('transitionend', onTransitionEnd)
       resolve()
     }
-    const onTransitionEnd = (event: TransitionEvent) => {
-      if (event.target === element && event.propertyName === 'transform') finish()
+    const onTransitionEnd = (event: Event) => {
+      if (event.target === element && (event as TransitionEvent).propertyName === 'transform') finish()
     }
     const fallback = window.setTimeout(finish, duration + 100)
     element.addEventListener('transitionend', onTransitionEnd)

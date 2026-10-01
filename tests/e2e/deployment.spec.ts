@@ -1,8 +1,32 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 import { createLastStarExpeditionState } from '../support/expeditionFixture'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
+
+async function expectOfflineArt(page: Page): Promise<void> {
+  const assets = await page.evaluate(async () => {
+    const images = [...document.querySelectorAll<HTMLImageElement>('.orbit-scene img')].map((image) => image.src)
+    const sprites = [...document.querySelectorAll<SVGImageElement>('.xp-route image, .constellation-sky image')].map((image) => image.href.baseVal)
+    const galaxyUrl = sprites.find((url) => url.includes('art/orbit-galaxy.webp'))!
+    const starVariants = ['orbit-star-earned.webp', 'orbit-star-idle.webp'].map((filename) => new URL(filename, new URL(galaxyUrl, location.href)).href)
+    return Promise.all([...new Set([...images, ...sprites, ...starVariants])].map((url) => new Promise<{ url: string; loaded: boolean }>((resolve) => {
+      const image = new Image()
+      image.onload = () => resolve({ url, loaded: image.naturalWidth > 0 })
+      image.onerror = () => resolve({ url, loaded: false })
+      image.src = url
+    })))
+  })
+  expect(assets.map((asset) => asset.url)).toEqual(expect.arrayContaining([
+    expect.stringContaining('art/orbit-mascot.webp'),
+    expect.stringContaining('art/orbit-planet.webp'),
+    expect.stringContaining('art/orbit-ship.webp'),
+    expect.stringContaining('art/orbit-galaxy.webp'),
+    expect.stringContaining('art/orbit-star-earned.webp'),
+    expect.stringContaining('art/orbit-star-idle.webp'),
+  ]))
+  expect(assets.every((asset) => asset.loaded)).toBe(true)
+}
 
 test('static deployment: manifest, icons, worker scope and offline reload', async ({ page, context }) => {
   const failures: string[] = []
@@ -29,6 +53,7 @@ test('static deployment: manifest, icons, worker scope and offline reload', asyn
     expect(iconResponse.headers()['content-type']).toContain('image/png')
   }
 
+  await page.getByRole('button', { name: 'Начать знакомство' }).click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
   await page.getByRole('button', { name: 'Не знаю', exact: true }).click()
@@ -41,6 +66,9 @@ test('static deployment: manifest, icons, worker scope and offline reload', asyn
 
   await context.setOffline(true)
   await page.reload()
+  await expectOfflineArt(page)
+  await expect.poll(() => page.locator('.orbit-scene__mascot img').evaluate((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.fonts.check('900 20px Nunito'))).toBe(true)
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
   await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
   await page.getByRole('button', { name: 'Не знаю', exact: true }).click()
@@ -76,6 +104,9 @@ test('last mastery star completes the expedition with one celebration while offl
 
   await context.setOffline(true)
   await page.reload()
+  await expectOfflineArt(page)
+  await expect.poll(() => page.locator('.orbit-scene__mascot img').evaluate((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.fonts.check('900 20px Nunito'))).toBe(true)
   await expect(page.getByRole('heading', { name: 'Умножайка' })).toBeVisible()
   await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true)
   await page.getByRole('button', { name: 'Играть', exact: true }).click()

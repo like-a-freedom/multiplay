@@ -4,6 +4,10 @@ Shared language for the home flashcard game and its space-expedition theme.
 
 ## Terms
 
+**Orbit Club («Орбитальный клуб»):** the visual world of the space expedition, with lavender daylight and a darker knowledge atlas.
+
+**Orbi («Орби»):** the original astronaut companion who welcomes the child and offers encouragement. The character expresses support, not a knowledge grade.
+
 **Multiplication fact:** a pair of factors and their product. Swapping the factors represents the same fact.
 _Do not use_: card as a synonym for fact.
 

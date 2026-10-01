@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Confirmed: Vue 3, TypeScript, Vite, Tailwind CSS v4 utilities, adapted local Inspira UI components, `motion-v` with `LazyMotion` for short one-shot movement, `vite-plugin-pwa`, local `localStorage`, and Vitest for learning rules. No Pinia or Vue Router in the first version. Static HTTPS hosting; no application server or account system.
+Confirmed: Vue 3, TypeScript, Vite, Tailwind CSS v4 utilities, adapted local Inspira UI components, `motion-v` with `LazyMotion`, `vite-plugin-pwa`, local `localStorage`, and Vitest for learning rules. Presentation uses bounded feedback motion and ambient illustration motion that pauses offscreen and when the document is hidden; reduced motion keeps a static, complete experience. No Pinia or Vue Router in the first version. Static HTTPS hosting; no application server or account system.
 
 ## Users
 
@@ -34,11 +34,11 @@ The child practices on his iPhone, often independently. A mission has up to ten 
 
 ## Brand Commitments
 
-Cosmic expedition is the chosen game world. There is no external brand library or mascot. The existing StarGlyph and PWA icons are part of the current interface and should change only deliberately.
+The redesigned game world is the Orbit Club: lavender daylight, navy text, mint and coral accents, rounded Nunito lettering, and an original clay astronaut companion called Orbi. A separately generated spacecraft and ringed planet share Orbi's materials, palette and lighting. The XP ship follows the same curve as the visible track; the same planet also appears beside Orbi. The child first meets Orbi through a skippable invitation. Home and mission finish carry the playful scene; solving keeps the equation, input, and next action prominent. The knowledge map is a darker galaxy with permanent stars. Inspira UI supplies native motion and interactive treatments, adapted locally; artwork and Cyrillic fonts are cached for offline use. The product name remains «Умножайка».
 
 ## Evidence on Hand
 
-The confirmed requirements and research links are in `PRD.md`. A playable Vue PWA, an established `DESIGN.md`, and reusable star artwork already exist; preserve their learning behavior during the visual redesign. The child's real-world baseline knowledge has not yet been recorded.
+The confirmed requirements and research links are in `PRD.md`. The playable Vue PWA has the Orbit Club presentation, reusable star artwork, and a source-grounded Inspira component review in `docs/design-review-2026-10-01.md`. Its design is recorded in `DESIGN.md`. The child's real-world baseline knowledge and response to the new presentation have not yet been recorded.
 
 ## Product Principles
 

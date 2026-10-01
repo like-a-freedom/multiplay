@@ -58,6 +58,10 @@ const accessibleLabel = computed(() => {
   padding-bottom: var(--space-lg);
   border-bottom: 1px solid var(--color-divider);
   color: var(--color-ink-muted);
+  padding: var(--space-lg);
+  border-radius: var(--radius-control);
+  background: var(--color-lilac-soft);
+  border-bottom: 0;
 }
 
 .xp-award__content {

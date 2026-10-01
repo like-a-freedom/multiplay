@@ -1,62 +1,78 @@
 ---
-name: "Умножайка"
-description: "Design system for a short flashcard game that teaches the multiplication table on iPhone"
+name: "Умножайка — Orbit Club"
+description: "A lavender multiplication adventure with Orbi, a calm clay astronaut companion."
 colors:
-  space: "#0B1020"
-  space-raised: "#151F36"
-  paper: "#F7FAFF"
-  white: "#FFFFFF"
-  ink: "#15213B"
-  ink-muted: "#52617A"
-  action: "#175CD3"
-  action-pressed: "#114AB0"
-  focus: "#175CD3"
-  on-space: "#F7FAFF"
-  focus-on-space: "#F9BA43"
-  streak: "#F9BA43"
-  star: "#F9BA43"
-  star-highlight: "#FFE3A1"
-  star-edge: "#C88024"
-  star-idle: "#64748B"
-  success: "#0B6B62"
-  success-surface: "#E0F4E8"
-  error: "#B42335"
-  review-surface: "#FFF3DD"
+  space: "#f5f3ff"
+  space-raised: "#ffffff"
+  paper: "#ffffff"
+  white: "#ffffff"
+  ink: "#18213a"
+  ink-muted: "#60617a"
+  on-space: "#18213a"
+  action: "#ffd166"
+  action-pressed: "#ffc34a"
+  on-action: "#18213a"
+  focus: "#6552bd"
+  focus-on-space: "#6552bd"
+  streak: "#ffd166"
+  star: "#ffd166"
+  star-highlight: "#fff0ba"
+  star-edge: "#a36b0e"
+  star-idle: "#727b9b"
+  success: "#16745d"
+  success-surface: "#e3f6ed"
+  review-surface: "#fff3dd"
   review-ink: "#704900"
   review-outline: "#946200"
-  control-outline: "#64748B"
-  divider: "#CAD5E5"
-  shadow: "rgb(0 0 0 / 0.25)"
+  error: "#b42335"
+  control-outline: "#8a88a1"
+  divider: "#e0ddef"
+  shadow: "rgb(41 31 88 / .10)"
+  cosmos: "#202741"
+  cosmos-soft: "#303955"
+  on-cosmos: "#faf8ff"
+  lilac: "#b9a5fa"
+  lilac-soft: "#ede7ff"
+  mint: "#8de2ca"
+  mint-soft: "#e0f6ee"
+  coral: "#ff8e6b"
 typography:
+  display:
+    fontFamily: "Nunito, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+    fontSize: "clamp(2.5rem, 8vw, 3.25rem)"
+    fontWeight: 900
+    lineHeight: 1.1
+    letterSpacing: "-.04em"
   question:
-    fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-    fontSize: "3.5rem"
-    fontWeight: 700
-    lineHeight: 1.08
-    letterSpacing: "-0.025em"
+    fontFamily: "Nunito, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+    fontSize: "clamp(2rem, 11vw, 3.5rem)"
+    fontWeight: 900
+    lineHeight: 1.15
+    letterSpacing: "-.025em"
   title:
-    fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-    fontSize: "1.75rem"
-    fontWeight: 700
-    lineHeight: 1.18
+    fontFamily: "Nunito, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+    fontSize: "1.875rem"
+    fontWeight: 900
+    lineHeight: 1.15
+    letterSpacing: "-.03em"
   body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+    fontFamily: "Nunito, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
     fontSize: "1.0625rem"
-    fontWeight: 400
-    lineHeight: 1.45
-  label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-    fontSize: "0.875rem"
     fontWeight: 600
-    lineHeight: 1.3
+    lineHeight: 1.5
+  label:
+    fontFamily: "Nunito, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+    fontSize: ".875rem"
+    fontWeight: 600
+    lineHeight: 1.4
   button:
-    fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-    fontSize: "1.0625rem"
-    fontWeight: 700
-    lineHeight: 1.2
+    fontFamily: "Nunito, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 900
+    lineHeight: 1.3
 rounded:
-  control: "12px"
-  card: "20px"
+  control: "18px"
+  card: "28px"
   badge: "999px"
 spacing:
   xs: "4px"
@@ -65,123 +81,267 @@ spacing:
   lg: "16px"
   xl: "24px"
   xxl: "32px"
-  section: "48px"
 components:
   button-primary:
     backgroundColor: "{colors.action}"
-    textColor: "{colors.white}"
+    textColor: "{colors.on-action}"
     typography: "{typography.button}"
     rounded: "{rounded.control}"
     padding: "16px 24px"
-    minHeight: "56px"
+  button-primary-hover:
+    backgroundColor: "{colors.action-pressed}"
+  button-primary-active:
+    backgroundColor: "{colors.action-pressed}"
+  button-primary-disabled:
+    backgroundColor: "{colors.divider}"
+    textColor: "{colors.ink-muted}"
+  button-launch:
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.on-action}"
+    typography: "{typography.button}"
+    rounded: "{rounded.control}"
+    padding: "16px 24px"
+    width: "100%"
   button-secondary:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    typography: "{typography.button}"
     rounded: "{rounded.control}"
     padding: "14px 20px"
-    minHeight: "52px"
-  answer-field:
-    typography: "{typography.title}"
-    backgroundColor: "{colors.white}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "12px 16px"
-    minHeight: "64px"
+  button-secondary-hover:
+    backgroundColor: "{colors.divider}"
   question-card:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     rounded: "{rounded.card}"
     padding: "24px"
-  streak-badge:
+  question-card-correct:
+    backgroundColor: "{colors.success-surface}"
+    textColor: "{colors.ink}"
+  question-card-review:
+    backgroundColor: "{colors.review-surface}"
+    textColor: "{colors.ink}"
+  answer-field:
+    backgroundColor: "{colors.space}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "12px 16px"
+    width: "100%"
+  streak-chip:
     backgroundColor: "{colors.streak}"
     textColor: "{colors.ink}"
+    typography: "{typography.label}"
     rounded: "{rounded.badge}"
     padding: "8px 12px"
+  navigation:
+    backgroundColor: "{colors.paper}"
+    rounded: "{rounded.card}"
+    padding: "8px"
+    width: "100%"
+  navigation-current:
+    backgroundColor: "{colors.lilac-soft}"
+    textColor: "{colors.focus}"
+    rounded: "{rounded.control}"
+  knowledge-card:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.card}"
+    padding: "16px"
+  galaxy:
+    backgroundColor: "{colors.cosmos}"
+    textColor: "{colors.on-cosmos}"
+    rounded: "{rounded.card}"
+    padding: "24px"
+  xp-award:
+    backgroundColor: "{colors.lilac-soft}"
+    textColor: "{colors.ink-muted}"
+    rounded: "{rounded.control}"
+    padding: "16px"
+  xp-route:
+    backgroundColor: "{colors.lilac-soft}"
+    textColor: "{colors.on-space}"
+    typography: "{typography.label}"
+    rounded: "24px"
+    width: "100%"
 ---
 
-# Design System: Умножайка
+# Design System: Умножайка — Orbit Club
 
 ## Overview
 
-**Creative North Star: "Expedition Logbook".** The child explores the multiplication table as a map of unknown points. The lesson screen is a calm workspace: dark space frames one light card with the expression. New knowledge lights up the route; XP and the daily streak live in small indicators and never compete with the question.
+**Creative North Star: "Orbit Club"**
 
-This is an **operate-style interface** for a ten-year-old. At any moment there is one task and one primary action. The space theme appears in the constellation map, small orbit graphics, and the warm streak accent. Do not use foreign characters, the Duolingo logo, or its palette. The theme was chosen by the family; the tokens below are a starting system to verify on a real iPhone together with the son.
+Orbit Club is a small, welcoming space adventure for one ten-year-old. Lavender daylight, rounded Cyrillic lettering and the original mint-and-cream clay astronaut Orbi make returning feel friendly. The product name remains «Умножайка». Orbi is the companion, not a scorekeeper: uncertainty receives help, and earned knowledge remains the child's achievement.
 
-**One focus rule.** On the card screen the expression is the largest element; XP, the map, and decoration never interfere with solving. **Two progress rule.** XP, permanent achievement stars, and the "due for review" mark carry different labels and visual roles.
+The world has a deliberate change of pace. Welcome, home and mission completion carry the illustrated planet and playful effects. Recall is quiet: one large equation, one native input and one clear next action. The knowledge atlas opens a darker galaxy, where stars represent actual multiplication facts. XP and permanent knowledge stars keep separate visual explanations.
+
+**Key Characteristics:**
+
+- Lavender daylight with a dark, readable knowledge galaxy.
+- Original clay companion and rounded, locally hosted Nunito lettering.
+- Generous rounded controls and a single phone-sized column.
+- Native Inspira interactions with complete touch, keyboard and static alternatives.
+- Encouraging feedback that keeps learning separate from game rewards.
+
+This document records the implemented replacement world. `PRD.md` owns learning and reward calculations; presentation does not redefine them. The CSS source is `src/presentation/styles/tokens.css`, shared layout is in `base.css`, and native adaptations live under `components/inspira/`. The sidecar adds previews, depth, motion and narrative; its synthesized tonal strips are preview aids, not additional application tokens.
 
 ## Colors
 
-The normative values live in the YAML above. `space` is the background, `space-raised` the top panel and map, `paper` the question surface, `ink` text on light, `ink-muted` secondary text on a light surface. On the dark background text uses `on-space` and focus uses `focus-on-space`; the blue `focus` is used on light. A blue button on the dark background needs an `on-space` border so its outline stays visible. `action` is used only for the primary action and focus. `streak` marks the streak, its milestones, and the brief golden ripple on the home launch action; `success` and `success-surface` mark a correct answer; `review-surface`, `review-ink`, and `review-outline` style the calm hint after an error or "Don't know". `error` is reserved for input format errors.
+Soft, playful accents surround deep navy text. Gold marks invitation and achievements; green and amber provide calm, explicit answer feedback. The frontmatter uses the actual CSS token names and values.
 
-White text on `action` has a contrast of **5.99:1**; `ink` on `paper` **15.29:1**, `ink-muted` on `paper` **5.99:1**, `ink` on `streak` **9.24:1**. On the green card `ink` has **13.92:1** and `success` **5.55:1**. On the amber card `ink` has **14.56:1**, `review-ink` **7.24:1**, `review-outline` **4.77:1**. `control-outline` separates the input field from the light card; `divider` is only for decorative lines. These pairs meet the [WCAG 2.2 4.5:1 threshold for normal text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html). Color never conveys the answer without the words «Верно», «Разберём вместе», or «Посмотрим подсказку»; meaningful component borders must reach a [3:1 contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html).
+### Primary
 
-**Signal color rule.** A wrong answer never paints the card red: it turns warm amber and shows «Разберём вместе» with the typed and correct answers. After "Don't know" the same card says «Посмотрим подсказку» and does not blame the child. The red `error` color is only for malformed input. A correct answer fills the card with `success-surface`, adds a `success` border, and keeps the word «Верно»; that state persists until «Продолжить» is pressed. Stars and orbits are never tinted with error or success colors.
+- **Lavender daylight** (`space`) is the page background. **Lilac** and **soft lilac** color the planet, orbits, XP summaries and selected navigation.
+- **Deep violet focus** (`focus`, `focus-on-space`) identifies keyboard focus and text links independently of decorative lilac.
+- **Launch gold** (`action`, `action-pressed`, `on-action`) is the primary action material, with a warmer pressed state and navy text.
+
+### Secondary
+
+- **Companion mint** (`mint`, `mint-soft`) belongs to the friendly world and supporting surfaces. **Success green** and its **soft success surface** belong to confirmed answers with «Верно» and a check.
+- **Clay coral** (`coral`) is a small illustration accent, not a wrong-answer signal.
+- **Review amber** (`review-surface`, `review-ink`, `review-outline`) supports «Разберём вместе» and «Посмотрим подсказку»: explanation rather than a red failure surface.
+
+### Tertiary
+
+- **Knowledge gold** (`star`) colors the native gauge arc, XP waypoints and finite celebration accents. **Star highlight** colors reveal lines and waypoint highlights; **star edge** borders the newly opened-star notice. **Future-star slate** (`star-idle`) outlines XP route waypoints. These UI tokens do not recolor the generated knowledge-star sprites: their gold and pale-lilac material states are separate local artwork.
+- **Streak gold** (`streak`) keeps an explicit day label. Gold alone never makes a streak, XP and knowledge interchangeable.
+- **Input error** (`error`) is reserved for malformed input and explicit storage-error treatment.
+
+### Neutral
+
+- **Navy ink** (`ink`, `on-space`, `on-action`) and **muted ink** (`ink-muted`) distinguish primary and supporting text on light surfaces.
+- **Paper** (`paper`, `white`, `space-raised`) is the white card/control plane. **Divider** is a quiet separator; meaningful input edges use **control outline** instead.
+- **Cosmos** and **soft cosmos** form the dark atlas, opaque central gauge disc and gauge track; **on-cosmos** supplies light text. A cosmos veil at opacity .48 subdues the generated galaxy plate so the real knowledge markers remain prominent.
+- **Shadow tint** separates surfaces without signaling learning state.
+
+**The Answer Has Words Rule.** Every answer state keeps a visible explanation: «Верно», «Разберём вместе» or «Посмотрим подсказку». Color never carries the result alone.
+
+**The Separate Journeys Rule.** XP shows effort and level travel. Knowledge stars show permanent achievements for individual facts. Never imply that one buys or converts into the other.
 
 ## Typography
 
-One system font from the iPhone keeps the payload small and supports Cyrillic. Visual character comes from size and weight, not a decorative typeface. Sizes are in rem (at a 16px base: expression 56px, heading 28px, text 17px); text must scale to 200% without clipping.
+**Display Font:** Nunito with the system fallback stack in the frontmatter.
+**Body Font:** the same Nunito family. Latin and Cyrillic variable WOFF2 files are local, cover weights 400–900 and use `font-display: swap`; retain their license.
 
-- **Expression:** role `question`; tabular figures (`font-variant-numeric: tabular-nums`) keep an even rhythm as cards change.
-- **Screen heading:** role `title`; short, with no top "badge" or long preamble.
-- **Instruction and result:** role `body`; one clear sentence.
-- **Streak, XP, card counter:** role `label`; always with a text label, never an icon alone.
+Rounded letterforms provide warmth without reducing clarity. Headings and equations use the heavy end of the family; body copy stays comfortably weighted. Use real Russian strings, sentence case and tabular numerals for equations, XP and answers.
 
-Respect the user's text size; when space is tight, wrap labels and grow the height instead of shrinking the type. The web version does not get Dynamic Type automatically the way a native app does, so verify scaling manually. Relying on the system typography follows the [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/foundations/typography).
+### Hierarchy
+
+- **Display:** the responsive `display` role for welcome and home invitations, with balanced short lines.
+- **Question:** the responsive `question` role for the centered equation, with tabular figures. Summary prose returns to title scale.
+- **Title:** the `title` role for screen and finish headings. Compact mission/home branding has smaller local headings, not another font system.
+- **Body:** the `body` role for instructions, answers and explanations; the global weight is 600, while strong feedback uses 900.
+- **Label:** the `label` role for field labels, streaks and supporting copy. Navigation and supporting headings use heavier weights where implemented.
+- **Button:** the `button` role for primary actions; secondary actions keep its size with weight 800.
+
+**The One Lettering Rule.** Use the local Nunito family for display, controls and learning content. Let role, weight and scale provide hierarchy.
+
+Let labels wrap and surfaces grow at 200% text size. The empty answer hint stays inside its input surface: a non-interactive wrapping overlay preserves the native placeholder and accessible description. Do not disable pinch-to-zoom or shrink the 0–100 hint to fit.
 
 ## Layout
 
-A single column with a max width of **480px**. On the iPhone 12 Pro Max the starting gutters are **16px** on each side and **24–32px** between major blocks. Top: a compact mission status; center: the expression; bottom: the answer and the action. The knowledge map is a separate screen, not the card's background. On wide screens the column stays centered; elements never stretch to full width.
+Screens use one centered column, at most 460px wide. Page padding includes all four safe-area insets: `lg` horizontally and at the top, `xl` at the bottom. Shared screen gaps are `xl`; home and finish use `lg` internally. At 700px and above, top page spacing becomes `xxl`; the column remains compact. The XP route heading stacks at 360px and below.
 
-For the fullscreen PWA use `viewport-fit=cover` and account for `env(safe-area-inset-top)` / `env(safe-area-inset-bottom)` around controls. Never place the primary action under the home indicator or the system keyboard. For the answer use the system numeric keyboard through `type="text" inputmode="numeric"`; do not build a custom keypad. `inputmode` only selects a keyboard: [it performs no validation](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inputmode). Validation rules live in the PRD. Safe areas do not compensate for keyboard height: the page must scroll while keeping the field and button reachable. [WebKit: safe areas](https://webkit.org/blog/7929/designing-websites-for-iphone-x/)
+Use the frontmatter spacing scale. Main cards commonly use `xl` padding; supporting surfaces use `lg`, action groups a `md` gap. The full planet scene is 264px high and compact finish scene 190px high. The generated planet is contained in a 210 × 210px image box, or 145 × 145px for compact scenes, preserving its native aspect ratio. The small companion cue has a 54px illustration and copy up to 28ch. The finish composition is open page content, not another rounded container that clips heading text.
 
-**Big touch rule.** Every action has a target of at least **48 × 48 CSS px**, and the primary button has a minimum height of **56px**. That is above the [WCAG 2.2 minimum of 24 CSS px](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html); a separate benchmark for native interfaces is [Apple's 44 × 44 pt recommendation](https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/buttons). CSS px and native pt are not equated here. Component heights are minimums: they grow with larger text. Children of the son's age handle ordinary gestures, but the task must never require swipes or precise dragging; UX research with children aged 9–12 shows more developed motor skills alongside the continuing need for interface clarity. [NN/g](https://www.nngroup.com/articles/children-ux-physical-development/)
+Every action keeps at least a 48 × 48 CSS-pixel target. Minimum heights: ordinary primary 60px, launch 64px, secondary 52px, native answer input 72px. These are minimums, not fixed heights. Dock targets stay stable while icons magnify; navigation never requires hover.
+
+The page scrolls with the native keyboard. Use `type="text" inputmode="numeric"`, a visible label and accessible help; keep field and next action reachable above the home indicator. No custom keypad, required swipe or precision drag. Dock stays in normal page flow on home, map and adult report, and is absent during recall and the introductory check.
+
+Cache readiness appears below content and Dock. Updates appear between lessons. Failed saves remain explicit and actionable. Avoid moving practice controls when asynchronous status appears.
 
 ## Elevation & Depth
 
-Depth is built from two planes: the dark sky and the light card. No glass, blur, or glowing "neon" halos. Use the `shadow` token as a soft offset beneath the card to separate it from the background; never use it to signal state. An overlay layer over a lesson is reserved for actions that genuinely require interruption.
+Depth combines clay illustration shading, diffuse shadows, tonal surfaces and tactile inset gold. Decorative rings, pointer spotlight and native conic shimmer belong to this world; their lighting does not extend behind every sentence.
+
+### Shadow Vocabulary
+
+- **Card:** `--shadow-card`, or `0 12px 36px var(--color-shadow)`, separates the white invitation and question plane.
+- **Action:** `--shadow-action`, or `0 6px 14px rgb(179 122 22 / .16), inset 0 -3px 5px rgb(170 101 0 / .12)`, gives the primary control material depth. Launch adds its own inset surface.
+- **Navigation:** `0 8px 24px var(--color-shadow)` lifts the Dock. Answer-result cards add green or amber inset outlines for state.
+- **Galaxy:** `0 12px 32px rgb(32 39 65 / .18)` separates the atlas from daylight.
+
+**The Quiet Recall Rule.** During recall, the equation, input and stable actions receive the attention. Keep the large floating scene and ambient particles on illustrated welcome, home, map and completion regions.
+
+The XP route's brief beam and flare are finite reward feedback, not a resting shadow vocabulary. Hover and motion never hide required content.
 
 ## Shapes
 
-**Achievement stars:** use the rounded `star-fill` silhouette from Phosphor Icons (MIT, vendored in `StarGlyph.vue`; license in `public/licenses/phosphor-icons.txt`). Earned stars have a restrained gold fill from `star-highlight` through `star` to `star-edge`, with a fine edge and no outer glow. Future stars use a quiet `star-idle` outline with a fill matching the surrounding surface. Use the same glyph on the map, counters, mission finish, and new-star feedback. The 66 stars are distributed 12/22/32 across the three orbits, keeping similar spacing on every ring. Orbit lines stay subdued; a text legend and per-fact labels explain the states. The map stays still; new-star feedback receives a short scale/rotation entrance and the finish illustration appears once. Reduced motion shows both immediately. Never recolor an earned star after a later error.
+Soft rounded rectangles define controls: `control` for fields, feedback and actions, `card` for invitation/question/atlas surfaces, `badge` for short capsules. Circles, rings and the shaded planet define illustration. Keep them distinct from the rectangular touch controls.
 
-The card has the soft `card` radius; fields and buttons the smaller `control`; the streak indicator the `badge` capsule. Orbits and route dots are drawn as thin SVG lines, while interactive elements remain standard buttons and fields. Control icons use simple 2px-stroke SVGs; achievement stars follow the distinct filled treatment above. Emoji and Unicode symbols do not replace interface icons.
+Knowledge stars are the original generated `public/art/orbit-star-earned.webp` and `public/art/orbit-star-idle.webp`: upright, rounded five-point ceramic forms sharing the satin material and studio lighting of Orbi, ship and planet. Earned is sunny gold; future is solid pale lilac, not an empty outline. Both 1254 × 1254 RGBA sprites retain their original alpha and native aspect ratio inside the stable `StarGlyph.vue` SVG wrapper. The wrapper chooses the correct local sprite from the actual earned state; no Phosphor knowledge-star silhouette or CSS gradient fill remains. Exact prompts, conversion-only processing and provenance are in `public/art/orbit-galaxy-assets.prompt.md`. A later lapse adds a review label without removing or dimming an earned star.
 
-## XP Route
-
-**Home hierarchy:** show total XP and the streak in one wrapping row, then the ship route and the launch action. Group the small constellation preview, its knowledge-star count, and «Карта звёзд» in one secondary section below the action. The parent report uses a quiet text button with the same minimum touch target. Cache readiness belongs after the screen content so its asynchronous appearance cannot move a control under the child's finger.
-
-The home screen shows one curved route for the current 100-XP level. Its level label and progress sentence explain the route; `Всего XP` remains a separate cumulative total so crossing a level boundary cannot look like lost progress. Gold route waypoints mean XP earned in this level only; they never represent mastery. Knowledge stars retain their own count and meaning. The ship stays at the saved XP position while idle and after reload. The launch action may tilt and scale it once in place; a zero-XP mission and `prefers-reduced-motion: reduce` leave its position or motion unchanged.
+Control icons use inline local `GameIcon` SVGs. The multiplication sign is meaningful math and the brand motif. Decorative artwork is hidden from assistive technology; emoji and icon fonts do not replace these controls.
 
 ## Components
 
-| Component | Behavior and states |
-| --- | --- |
-| **Primary button** | One per screen: «Играть», «Проверить», or «Продолжить». Pressing darkens `action` to `action-pressed` and starts a brief golden ripple centered on the pointer or, for keyboard activation, the button center. The mission opens within 240 ms; reduced motion omits the ripple and opens immediately. Focus is a 2px outline with offset, colored for the current background. Synchronous localStorage writes need no artificial loading screen; a failed write shows an explicit error. |
-| **Secondary button** | «Не знаю», «Назад», «Позже». A light surface with a visible `control-outline` border; it must not look like the main CTA. |
-| **Question card** | One expression and an answer field; the answer stays hidden until the child presses «Проверить» or «Не знаю». That explicit action flips the card to reveal the result; the flip is never triggered by hover, swipe, or drag. The hidden face is inert and absent from the accessibility tree, and `prefers-reduced-motion` reveals it immediately. A correct answer fills the reverse with soft green, replaces `?` with the product, and shows «Верно» in a contrasting green block with a restrained stamp entrance. Individual answers have no confetti or particle effects; reserve larger celebrations for meaningful milestones such as a newly earned star or completion of the expedition. A wrong or unknown answer reveals the warm amber reverse: a white feedback block with the correct answer and a one-line hint under «Как вспомнить» — a school rule or technique («На ноль умножать — всегда будет 0», «Три по четыре: 4 + 4 + 4 = 12», «Разбей 8 на 5 и 3: 35 + 21»). No diagrams and no word «группы»: the hint language is school rules and "N по M". In diagnostics, solutions are deferred to the end of the check. |
-| **Answer field** | Numeric input 0–100 with a visible label and the placeholder «Введи целое число от 0 до 100» inside the field: the hint is always visible while the field is empty and disappears under the typed value. There is no separate caption under an empty field; the same rule stays available to screen readers through `aria-describedby`. On a wrong format a visible error appears and disappears as the input is corrected; submitting an empty value shows no error — the hint already sits in the placeholder. After an answer is accepted the wrong value stays on the card next to the correct one and the input field hides. Pressing «Проверить» again after an accepted answer never creates a new attempt. XP is awarded only for mission completion, per the PRD. |
-| **Mission indicator and finish** | The text «Карточка 4 из 10» with the actual mission length plus a semantic `<progress>`. On finish — a route summary card with separate «Опыт за практику» and «Звёзды знаний» blocks. The first shows the award, total XP and level; the second shows stars out of 66 and how a star is earned. A zero counter is never framed as a grade. «Карта звёзд» opens right from the finish; the primary action «Продолжить» leads home. `+0 XP` has a reason: the daily cap or a pause caused by the device date. The streak bonus appears separately inside the award breakdown. The first completion of the 66th mastery star replaces the small route illustration with the full shared sky and one brief, decorative confetti burst; both finish actions stay usable throughout. |
-| **Streak and XP** | The streak is a golden badge with the number of days; XP is a plain text counter. Permanent achievement stars are shown separately on the map; the need for review is marked by an extra label without dimming the star. |
-| **Knowledge map** | The screen is titled «Карта звёзд» in the heading and both entry points. It explains that a star belongs to one specific expression after two independent successes at least 7 days apart, is never bought with XP, and survives a later error. Facts due for review are separate small light cards with the expression and its route number. The list of 66 facts opens with a large button carrying `aria-expanded` and a visible arrow; the content expands in the page flow, with no modal layer. |
+### Buttons
 
-**Accessibility:** the visible label is tied to the field; the result is announced with `aria-live="polite"`, the input error with `aria-describedby`. After an answer the result and «Продолжить» are available with no auto-advance. The next card receives a predictable focus; every action is keyboard reachable. The expression has a sensible spoken form «Семь умножить на восемь». Decorative SVGs are hidden from screen readers. Verify VoiceOver, 200% zoom, and a narrow screen with no horizontal scrolling; do not disable pinch-to-zoom.
+Generous, gold and tactile. Ordinary primary actions adapt Inspira `RippleButton`. Pointer ripples start at the press; keyboard ripples start at the center. The default ripple lasts 520ms and is omitted for reduced motion. Pressed gold moves down briefly; disabled primary uses divider and muted ink without shadow. Focus remains explicit. Secondary white controls keep their own quiet edge, pressed/hover surface and focus treatment.
 
-**Large-text input:** the empty-field hint stays inside the input surface and wraps when necessary; the field grows with it. A non-interactive, screen-reader-hidden overlay renders the wrapping text, while the native numeric input, placeholder attribute, label, and accessible description remain intact. Entering a value removes the overlay. Do not shrink the hint or clip its 0–100 range.
+Welcome and home launch use native Inspira `ShimmerButton`: inset gold, conic perimeter shimmer, rocket/arrow SVGs and a minimum 64px target. Home takeoff lasts no more than 240ms before opening the mission; reduced motion opens immediately. Shimmer is decoration, never a loading dependency. The skippable welcome says «Привет! Я Орби.»; «Сразу играть» saves the skip and starts play immediately. Skipping an already started check returns home.
 
-**Finish hierarchy:** begin with the completion heading, without an extra eyebrow or decorative star banner. Present XP on the paper surface, then the actual ship route, then the separate knowledge-star explanation. Use spacing and thin dividers rather than a stack of boxed panels. On the first 66-star finish, the full constellation is the only illustration (up to 280px wide); omit the repeated XP route while retaining the numeric XP award, totals, and star count. The empty map shows the star-earning explanation before its disclosure is opened.
+### Cards and feedback
 
-**Screen states:** before the first stars the map shows «Открыто звёзд: 0 из 66» and explains the path to the first one; overdue or forgotten facts show «Пора повторить» without dimming an opened star or lowering the star count. A new star is marked at the answer result, with no XP animation and no false hint of conversion. When no reviews are scheduled, free practice stays available. Cache readiness is «Готово без интернета»; a storage failure is «Прогресс не сохраняется» with a retry. Data reset lives in the report and requires confirmation. Mastery status and map colors follow the PRD.
+The white question card holds one expression and the answer field. «Проверить» or «Не знаю» explicitly reveals it through Inspira `FlipCard`, never hover, drag or swipe. The flip lasts 420ms; hidden faces are inert and removed from the accessibility tree. Reduced motion removes the spatial transition.
 
-Design every interactive component for rest, pressed, focus, disabled, and error states. Feedback appears near the card, matches the importance of the event, and never relies on color alone — as recommended by [Apple HIG Feedback](https://developer.apple.com/design/human-interface-guidelines/patterns/feedback). The explicit answer action flips the card once over 420 ms; the result face is available to assistive technology immediately, and the next action is not delayed. On a correct answer «Верно» appears once as a stamp over 460 ms, with no particles. Under `prefers-reduced-motion: reduce` the spatial flip and card motion are removed while the green background and «Верно» remain. Reserve celebration effects for larger achievements; never animate every answer as a reward. On a mistake or "Don't know" the white feedback block, the answer, and the explanation calmly appear in sequence over a few hundred milliseconds, with no confetti and no delay to continuing; with reduced motion everything is visible at once. The final 66th-star completion may load one optional confetti chunk and fire one burst capped at 48 particles/100 ticks (`useWorker: false`); confine the decorative, `aria-hidden`, non-interactive canvas to the sky illustration so it never obscures the heading, explanation, or controls. With reduced motion it does not load or fire. An unavailable chunk leaves the static sky, text, and buttons intact. Reloading or visiting the map never repeats the celebration. Other mission finishes have no confetti. A short XP animation on mission finish is likewise disabled under reduced motion. The home launch ripple ends with the ≤240 ms transition and is omitted when reduced motion is requested. [Apple HIG Motion](https://developer.apple.com/design/human-interface-guidelines/patterns/motion), [WCAG Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html)
+The correct reverse uses the soft green surface, success outline, check and «Верно», with a 460ms confirmation stamp. Wrong/unknown answers use warm amber, typed/correct answers where applicable and a white explanation under «Как вспомнить». Hint language follows the school rules in `PRD.md` without blame. Diagnostics defer solutions until the summary. Results stay until «Продолжить», without timed auto-advance or duplicate attempts.
+
+A newly earned knowledge star appears once near the answer. Individual answers have no confetti or XP animation.
+
+### Inputs and accessibility
+
+The pale lavender native input uses heavy tabular numerals, a visible label, `control-outline` rest border and violet focus/caret. Its valid range is 0–100. The wrapping empty hint stays within the field and is available through `aria-describedby`. Invalid format gets explicit nearby error text and an error border; empty input keeps its hint. Correction clears the error without silently erasing an invalid value.
+
+Feedback uses `aria-live="polite"`. Read equations sensibly, such as «Семь умножить на восемь». Decorative SVGs and Orbi images remain hidden from screen readers. Focus advances predictably and every action is keyboard reachable. Static content and continue actions do not wait for an animation.
+
+### Chips and navigation
+
+The golden streak capsule includes the day label; XP is separately labeled. Maintenance replaces daily streak messaging with due reviews or the nearest review date.
+
+Inspira `Dock` offers «Станция», «Звёзды» and «Взрослым» with permanent labels and `aria-current`. Soft lilac and violet identify the active destination. Mouse proximity and keyboard focus magnify icons, not targets. Reduced motion suppresses scale and its transition.
+
+### Orbit scene and companion
+
+Orbi is the original local `public/art/orbit-mascot.webp`, a mint-and-cream clay astronaut. The matching generated `public/art/orbit-planet.webp` and `public/art/orbit-ship.webp` use the same dimensional clay/ceramic materials, warm cream, mint, lilac and studio lighting. Both route assets are transparent 1536 × 1024 WebP cutouts, with clean contours and no baked external glow. Their provenance is in `public/art/orbit-route-assets.prompt.md`. The same planet appears beside Orbi and behind the XP chart; do not replace either route asset with a flat vector placeholder or an unrelated photographic planet. Native Inspira `Float`, `Orbit`, `Ripple` and `Sparkles` provide three quiet breathing rings, upright counter-rotating objects and sparse canvas twinkles. Home objects orbit over 36s and 46s; this never becomes a response timer.
+
+`useSceneMotion` pauses Float and the scene's orbit/ripple animations when reduced motion is requested, the scene is offscreen or the document is hidden. Sparkles uses the same guards, at most 30fps/48 particles, with DPR capped at 2. Home uses 16 particles and the atlas 12. Hidden-document CSS also pauses other decorative animations. Reduced motion retains a complete static scene and controls.
+
+`CompanionCue` is the smaller, calm encouragement beside learning feedback. The large scene does not sit behind an equation. Native `BorderBeam` adds a masked lilac-to-mint home invitation edge; `CardSpotlight` adds pointer, active or keyboard-focus light to the knowledge preview. Content remains complete without both effects.
+
+### Route, atlas and completion
+
+The XP route describes the current 100-XP level; «Всего XP» stays cumulative. Its SVG stage is 360 × 156 units: the generated planet occupies a 128 × 128 image box at (223, 7), behind the route; the generated ship occupies a 90 × 90 image box centered on its saved data position. SVG image sizing uses the native aspect ratio, so the landscape cutouts are contained rather than stretched. The dashed track is a smooth Catmull–Rom-derived cubic spline, and ship interpolation uses those same segment controls. Keep route and ship aligned across the whole level, with complete contours inside the stage. The ship remains at its saved position after reload. On a rewarded finish, native `AnimatedBeam` and ship travel use the actual award; zero awards fabricate no movement. Route motion and `NumberTicker` last 650ms with reduced-motion alternatives. The award shows its mission/streak breakdown and a reason for `+0 XP`.
+
+The atlas uses the original opaque 1254 × 1254 `public/art/orbit-galaxy.webp` plate beneath a cosmos veil at opacity .48. The artwork contains cloud atmosphere only: all 66 knowledge markers and their state come from application data. `ConstellationSky` places them at the canonical positions in a 320 × 320 stage over three rings (12/22/32), with subtle lilac orbit lines. Preview/map stars are 22 stage units; final stars are 24 stage units, so their displayed size scales with the SVG. The actual plate and overlays are clipped by their rounded container.
+
+The map chart is at most 320px wide. Its central 82px gauge sits on an opaque cosmos disc, with a 32px earned or future sprite according to the real count. The native Inspira `AnimatedCircularProgressBar` uses earned stars, not XP; its gold SVG arc transitions over 800ms or updates immediately for reduced motion. A count out of 66 and the two-state «Открыта»/«Впереди» sprite legend explain the map without relying on color. Unopened facts remain solid and visible.
+
+Home keeps the constellation in a 144px rounded preview beside text inside the white knowledge card. At viewport widths of 360px and below, this card stacks and the preview becomes 176px, bounded by available width. The final constellation component permits 360px; the current mission-finish wrapper limits its rendered width to 280px. Due-review cards remain below the galaxy with the fact and list number. The 66-fact archive expands in page flow through a labeled button with `aria-expanded`. Asset replacement does not change saved mastery, earned-state selection or the one-shot new-star reveal.
+
+Finish uses a compact Orbit scene, finite `SparklesText` heading, XP award and separate knowledge explanation. A rewarded ordinary mission fires one Confetti burst. The first expedition finish instead shows the full constellation with its own one-shot celebration and omits the repeated small XP route. Bursts are capped at 48 particles/100 ticks, with `useWorker: false`, in decorative non-interactive canvases. Reduced motion does not load or fire confetti; a missing optional chunk preserves static content and controls. Reload or visiting the map never repeats completion. `SparklesText` has two 1.2s cycles, not a perpetual reward loop.
+
+The 15 local native Inspira adaptations are `AnimatedBeam`, `AnimatedCircularProgressBar`, `BorderBeam`, `CardSpotlight`, `Confetti`, `Dock`, `FlipCard`, `Float`, `NumberTicker`, `Orbit`, `Ripple`, `RippleButton`, `ShimmerButton`, `Sparkles` and `SparklesText`. Keep their original mechanisms and local MIT notice; only retain used components.
+
+`LazyMotion` keeps motion features local. The offline pipeline includes fonts, mascot, generated ship and planet, galaxy plate, both knowledge-star sprites, icons, application CSS/JS and optional confetti chunk. Fonts/artwork have no remote runtime fetch. «Готово без интернета» describes successful cache readiness, not merely opening the page once.
 
 ## Do's and Don'ts
 
-- **Do:** keep the expression and the answer field in one field of view; show a clear next action; congratulate completion and regularity; check real Russian strings and input on the iPhone.
-- **Do:** distinguish "mistaken just now" from "still learning"; give hints without an evaluative tone; keep the game accessible without sound and animation.
-- **Don't:** copy Duolingo branding, hide the learning result behind XP, add a timer, take progress away for a mistake, show many cards at once, or add random rewards.
-- **Don't:** place important text over busy space, use color as the only signal, run endless confetti, or distract with constant background motion.
+### Do:
 
-**Prototype check:** show the son the home screen and a card on the phone. If the space theme feels childish or distracts him, keep the structure and accessibility and reduce the amount of decoration.
+- **Do** use lavender daylight, original Orbi artwork and local Nunito as one coherent world.
+- **Do** keep one readable equation, a native numeric input and an obvious next action during recall.
+- **Do** explain each answer in words and give the child a way to continue without haste or penalties.
+- **Do** keep XP travel, daily regularity and permanent knowledge stars visibly separate.
+- **Do** preserve the complete static experience, visibility guards and bounded particle budgets.
+- **Do** verify real Russian strings, keyboard reachability, VoiceOver, 200% text and offline reload on the target iPhone.
 
-**Expedition finish:** after the last mission show «Экспедиция завершена!» and all 66 opened stars. The primary action is «Продолжить», leading into maintenance mode. Never repeat the congratulation on every launch. On the home screen of that mode, show the number of facts due for review instead of the current streak, or «На сегодня повторений нет» with the nearest date; free practice stays available. Do not show a "keep your streak" prompt. Stars, XP, and the best streak are preserved; errors do not cancel the completed expedition.
+### Don't:
+
+- **Don't** copy another learning app's identity or replace the original companion with unrelated decorative stock art.
+- **Don't** hide answers, help or navigation behind hover, swipes, precision dragging or an animation delay.
+- **Don't** paint wrong answers red, remove earned stars, turn XP into mastery or invent achievements for decoration.
+- **Don't** add a countdown, lives, leaderboard, random rewards or streak pressure in maintenance.
+- **Don't** run confetti for individual answers or let decorative motion compete with the equation and controls.
+- **Don't** add runtime font/artwork dependencies or present offline readiness before the required assets are cached.
+
+The source-grounded system records the design, not the child's response. His reaction to Orbit Club and the real-device pass remain product checks, not facts inferred from code.

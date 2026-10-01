@@ -1,51 +1,66 @@
-/* Design tokens for "Умножайка" (DESIGN.md). The YAML front matter of DESIGN.md is the source of truth. */
+/* Orbit Club — see DESIGN.md. Fonts are self-hosted and cached offline. */
+@font-face {
+  font-family: 'Nunito'; font-style: normal; font-weight: 400 900; font-display: swap;
+  src: url('/fonts/nunito-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Nunito'; font-style: normal; font-weight: 400 900; font-display: swap;
+  src: url('/fonts/nunito-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 :root {
-  /* colors */
-  --color-space: #0b1020;
-  --color-space-raised: #151f36;
-  --color-paper: #f7faff;
+  --color-space: #f5f3ff;
+  --color-space-raised: #ffffff;
+  --color-paper: #ffffff;
   --color-white: #ffffff;
-  --color-ink: #15213b;
-  --color-ink-muted: #52617a;
-  --color-action: #175cd3;
-  --color-action-pressed: #114ab0;
-  --color-focus: #175cd3;
-  --color-on-space: #f7faff;
-  --color-focus-on-space: #f9ba43;
-  --color-streak: #f9ba43;
-  --color-star: #f9ba43;
-  --color-star-highlight: #ffe3a1;
-  --color-star-edge: #c88024;
-  --color-star-idle: #64748b;
-  --color-success: #0b6b62;
-  --color-success-surface: #e0f4e8;
+  --color-ink: #18213a;
+  --color-ink-muted: #60617a;
+  --color-on-space: #18213a;
+  --color-action: #ffd166;
+  --color-action-pressed: #ffc34a;
+  --color-on-action: #18213a;
+  --color-focus: #6552bd;
+  --color-focus-on-space: #6552bd;
+  --color-streak: #ffd166;
+  --color-star: #ffd166;
+  --color-star-highlight: #fff0ba;
+  --color-star-edge: #a36b0e;
+  --color-star-idle: #727b9b;
+  --color-success: #16745d;
+  --color-success-surface: #e3f6ed;
   --color-review-surface: #fff3dd;
   --color-review-ink: #704900;
   --color-review-outline: #946200;
   --color-error: #b42335;
-  --color-control-outline: #64748b;
-  --color-divider: #cad5e5;
-  --color-shadow: rgb(0 0 0 / 0.25);
-
-  /* typography */
-  --font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-size-question: 3.5rem;
-  --font-size-title: 1.75rem;
+  --color-control-outline: #8a88a1;
+  --color-divider: #e0ddef;
+  --color-shadow: rgb(41 31 88 / .10);
+  --color-cosmos: #202741;
+  --color-cosmos-soft: #303955;
+  --color-on-cosmos: #faf8ff;
+  --color-cosmos-muted: #c5c9df;
+  --color-lilac: #b9a5fa;
+  --color-lilac-soft: #ede7ff;
+  --color-mint: #8de2ca;
+  --color-mint-soft: #e0f6ee;
+  --color-coral: #ff8e6b;
+  --color-coral-soft: #ffe9df;
+  --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-size-display: clamp(2.5rem, 8vw, 3.25rem);
+  --font-size-question: clamp(2rem, 11vw, 3.5rem);
+  --font-size-title: 1.875rem;
   --font-size-body: 1.0625rem;
-  --font-size-label: 0.875rem;
-  --font-size-button: 1.0625rem;
-  --line-height-question: 1.08;
-  --line-height-title: 1.18;
-  --line-height-body: 1.45;
-  --line-height-label: 1.3;
-  --line-height-button: 1.2;
-
-  /* rounded */
-  --radius-control: 12px;
-  --radius-card: 20px;
+  --font-size-label: .875rem;
+  --font-size-button: 1.125rem;
+  --line-height-question: 1.15;
+  --line-height-title: 1.15;
+  --line-height-body: 1.5;
+  --line-height-label: 1.4;
+  --line-height-button: 1.3;
+  --radius-control: 18px;
+  --radius-card: 28px;
   --radius-badge: 999px;
-
-  /* spacing */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 12px;
@@ -53,4 +68,7 @@
   --space-xl: 24px;
   --space-xxl: 32px;
   --space-section: 48px;
+  --ease-playful: cubic-bezier(.16, 1, .3, 1);
+  --shadow-card: 0 12px 36px var(--color-shadow);
+  --shadow-action: 0 6px 14px rgb(179 122 22 / .16), inset 0 -3px 5px rgb(170 101 0 / .12);
 }

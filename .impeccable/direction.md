@@ -1,0 +1,17 @@
+# Orbit Club direction contract
+
+User brief (2026-10-01): reconsider the whole visual world from first principles; improve aesthetics, emotional appeal and child UX; use Inspira UI and its native effects extensively. A previous visual treatment is an anti-reference, not authority. The user explicitly authorizes a redesign and subsequent implementation.
+
+Audience: one ten-year-old practicing multiplication on an iPhone. Surface mode: Operate, expressed as a small adventure game. Build path: code-led; there is no approved image comp. The original generated mascot is production artwork, not a screenshot reproduction.
+
+First viewport: lavender daylight, rounded expressive Cyrillic lettering, a mint/cream clay robot astronaut and a ringed lilac planet. One clear invitation. Home offers a short mission; first launch invites a skippable introduction instead of leading with a test.
+
+Signature interaction: Orbi floats within three quiet ripple orbits; small objects counter-rotate along native Inspira Orbit trajectories. The launch action has the native conic shimmer and a brief takeoff. During recall the scene recedes: a readable equation, input, and stable action. Explicit submission flips the card; success is mint with a check, uncertainty warm amber with an explanation. Completing a rewarded mission earns one bounded confetti burst and an XP ticker. Knowledge stars keep their actual per-fact state.
+
+Quality bar: character and illustration do the emotional work, not a sea of effects. Touch controls at least 48px; no hover-only content; reduced motion remains a complete static experience. Ambient canvas runs at 30fps with <=48 particles and pauses offscreen/hidden. Real saved progress, no fabricated child achievement, all fonts/artwork precached locally. Inspect 428x926, 1280x900, 320px/200% and the actual in-app width.
+
+Remaining designer freedom: refine the short XP route and summary composition when first render exposes weak scale or nested surfaces. No change to the learning/reward calculations is intended.
+
+User steering after first review: the vector XP ship and flat planet are visually inconsistent. Generate a spacecraft and a realistically modeled planet in Orbi's material and light, then verify the complete route scene's alignment, scale and proportions. The shipped route uses original transparent raster ship/planet art: a 360×156 SVG stage, a 90px ship box and 128px planet box with retained aspect ratios. The spacecraft anchor and visible track use the same cubic curve. The same planet replaces the hero's vector planet for continuity. These additions are explicitly authorized; data and reward rules remain the same.
+
+Further user steering: the galaxy, stars and constellation must share the same illustrated world. The atlas now uses an original sculpted lilac/mint/cream spiral galaxy, with a 48% cosmos veil that keeps the overlaid markers clear. Generated gold and lilac ceramic stars share one silhouette, material and light; gold means earned and lilac means ahead. Every knowledge star across home, map, archive, answer feedback and mission completion uses these two assets. The galaxy contains no baked stars or progress: code still places the actual 66 canonical facts on the same 12/22/32 rings. Preview/map sprites use 22px in a 320-unit stage; final sprites use 24px. The home preview is 144px, stacked at 176px on narrow screens. Existing native Inspira reveal and finite celebration motion remains intact.

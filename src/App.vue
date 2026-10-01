@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { LazyMotion, domAnimation } from 'motion-v'
+import { useDocumentVisibility } from '@vueuse/core'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 import type { MissionKind } from '@/application/useCases/startMission'
@@ -8,6 +10,7 @@ import { retentionSummary } from '@/domain/learning/retention'
 import { TOTAL_FACTS, rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import { factNeedsReview, upcomingReviewDate } from '@/domain/progress/progressState'
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
+import Dock from '@/presentation/components/inspira/Dock.vue'
 import { reviewCountToday, useGameSession } from '@/presentation/composables/gameSession'
 import { today } from '@/presentation/utils/clock'
 import DiagnosticScreen from '@/presentation/screens/DiagnosticScreen.vue'
@@ -19,6 +22,7 @@ import ReportScreen from '@/presentation/screens/ReportScreen.vue'
 type Screen = 'diagnostic' | 'home' | 'mission' | 'map' | 'report'
 
 const session = useGameSession()
+const documentVisibility = useDocumentVisibility()
 const todayDate = today()
 
 // Updates and status notices appear between missions so a lesson is never disturbed (PRD §4).
@@ -90,6 +94,11 @@ function openReport(): void {
   screen.value = 'report'
 }
 
+function navigate(screenName: 'home' | 'map' | 'report'): void {
+  cancelLaunch()
+  screen.value = screenName
+}
+
 onBeforeUnmount(cancelLaunch)
 
 const reviewsToday = computed(() => reviewCountToday(session.state.value, todayDate))
@@ -135,7 +144,8 @@ function onDiagnosticFinished(): void {
 </script>
 
 <template>
-  <main>
+  <LazyMotion :features="domAnimation">
+  <main :class="{ 'motion-paused': documentVisibility !== 'visible' }">
     <div v-if="needRefresh && !updateDismissed && !lessonActive" class="banner" role="status">
       <span>Обновление готово</span>
       <SecondaryButton label="Обновить" @click="updateServiceWorker(true)" />
@@ -173,6 +183,7 @@ function onDiagnosticFinished(): void {
       v-if="screen === 'diagnostic'"
       :resume="diagnosticResume"
       @finished="onDiagnosticFinished"
+      @play="diagnosticResume = true; play('mission')"
     />
 
     <HomeScreen
@@ -228,11 +239,13 @@ function onDiagnosticFinished(): void {
       @reset="onReset"
       @recheck="onRecheck"
     />
+    <Dock v-if="screen === 'home' || screen === 'map' || screen === 'report'" :current="screen" @navigate="navigate" />
     <div v-if="offlineReady && !offlineNoticeDismissed && !lessonActive" class="banner banner--offline" role="status">
       <span>Готово без интернета</span>
       <SecondaryButton label="Понятно" @click="offlineNoticeDismissed = true" />
     </div>
   </main>
+  </LazyMotion>
 </template>
 
 <style scoped>
@@ -241,11 +254,11 @@ function onDiagnosticFinished(): void {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-md);
-  max-width: 480px;
+  max-width: 460px;
   margin: 0 auto var(--space-lg);
   padding: var(--space-md);
   border-radius: var(--radius-control);
-  background: var(--color-space-raised);
+  background: var(--color-lilac-soft);
   color: var(--color-on-space);
 }
 

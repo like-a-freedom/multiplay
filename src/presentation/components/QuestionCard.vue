@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
 import FlipCard from '@/presentation/components/inspira/FlipCard.vue'
+import GameIcon from '@/presentation/components/GameIcon.vue'
 
 /** The answer remains hidden until the child submits; that explicit action reveals the reverse. */
 const props = defineProps<{
@@ -20,7 +21,7 @@ const props = defineProps<{
 }>()
 
 const visibleExpression = computed(() =>
-  props.celebrate && props.answerValue !== undefined
+  (props.revealed || props.celebrate) && props.answerValue !== undefined
     ? props.expression.replace(/\?$/, String(props.answerValue))
     : props.expression,
 )
@@ -57,6 +58,7 @@ const visibleExpression = computed(() =>
             class="question-card__feedback"
             :class="`question-card__feedback--${feedbackTone ?? 'hint'}`"
           >
+            <GameIcon v-if="celebrate" name="check" :size="22" />
             {{ feedbackText }}
           </p>
           <span v-if="celebrate && answerValue !== undefined" class="visually-hidden">
@@ -86,12 +88,14 @@ const visibleExpression = computed(() =>
 .question-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xl);
+  min-height: 260px;
   padding: var(--space-xl);
   border-radius: var(--radius-card);
   background: var(--color-paper);
   color: var(--color-ink);
-  box-shadow: 0 8px 24px var(--color-shadow);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-divider);
 }
 
 .question-card--correct {
@@ -107,21 +111,26 @@ const visibleExpression = computed(() =>
 .question-card__expression {
   margin: 0;
   font-size: var(--font-size-question);
-  font-weight: 700;
+  font-weight: 900;
   line-height: var(--line-height-question);
   letter-spacing: -0.025em;
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
+  text-align: center;
+  padding-block: var(--space-lg);
 }
 
 .question-card__feedback {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
   max-width: 100%;
   margin: 0;
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-control);
   font-size: var(--font-size-body);
-  font-weight: 700;
+  font-weight: 900;
   line-height: var(--line-height-body);
 }
 

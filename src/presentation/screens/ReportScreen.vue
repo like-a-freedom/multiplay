@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import SecondaryButton from '@/presentation/components/SecondaryButton.vue'
+import GameIcon from '@/presentation/components/GameIcon.vue'
 
 /**
  * Adult report (PRD §4–5): XP, stars and facts due listed separately; the
@@ -35,6 +36,7 @@ function reset(): void {
 <template>
   <section class="screen report">
     <h1 class="screen__title">Отчёт для взрослого</h1>
+    <p class="report__intro">Опыт показывает практику. Звёзды — то, что удалось запомнить надолго.</p>
 
     <dl class="report__tiles">
       <div class="report__tile">
@@ -65,8 +67,11 @@ function reset(): void {
     </dl>
 
     <p class="report__note">
+      <GameIcon name="shield" :size="24" />
+      <span>
       Прогресс хранится только на этом устройстве. Резервной копии нет: очистка данных
       или удаление приложения может привести к потере прогресса.
+      </span>
     </p>
 
     <div class="screen__actions">
@@ -102,7 +107,12 @@ function reset(): void {
   padding: var(--space-lg);
   border-radius: var(--radius-card);
   background: var(--color-space-raised);
+  border: 1px solid var(--color-divider);
 }
+.report__intro { color: var(--color-ink-muted); font-size: var(--font-size-label); }
+.report__tile:first-child { background: var(--color-lilac-soft); border-color: transparent; }
+.report__tile:nth-child(2) { background: var(--color-review-surface); border-color: transparent; }
+.report__tile:nth-child(3) { background: var(--color-mint-soft); border-color: transparent; }
 
 .report__tile--wide {
   grid-column: 1 / -1;
@@ -120,7 +130,7 @@ function reset(): void {
 .report__tile-value {
   margin: 0;
   font-size: var(--font-size-title);
-  font-weight: 700;
+  font-weight: 900;
   line-height: var(--line-height-title);
   color: var(--color-on-space);
   font-variant-numeric: tabular-nums;
@@ -135,9 +145,12 @@ function reset(): void {
 }
 
 .report__note {
+  display: flex;
+  gap: var(--space-md);
   margin: 0;
   /* On the dark background body text must be `on-space` (DESIGN.md, Colors). */
   color: var(--color-on-space);
   font-size: var(--font-size-label);
 }
+.report__note svg { flex-shrink: 0; color: var(--color-focus); }
 </style>

@@ -20,18 +20,37 @@ const props = withDefaults(defineProps<{
 })
 
 const routePoints: readonly Point[] = [
-  { x: 32, y: 148 },
-  { x: 59, y: 137 },
-  { x: 86, y: 145 },
-  { x: 111, y: 116 },
-  { x: 137, y: 91 },
-  { x: 163, y: 103 },
-  { x: 190, y: 126 },
-  { x: 218, y: 92 },
-  { x: 245, y: 63 },
-  { x: 276, y: 78 },
-  { x: 331, y: 33 },
+  { x: 52, y: 100 },
+  { x: 79, y: 95 },
+  { x: 106, y: 99 },
+  { x: 131, y: 87 },
+  { x: 157, y: 76 },
+  { x: 183, y: 81 },
+  { x: 210, y: 91 },
+  { x: 238, y: 77 },
+  { x: 263, y: 66 },
+  { x: 286, y: 69 },
+  { x: 312, y: 48 },
 ]
+const planetUrl = `${import.meta.env.BASE_URL}art/orbit-planet.webp`
+
+// The track and moving ship share one curve; the artwork's center is its route anchor.
+function curveSegment(index: number) {
+  const previous = routePoints[Math.max(0, index - 1)]
+  const from = routePoints[index]
+  const to = routePoints[index + 1]
+  const following = routePoints[Math.min(routePoints.length - 1, index + 2)]
+  return {
+    from,
+    to,
+    first: { x: from.x + (to.x - previous.x) / 6, y: from.y + (to.y - previous.y) / 6 },
+    second: { x: to.x - (following.x - from.x) / 6, y: to.y - (following.y - from.y) / 6 },
+  }
+}
+const trackPath = `M ${routePoints[0].x} ${routePoints[0].y} ` + routePoints.slice(0, -1).map((_, index) => {
+  const { first, second, to } = curveSegment(index)
+  return `C ${first.x} ${first.y} ${second.x} ${second.y} ${to.x} ${to.y}`
+}).join(' ')
 const waypoints = routePoints.slice(1).map((point, index) => ({ ...point, xp: (index + 1) * 10 }))
 const target = computed(() => xpRoute(props.totalXp))
 const start = computed(() => xpRoute(Math.max(0, props.fromXp ?? props.totalXp)))
@@ -70,14 +89,13 @@ const shipLabel = computed(
 
 function pointAtFraction(fraction: number): Point {
   const routeStep = Math.max(0, Math.min(1, fraction)) * (routePoints.length - 1)
-  const startIndex = Math.floor(routeStep)
-  const endIndex = Math.min(startIndex + 1, routePoints.length - 1)
+  const startIndex = Math.min(Math.floor(routeStep), routePoints.length - 2)
   const blend = routeStep - startIndex
-  const from = routePoints[startIndex]
-  const to = routePoints[endIndex]
+  const { from, first, second, to } = curveSegment(startIndex)
+  const rest = 1 - blend
   return {
-    x: from.x + (to.x - from.x) * blend,
-    y: from.y + (to.y - from.y) * blend,
+    x: rest ** 3 * from.x + 3 * rest ** 2 * blend * first.x + 3 * rest * blend ** 2 * second.x + blend ** 3 * to.x,
+    y: rest ** 3 * from.y + 3 * rest ** 2 * blend * first.y + 3 * rest * blend ** 2 * second.y + blend ** 3 * to.y,
   }
 }
 
@@ -174,22 +192,17 @@ onBeforeUnmount(() => {
     </div>
     <svg
       class="xp-route__map"
-      viewBox="0 0 360 184"
+      viewBox="0 0 360 156"
       role="img"
       :aria-label="shipLabel"
       :data-level="currentProgress.level"
       :data-earned-in-level="currentProgress.earnedInLevel"
     >
-      <defs>
-        <linearGradient id="xp-route-glow" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" stop-color="var(--color-action)" stop-opacity=".18" />
-          <stop offset="1" stop-color="var(--color-star)" stop-opacity=".18" />
-        </linearGradient>
-      </defs>
-      <rect x="0.5" y="0.5" width="359" height="183" rx="20" class="xp-route__surface" />
-      <circle cx="292" cy="112" r="57" fill="url(#xp-route-glow)" />
-      <path d="M 32 148 C 53 121 70 164 91 139 C 112 114 132 77 153 96 C 176 117 181 146 205 111 C 226 80 242 49 262 67 C 282 85 298 43 331 33" class="xp-route__track" />
-      <circle cx="32" cy="148" r="7" class="xp-route__launch-pad" />
+      <rect x="0.5" y="0.5" width="359" height="155" rx="24" class="xp-route__surface" />
+      <image :href="planetUrl" x="223" y="7" width="128" height="128" class="xp-route__planet" aria-hidden="true" />
+      <g class="xp-route__sky-dots" aria-hidden="true"><circle cx="31" cy="32" r="2" /><circle cx="144" cy="27" r="1.5" /><circle cx="203" cy="48" r="2" /><circle cx="177" cy="123" r="1.5" /></g>
+      <path :d="trackPath" class="xp-route__track" />
+      <circle cx="52" cy="100" r="7" class="xp-route__launch-pad" />
       <g v-for="point in waypoints" :key="point.xp">
         <circle :cx="point.x" :cy="point.y" :r="point.xp <= currentProgress.earnedInLevel ? 6 : 4.5" :class="['xp-route__waypoint', { 'xp-route__waypoint--earned': point.xp <= currentProgress.earnedInLevel }]" />
         <circle v-if="point.xp <= currentProgress.earnedInLevel" :cx="point.x" :cy="point.y" r="10" class="xp-route__waypoint-halo" />
@@ -232,9 +245,7 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 .xp-route--finish {
-  padding: var(--space-md);
-  border-radius: var(--radius-card);
-  background: var(--color-space-raised);
+  padding-block: var(--space-sm);
 }
 .xp-route--finish .xp-route__surface { stroke: none; }
 .xp-route__heading {
@@ -255,7 +266,8 @@ onBeforeUnmount(() => {
 }
 .xp-route__title { font-weight: 700; }
 .xp-route__level {
-  color: var(--color-star-highlight);
+  color: var(--color-focus);
+  font-weight: 900;
   white-space: nowrap;
 }
 .xp-route__map {
@@ -265,10 +277,12 @@ onBeforeUnmount(() => {
   overflow: visible;
 }
 .xp-route__surface {
-  fill: var(--color-space-raised);
-  stroke: color-mix(in srgb, var(--color-control-outline) 54%, transparent);
+  fill: var(--color-lilac-soft);
+  stroke: none;
   stroke-width: 1;
 }
+.xp-route__planet { opacity: .95; }
+.xp-route__sky-dots { fill: var(--color-focus); opacity: .35; }
 .xp-route__track {
   fill: none;
   stroke: var(--color-control-outline);

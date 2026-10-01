@@ -5,8 +5,25 @@ import { createMasteryProgress } from '../../src/domain/learning/mastery'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 
+test('первое знакомство: «Сразу играть» открывает миссию и сохраняет пропуск диагностики', async ({ page }) => {
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: 'Привет! Я Орби.' })).toBeVisible()
+  await page.getByRole('button', { name: 'Сразу играть', exact: true }).click()
+  await expect(page.getByText('Карточка 1 из 2', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Ответ на пример')).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Умножайка', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Начать знакомство' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Играть', exact: true }).click()
+  await expect(page.getByText('Карточка 1 из 2', { exact: true })).toBeVisible()
+})
+
 test('первый запуск: диагностика, пропуск ведёт на главный экран', async ({ page }) => {
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  await expect(page.getByRole('heading', { name: 'Привет! Я Орби.' })).toBeVisible()
+  await expect(page.locator('.orbit-scene__mascot img')).toBeVisible()
+  await welcome.click()
 
   await expect(page.getByRole('heading', { name: 'Короткая проверка' })).toBeVisible()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
@@ -17,6 +34,8 @@ test('первый запуск: диагностика, пропуск ведё
 test('миссия: ошибка называет введённое, Enter отправляет ответ, XP переживает перезагрузку', async ({ page }) => {
   await page.clock.install()
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
 
@@ -88,6 +107,8 @@ test('streak bonus carries the finish route across the level boundary', async ({
     diagnostic: { factIds: [], skipped: true, completed: true },
   }
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.evaluate(
     ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
     [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
@@ -120,6 +141,8 @@ test('поддерживающий режим: свободная практик
   )
   await page.clock.install()
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
 
   await expect(page.getByText('На сегодня повторений нет')).toBeVisible()
   await page.getByRole('button', { name: 'Свободная практика' }).click()
@@ -143,8 +166,10 @@ test('«Пора повторить» ведёт сразу в повторен�
     [PROGRESS_STORAGE_KEY, serializeSnapshot(maintenanceWithReview())],
   )
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
 
-  await expect(page.getByText('К повторению: 1')).toBeVisible()
+  await expect(page.getByText('Примеры ждут повторения: 1. Орби поможет вспомнить.')).toBeVisible()
   await page.getByRole('button', { name: 'Повторить', exact: true }).click()
 
   // Повторение — только факт с наступившим сроком, без новых и практики.
@@ -202,6 +227,8 @@ test('карта звёзд отмечает собранные звёзды н�
     [PROGRESS_STORAGE_KEY, serializeSnapshot(stateWithStars(5))],
   )
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
 
   await expect(page.getByText('Открыто звёзд: 5 из 66')).toHaveCount(0) // заголовок ещё на главной
   const homeSky = page.locator('.home .constellation-sky--preview')
@@ -239,6 +266,8 @@ test('reveals newly earned stars once on the map and preserves their canonical p
   await page.clock.install({ time: new Date('2026-09-30T12:00:00+03:00') })
   const seeded = readyToUnlockTwoStars()
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.evaluate(
     ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
     [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
@@ -283,6 +312,8 @@ test('reduced motion displays newly earned stars without reveal lines', async ({
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.clock.install({ time: new Date('2026-09-30T12:00:00+03:00') })
   await page.goto('./')
+  const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+  if (await welcome.count()) await welcome.click()
   await page.evaluate(
     ([key, snapshot]) => window.localStorage.setItem(key, snapshot),
     [PROGRESS_STORAGE_KEY, serializeSnapshot(readyToUnlockTwoStars())],

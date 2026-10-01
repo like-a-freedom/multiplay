@@ -6,6 +6,7 @@ import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStor
 
 async function openMission(page: import('@playwright/test').Page) {
   await page.goto('./')
+  await page.getByRole('button', { name: 'Начать знакомство' }).click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
 }
@@ -22,8 +23,8 @@ function waitForFlip(page: import('@playwright/test').Page) {
       element.removeEventListener('transitionend', onTransitionEnd)
       resolve()
     }
-    const onTransitionEnd = (event: TransitionEvent) => {
-      if (event.target === element && event.propertyName === 'transform') finish()
+    const onTransitionEnd = (event: Event) => {
+      if (event.target === element && (event as TransitionEvent).propertyName === 'transform') finish()
     }
     const fallback = window.setTimeout(finish, duration + 100)
     element.addEventListener('transitionend', onTransitionEnd)
@@ -51,10 +52,10 @@ test('правильный ответ окрашивает карточку бе
   await expect(page.locator('.inspira-flip-card__front')).toHaveAttribute('aria-hidden', 'true')
   await expect(page.locator('.inspira-flip-card__back')).not.toHaveAttribute('aria-hidden', 'true')
   await expect(page.locator('.inspira-flip-card__front')).toHaveCSS('visibility', 'hidden')
-  await expect(card).toHaveCSS('background-color', 'rgb(224, 244, 232)')
+  await expect(card).toHaveCSS('background-color', 'rgb(227, 246, 237)')
   await expect(card.getByText('Верно')).toBeVisible()
   await expect(card.locator('.question-card__expression')).toContainText('0 × 0 = 0')
-  await expect(card.locator('.question-card__feedback')).toHaveCSS('background-color', 'rgb(11, 107, 98)')
+  await expect(card.locator('.question-card__feedback')).toHaveCSS('background-color', 'rgb(22, 116, 93)')
   await expect(card.locator('.question-card__feedback')).toHaveCSS('animation-name', /^success-confirm/)
   await expect(card.locator('.question-card__confetti')).toHaveCount(0)
   await page.screenshot({ path: '/tmp/math-success-normal.png' })
@@ -84,7 +85,7 @@ test('при уменьшении движения остаются цвет и 
   await page.getByRole('button', { name: 'Проверить' }).click()
 
   const card = page.locator('.question-card--correct')
-  await expect(card).toHaveCSS('background-color', 'rgb(224, 244, 232)')
+  await expect(card).toHaveCSS('background-color', 'rgb(227, 246, 237)')
   await expect(page.locator('.inspira-flip-card')).toHaveAttribute('data-flipped', 'true')
   await expect(page.locator('.inspira-flip-card__inner')).toHaveCSS('transition-duration', '0s')
   await expect(card.getByText('Верно')).toBeVisible()

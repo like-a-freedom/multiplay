@@ -4,6 +4,8 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
   test(`design system and core flow: ${size.name}`, async ({ page }) => {
     await page.setViewportSize(size)
     await page.goto('./')
+    const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
+    if (await welcome.count()) await welcome.click()
     if (size.name === 'zoom') await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
     const checkLayout = async () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -22,11 +24,14 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     expect(hintBounds!.width).toBeLessThanOrEqual(inputBounds!.width)
     expect(hintBounds!.height).toBeLessThanOrEqual(inputBounds!.height)
     await page.screenshot({ path: `/tmp/math-ui-answer-placeholder-${size.name}.png`, fullPage: true })
+    await page.getByRole('heading', { name: 'Короткая проверка', exact: true }).click()
+    await expect(page.getByLabel('Ответ на пример')).not.toBeFocused()
+    await page.screenshot({ path: `/tmp/math-ui-field-rest-${size.name}.png`, fullPage: true })
     await page.getByLabel('Ответ на пример').fill('abc')
     await expect(placeholder).toHaveCount(0)
     await page.getByRole('button', { name: 'Далее', exact: true }).click()
     await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('aria-invalid', 'true')
-    await expect(page.locator('.answer-field__error')).toHaveCSS('background-color', 'rgb(247, 250, 255)')
+    await expect(page.locator('.answer-field__error')).toHaveCSS('background-color', 'rgb(255, 255, 255)')
     await checkLayout()
     await page.screenshot({ path: `/tmp/math-ui-diagnostic-${size.name}.png`, fullPage: true })
     await page.getByLabel('Ответ на пример').fill('9')
@@ -43,7 +48,19 @@ for (const size of [{ name: 'mobile', width: 428, height: 926 }, { name: 'deskto
     if (size.name !== 'zoom') {
       expect(launchBounds!.y + launchBounds!.height).toBeLessThanOrEqual(size.height)
     }
+    const stage = await page.locator('.home__route .xp-route__map').boundingBox()
+    expect(stage).not.toBeNull()
+    for (const art of await page.locator('.home__route .xp-route__map image').all()) {
+      const bounds = await art.boundingBox()
+      expect(bounds).not.toBeNull()
+      expect(bounds!.x).toBeGreaterThanOrEqual(stage!.x)
+      expect(bounds!.y).toBeGreaterThanOrEqual(stage!.y)
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(stage!.x + stage!.width)
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(stage!.y + stage!.height)
+    }
     await page.screenshot({ path: `/tmp/math-ui-home-${size.name}.png`, fullPage: true })
+    await page.screenshot({ path: `/tmp/math-ui-home-first-viewport-${size.name}.png` })
+    await page.locator('.home__route').screenshot({ path: `/tmp/math-ui-route-${size.name}.png` })
     await page.getByRole('button', { name: 'Играть', exact: true }).click()
     for (let index = 0; index < 2; index++) {
       await page.getByRole('button', { name: 'Не знаю', exact: true }).click()

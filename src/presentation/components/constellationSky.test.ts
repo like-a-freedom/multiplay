@@ -22,8 +22,8 @@ describe('ConstellationSky', () => {
     expect(stars).toHaveLength(66)
     for (const index of [0, 17, 65]) {
       expect(stars[index].attributes('data-fact-id')).toBe(factIds[index])
-      expect(stars[index].attributes('x')).toBe(String(positions[index].x - 9))
-      expect(stars[index].attributes('y')).toBe(String(positions[index].y - 9))
+      expect(Number(stars[index].attributes('x')) + Number(stars[index].attributes('width')) / 2).toBe(positions[index].x)
+      expect(Number(stars[index].attributes('y')) + Number(stars[index].attributes('height')) / 2).toBe(positions[index].y)
     }
     wrapper.unmount()
   })
@@ -34,6 +34,7 @@ describe('ConstellationSky', () => {
     })
     expect(zero.findAll('.constellation-sky__star--earned')).toHaveLength(0)
     expect(zero.findAll('.constellation-sky__star--idle')).toHaveLength(66)
+    expect(zero.find('.constellation-sky__star--idle image').attributes('href')).toContain('art/orbit-star-idle.webp')
     zero.unmount()
 
     const one = mount(ConstellationSky, {
@@ -41,6 +42,7 @@ describe('ConstellationSky', () => {
     })
     expect(one.findAll('.constellation-sky__star--earned')).toHaveLength(1)
     expect(one.find('[data-fact-id="1:2"]').classes()).toContain('constellation-sky__star--earned')
+    expect(one.find('[data-fact-id="1:2"] image').attributes('href')).toContain('art/orbit-star-earned.webp')
     one.unmount()
 
     const all = mount(ConstellationSky, {

@@ -10,6 +10,11 @@ import { explanationFor } from '@/domain/learning/explanation'
 import { unansweredCardFactIds, type ProgressState } from '@/domain/progress/progressState'
 import { rewardsPausedByClockRollback } from '@/domain/progress/rewards'
 import AnswerField from '@/presentation/components/AnswerField.vue'
+import CompanionCue from '@/presentation/components/CompanionCue.vue'
+import GameIcon from '@/presentation/components/GameIcon.vue'
+import OrbitScene from '@/presentation/components/OrbitScene.vue'
+import Confetti from '@/presentation/components/inspira/Confetti.vue'
+import SparklesText from '@/presentation/components/inspira/SparklesText.vue'
 import ConstellationSky from '@/presentation/components/ConstellationSky.vue'
 import ExpeditionCelebration from '@/presentation/components/ExpeditionCelebration.vue'
 import MissionProgress from '@/presentation/components/MissionProgress.vue'
@@ -199,7 +204,12 @@ function feedbackText(outcome: AttemptOutcome): string {
 
 <template>
   <section class="screen mission" tabindex="-1">
-    <h1 class="visually-hidden">Миссия</h1>
+    <header v-if="!finished" class="mission__header">
+      <button class="mission__back" type="button" aria-label="Назад" @click="emit('exit')"><GameIcon name="back" /></button>
+      <h1 class="screen__title">{{ kind === 'review' ? 'Вспоминаем' : 'Миссия' }}</h1>
+      <GameIcon class="mission__header-icon" name="rocket" :size="28" />
+    </header>
+    <h1 v-else class="visually-hidden">Миссия</h1>
     <template v-if="!finished">
       <MissionProgress :current="cardIndex + 1" :total="Math.max(cardFactIds.length, 1)" />
 
@@ -238,14 +248,17 @@ function feedbackText(outcome: AttemptOutcome): string {
         />
         <PrimaryButton v-else label="Продолжить" @click="next" />
         <SecondaryButton v-if="feedback === null" label="Не знаю" @click="dontKnow" />
-        <SecondaryButton label="Назад" @click="emit('exit')" />
       </div>
+      <CompanionCue v-if="feedback === null" text="Я рядом. Если не знаешь — разберём вместе." />
+      <CompanionCue v-else :mood="feedback.outcome === 'correct' ? 'happy' : 'thinking'" :text="feedback.outcome === 'correct' ? 'Точно! Ещё одно маленькое открытие.' : 'Теперь есть способ вспомнить. Попробуем ещё?'" />
     </template>
 
     <template v-else>
       <div ref="cardRegion" class="mission__finish" tabindex="-1">
+        <Confetti v-if="!expeditionJustFinished && awardedXp + bonusXp > 0" :reduced-motion="prefersReducedMotion" />
         <div class="mission__finish-content">
-          <h2 class="mission__finish-title">{{ expeditionJustFinished ? 'Экспедиция завершена!' : 'Миссия завершена!' }}</h2>
+          <OrbitScene v-if="!expeditionJustFinished" compact />
+          <h2 class="mission__finish-title"><SparklesText :text="expeditionJustFinished ? 'Экспедиция завершена!' : 'Миссия завершена!'" /></h2>
           <p class="mission__finish-copy">
             {{ expeditionJustFinished ? 'Все 66 звёзд открыты. Теперь можно повторять и играть свободно.' : 'Ты прошёл маршрут. Можно сыграть ещё или вернуться позже.' }}
           </p>
@@ -301,20 +314,19 @@ function feedbackText(outcome: AttemptOutcome): string {
   outline: none;
 }
 .mission__finish {
+  position: relative;
   overflow: hidden;
-  border-radius: var(--radius-card);
-  background: var(--color-paper);
   color: var(--color-ink);
-  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .mission__finish:focus { outline: none; }
 
 .mission__finish-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  padding: var(--space-xl);
 }
 
 .mission__finish-title {
@@ -324,9 +336,17 @@ function feedbackText(outcome: AttemptOutcome): string {
   text-wrap: balance;
   hyphens: auto;
   overflow-wrap: normal;
+  text-align: center;
+  font-weight: 900;
 }
 
-.mission__finish-copy { color: var(--color-ink-muted); }
+.mission__finish-copy { color: var(--color-ink-muted); text-align: center; font-size: var(--font-size-label); }
+.mission__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.mission__header .screen__title { font-size: 1.375rem; }
+.mission__back { display: grid; place-content: center; width: 48px; height: 48px; border: 1px solid var(--color-divider); border-radius: 16px; background: var(--color-paper); color: var(--color-ink); cursor: pointer; }
+.mission__header-icon { margin-inline: var(--space-md); color: var(--color-focus); }
+.mission :deep(.companion-cue) { align-self: center; }
+.mission :deep(.xp-route__level) { color: var(--color-focus); }
 
 .mission__final-sky {
   position: relative;

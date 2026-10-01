@@ -52,23 +52,23 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
   font-size: var(--font-size-label);
   font-weight: 600;
   line-height: var(--line-height-label);
-  color: var(--color-on-space);
+  color: var(--color-ink-muted);
 }
 
 .answer-field__input {
-  min-height: 64px;
+  min-height: 72px;
   padding: 12px 16px;
-  border: 1px solid var(--color-control-outline);
+  border: 2px solid var(--color-control-outline);
   border-radius: var(--radius-control);
-  background: var(--color-white);
+  background: var(--color-space);
   color: var(--color-ink);
   font-family: var(--font-family);
   font-size: var(--font-size-title);
-  font-weight: 700;
+  font-weight: 900;
   line-height: var(--line-height-title);
   font-variant-numeric: tabular-nums;
   width: 100%;
-  caret-color: var(--color-action);
+  caret-color: var(--color-focus);
 }
 
 .answer-field__control { display: grid; }
@@ -76,7 +76,7 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
 .answer-field__placeholder {
   align-self: center;
   padding: 12px 16px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   color: var(--color-ink-muted);
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
@@ -87,6 +87,7 @@ defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()
 .answer-field__input:focus-visible {
   outline: 2px solid var(--color-focus-on-space);
   outline-offset: 2px;
+  border-color: var(--color-focus);
 }
 
 .answer-field__input::placeholder {

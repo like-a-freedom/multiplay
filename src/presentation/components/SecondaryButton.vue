@@ -13,13 +13,14 @@ defineEmits<{ click: [] }>()
 .button-secondary {
   min-height: 52px;
   padding: 14px 20px;
-  border: 1px solid var(--color-control-outline);
+  border: 1px solid var(--color-divider);
   border-radius: var(--radius-control);
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-family);
   font-size: var(--font-size-button);
-  font-weight: 700;
+  font-weight: 800;
+  transition: background 150ms, transform 150ms var(--ease-playful);
   line-height: var(--line-height-button);
   cursor: pointer;
 }
