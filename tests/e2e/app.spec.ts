@@ -54,10 +54,11 @@ test('миссия: ошибка называет введённое, Enter от
   expect(Number(await beamFlare.getAttribute('data-intensity'))).toBeGreaterThan(0)
   await page.screenshot({ path: '/tmp/math-task4-flight-progress.png', fullPage: true })
   await expect(page.getByRole('img', { name: 'Корабль экспедиции: уровень 1, 10 из 100 XP' })).toBeVisible()
-  await expect(page.locator('.xp-route__beam')).toHaveCount(1)
   await expect(page.getByRole('button', { name: 'Продолжить', exact: true })).toBeEnabled()
   await expect(page.getByRole('button', { name: 'Карта звёзд', exact: true })).toBeEnabled()
   await expect(page.locator('.xp-award__visual')).toHaveText('+10 XP')
+  // The beam is intentionally transient; wait for cleanup instead of asserting
+  // it remains mounted after a screenshot and other asynchronous expectations.
   await expect(page.locator('.xp-route__beam')).toHaveCount(0)
   await page.getByRole('button', { name: 'Продолжить' }).click()
 

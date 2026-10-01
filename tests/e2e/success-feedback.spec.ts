@@ -89,7 +89,9 @@ test('accepted answer survives refresh and the resumed mission awards XP once', 
   await page.getByRole('button', { name: 'Проверить' }).click()
   await page.getByRole('button', { name: 'Продолжить' }).click()
   await expect(page.getByText('Миссия завершена!')).toBeVisible()
-  await expect(page.getByText('+10 XP')).toBeVisible()
+  await expect(page.getByRole('status', {
+    name: 'Опыт за практику: +10 XP. Всего 10 XP. Уровень 1.',
+  })).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()
   await page.reload()
   await expect(page.getByText('Всего XP: 10')).toBeVisible()

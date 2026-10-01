@@ -121,5 +121,5 @@ function primaryAction(): void {
   line-height: var(--line-height-label);
   color: var(--color-on-space);
 }
-.home .screen__title { overflow-wrap: normal; }
+.home .screen__title { overflow-wrap: anywhere; }
 </style>
