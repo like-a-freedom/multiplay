@@ -79,7 +79,7 @@ test('home route reflects earned XP while mastery stars stay separate', async ({
 
   for (let card = 1; card <= 2; card += 1) {
     await expect(page.getByText(`Карточка ${card} из 2`)).toBeVisible()
-    const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+    const expression = await page.locator('.question-card--front .question-card__expression span[aria-hidden]').textContent()
     const [left, right] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
     await page.getByLabel('Ответ на пример').fill(String(left * right))
     await page.getByLabel('Ответ на пример').press('Enter')

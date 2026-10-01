@@ -128,7 +128,7 @@ test('поддерживающий режим: свободная практик
   await expect(page.getByText('Карточка 1 из 10')).toBeVisible()
 
   // Практика перемешана — вычисляем ответ из показанного примера (видимая часть без озвучки).
-  const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+  const expression = await page.locator('.question-card--front .question-card__expression span[aria-hidden]').textContent()
   const [a, b] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
   await page.getByLabel('Ответ на пример').fill(String(a * b))
   await page.getByLabel('Ответ на пример').press('Enter')
@@ -149,7 +149,7 @@ test('«Пора повторить» ведёт сразу в повторен�
 
   // Повторение — только факт с наступившим сроком, без новых и практики.
   await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
-  await expect(page.getByText('2 × 3 = ?')).toBeVisible()
+  await expect(page.locator('.question-card--front .question-card__expression')).toContainText('2 × 3 = ?')
   await page.getByLabel('Ответ на пример').fill('6')
   await page.getByLabel('Ответ на пример').press('Enter')
   await expect(page.getByText('Верно')).toBeVisible()
@@ -248,7 +248,7 @@ test('reveals newly earned stars once on the map and preserves their canonical p
 
   for (let card = 1; card <= 2; card += 1) {
     await expect(page.getByText(`Карточка ${card} из 2`)).toBeVisible()
-    const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+    const expression = await page.locator('.question-card--front .question-card__expression span[aria-hidden]').textContent()
     const [left, right] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
     await page.getByLabel('Ответ на пример').fill(String(left * right))
     await page.getByLabel('Ответ на пример').press('Enter')
@@ -291,7 +291,7 @@ test('reduced motion displays newly earned stars without reveal lines', async ({
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
   for (let card = 1; card <= 2; card += 1) {
     await expect(page.getByText(`Карточка ${card} из 2`)).toBeVisible()
-    const expression = await page.locator('.question-card__expression span[aria-hidden]').textContent()
+    const expression = await page.locator('.question-card--front .question-card__expression span[aria-hidden]').textContent()
     const [left, right] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
     await page.getByLabel('Ответ на пример').fill(String(left * right))
     await page.getByLabel('Ответ на пример').press('Enter')

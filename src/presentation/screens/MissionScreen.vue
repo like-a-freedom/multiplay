@@ -207,6 +207,7 @@ function feedbackText(outcome: AttemptOutcome): string {
         <QuestionCard
           :expression="`${fact.factors[0]} × ${fact.factors[1]} = ?`"
           :spoken="spokenExpression(fact.factors[0], fact.factors[1])"
+          :revealed="feedback !== null"
           :feedback-text="feedback?.text ?? null"
           :feedback-tone="feedback?.tone ?? null"
           :celebrate="feedback?.outcome === 'correct'"
@@ -215,18 +216,17 @@ function feedbackText(outcome: AttemptOutcome): string {
           :answer-value="feedback ? fact.product : undefined"
           :submitted-value="feedback?.outcome === 'wrong' ? feedback.submittedValue : null"
           :hint-text="feedback?.hintText ?? null"
-        />
-
-        <!-- The field is hidden after an answer; the wrong value stays visible (DESIGN.md). -->
-        <AnswerField
-          v-if="feedback === null"
-          v-model="answerInput"
-          :error-text="inputError"
-          :disabled="feedback !== null"
-          label="Ответ на пример"
-          @update:model-value="inputError = null"
-          @submit="check"
-        />
+        >
+          <!-- The field is hidden after submission; the front face becomes inert during the reveal. -->
+          <AnswerField
+            v-if="feedback === null"
+            v-model="answerInput"
+            :error-text="inputError"
+            label="Ответ на пример"
+            @update:model-value="inputError = null"
+            @submit="check"
+          />
+        </QuestionCard>
       </div>
 
       <div ref="actions" class="screen__actions">
@@ -305,7 +305,7 @@ function feedbackText(outcome: AttemptOutcome): string {
   border-radius: var(--radius-card);
   background: var(--color-paper);
   color: var(--color-ink);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .mission__finish:focus { outline: none; }

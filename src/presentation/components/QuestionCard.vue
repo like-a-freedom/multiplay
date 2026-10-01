@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import StarGlyph from '@/presentation/components/StarGlyph.vue'
+import FlipCard from '@/presentation/components/inspira/FlipCard.vue'
 
-/**
- * The question card (DESIGN.md): the answer is hidden until an attempt; after
- * the attempt — the result and a short hint. No flip gesture.
- */
+/** The answer remains hidden until the child submits; that explicit action reveals the reverse. */
 const props = defineProps<{
   variant?: 'question' | 'summary'
+  revealed?: boolean
   celebrate?: boolean
   starUnlocked?: boolean
   review?: boolean
@@ -28,47 +27,59 @@ const visibleExpression = computed(() =>
 </script>
 
 <template>
-  <section
-    class="question-card"
-    :class="{
-      'question-card--summary': variant === 'summary',
-      'question-card--correct': celebrate,
-      'question-card--review': review,
-    }"
-  >
-    <p class="question-card__expression">
-      <!-- The expression is announced as words ("Seven times eight"); digits are hidden from screen readers. -->
-      <span class="visually-hidden">{{ spoken }}</span>
-      <span aria-hidden="true">{{ visibleExpression }}</span>
-    </p>
-    <div class="question-card__result" aria-live="polite" aria-atomic="true">
-      <p
-        v-if="feedbackText"
-        class="question-card__feedback"
-        :class="`question-card__feedback--${feedbackTone ?? 'hint'}`"
-      >
-        {{ feedbackText }}
-      </p>
-      <span v-if="celebrate && answerValue !== undefined" class="visually-hidden">
-        Правильный ответ: {{ answerValue }}
-      </span>
-      <p v-if="starUnlocked" class="question-card__star-unlocked">
-        <StarGlyph :size="40" class="question-card__new-star" />
-        <span>Новая звезда открыта на карте!</span>
-      </p>
-      <div v-if="review && answerValue !== undefined" class="question-card__answer-row">
-        <p v-if="submittedValue !== null && submittedValue !== undefined" class="question-card__submitted">
-          Твой ответ: {{ submittedValue }}
+  <FlipCard :flipped="revealed ?? false">
+    <template #front>
+      <section class="question-card question-card--front" :class="{ 'question-card--summary': variant === 'summary' }">
+        <p class="question-card__expression">
+          <!-- The expression is announced as words; digits are visual-only. -->
+          <span class="visually-hidden">{{ spoken }}</span>
+          <span aria-hidden="true">{{ expression }}</span>
         </p>
-        <p class="question-card__correct-answer">Верный ответ: <strong>{{ answerValue }}</strong></p>
-      </div>
-      <div v-if="hintText" class="question-card__hint">
-        <p class="question-card__hint-label">Как вспомнить</p>
-        <p>{{ hintText }}</p>
-      </div>
-    </div>
-    <slot />
-  </section>
+        <slot />
+      </section>
+    </template>
+    <template #back>
+      <section
+        class="question-card question-card--back"
+        :class="{
+          'question-card--summary': variant === 'summary',
+          'question-card--correct': celebrate,
+          'question-card--review': review,
+        }"
+      >
+        <p class="question-card__expression">
+          <span class="visually-hidden">{{ spoken }}</span>
+          <span aria-hidden="true">{{ visibleExpression }}</span>
+        </p>
+        <div class="question-card__result" aria-live="polite" aria-atomic="true">
+          <p
+            v-if="feedbackText"
+            class="question-card__feedback"
+            :class="`question-card__feedback--${feedbackTone ?? 'hint'}`"
+          >
+            {{ feedbackText }}
+          </p>
+          <span v-if="celebrate && answerValue !== undefined" class="visually-hidden">
+            Правильный ответ: {{ answerValue }}
+          </span>
+          <p v-if="starUnlocked" class="question-card__star-unlocked">
+            <StarGlyph :size="40" class="question-card__new-star" />
+            <span>Новая звезда открыта на карте!</span>
+          </p>
+          <div v-if="review && answerValue !== undefined" class="question-card__answer-row">
+            <p v-if="submittedValue !== null && submittedValue !== undefined" class="question-card__submitted">
+              Твой ответ: {{ submittedValue }}
+            </p>
+            <p class="question-card__correct-answer">Верный ответ: <strong>{{ answerValue }}</strong></p>
+          </div>
+          <div v-if="hintText" class="question-card__hint">
+            <p class="question-card__hint-label">Как вспомнить</p>
+            <p>{{ hintText }}</p>
+          </div>
+        </div>
+      </section>
+    </template>
+  </FlipCard>
 </template>
 
 <style scoped>
@@ -80,17 +91,17 @@ const visibleExpression = computed(() =>
   border-radius: var(--radius-card);
   background: var(--color-paper);
   color: var(--color-ink);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .question-card--correct {
   background: var(--color-success-surface);
-  box-shadow: inset 0 0 0 2px var(--color-success), 0 8px 24px rgb(0 0 0 / 0.25);
+  box-shadow: inset 0 0 0 2px var(--color-success), 0 8px 24px var(--color-shadow);
 }
 
 .question-card--review {
   background: var(--color-review-surface);
-  box-shadow: inset 0 0 0 2px var(--color-review-outline), 0 8px 24px rgb(0 0 0 / 0.25);
+  box-shadow: inset 0 0 0 2px var(--color-review-outline), 0 8px 24px var(--color-shadow);
 }
 
 .question-card__expression {

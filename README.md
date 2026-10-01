@@ -46,4 +46,4 @@ CI runs unit tests, builds the app, and checks the UI in WebKit. Chromium checks
 
 Clearing browser data or changing the site address or browser context can make progress unavailable. There is no cloud backup or way to transfer progress. Choose a permanent address before family use.
 
-The project uses the MIT License in [LICENSE](LICENSE). The star silhouette from Phosphor Icons is also used under MIT; see [public/licenses/phosphor-icons.txt](public/licenses/phosphor-icons.txt).
+The project uses the MIT License in [LICENSE](LICENSE). Inspira UI components are adapted under MIT; see [public/licenses/inspira-ui.txt](public/licenses/inspira-ui.txt). The star silhouette from Phosphor Icons is also used under MIT; see [public/licenses/phosphor-icons.txt](public/licenses/phosphor-icons.txt).

@@ -25,6 +25,7 @@
   --color-error: #b42335;
   --color-control-outline: #64748b;
   --color-divider: #cad5e5;
+  --color-shadow: rgb(0 0 0 / 0.25);
 
   /* typography */
   --font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;

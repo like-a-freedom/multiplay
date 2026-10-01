@@ -4,6 +4,26 @@ import { createProgressState } from '../../src/domain/progress/progressState'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 
+function waitForFlip(page: import('@playwright/test').Page) {
+  return page.locator('.inspira-flip-card__inner').evaluate((element) => new Promise<void>((resolve) => {
+    const duration = Number.parseFloat(getComputedStyle(element).transitionDuration)
+    if (duration === 0) return resolve()
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      window.clearTimeout(fallback)
+      element.removeEventListener('transitionend', onTransitionEnd)
+      resolve()
+    }
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === element && event.propertyName === 'transform') finish()
+    }
+    const fallback = window.setTimeout(finish, duration + 100)
+    element.addEventListener('transitionend', onTransitionEnd)
+  }))
+}
+
 test('ошибка в 0 × 5 показывает спокойную карточку и правило-коротышку', async ({ page }) => {
   const initial = createProgressState()
   const progress = {
@@ -18,12 +38,15 @@ test('ошибка в 0 × 5 показывает спокойную карто�
   await page.setViewportSize({ width: 428, height: 926 })
   await page.goto('./')
   await page.getByRole('button', { name: 'Играть' }).click()
-  await expect(page.locator('.question-card__expression')).toContainText('0 × 5 = ?')
+  await expect(page.locator('.question-card--front .question-card__expression')).toContainText('0 × 5 = ?')
   await page.getByLabel('Ответ на пример').fill('5')
+  const flipFinished = waitForFlip(page)
   await page.getByRole('button', { name: 'Проверить' }).click()
+  await flipFinished
 
-  const card = page.locator('.question-card')
-  await expect(card).toHaveClass(/question-card--review/)
+  const card = page.locator('.question-card--review')
+  await expect(card).toBeVisible()
+  await expect(page.locator('.inspira-flip-card__front')).toHaveAttribute('aria-hidden', 'true')
   await expect(card).toHaveCSS('background-color', 'rgb(255, 243, 221)')
   await expect(card.getByText('Разберём вместе')).toBeVisible()
   await expect(card.locator('.question-card__feedback')).toHaveCSS('background-color', 'rgb(255, 255, 255)')
@@ -62,8 +85,8 @@ test('«Не знаю» открывает спокойную подсказку
   await expect(page.getByLabel('Ответ на пример')).toHaveAttribute('placeholder', 'Введи целое число от 0 до 100')
   await page.getByRole('button', { name: 'Не знаю' }).click()
 
-  const card = page.locator('.question-card')
-  await expect(card).toHaveClass(/question-card--review/)
+  const card = page.locator('.question-card--review')
+  await expect(card).toBeVisible()
   await expect(card.getByText('Посмотрим подсказку')).toBeVisible()
   await expect(card.getByText('Верный ответ: 0')).toBeVisible()
   await expect(card.getByText('Твой ответ:', { exact: false })).toHaveCount(0)
