@@ -5,6 +5,20 @@ import { createMasteryProgress } from '../../src/domain/learning/mastery'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 
+async function currentProduct(page: import('@playwright/test').Page): Promise<number> {
+  const expression = await page
+    .locator('.question-card--front .question-card__expression span[aria-hidden]')
+    .textContent()
+  const match = expression?.match(/(\d+)\s*×\s*(\d+)/)
+  expect(match, `не удалось прочитать пример: ${expression}`).not.toBeNull()
+  return Number(match![1]) * Number(match![2])
+}
+
+function wrongAnswer(product: number): string {
+  // Поле принимает целые числа 0–100; 101 не подходит для 10 × 10.
+  return String(product === 100 ? product - 1 : product + 1)
+}
+
 test('первое знакомство: «Сразу играть» открывает миссию и сохраняет пропуск диагностики', async ({ page }) => {
   await page.goto('./')
   await expect(page.getByRole('heading', { name: 'Привет! Я Орби.' })).toBeVisible()
@@ -39,17 +53,20 @@ test('миссия: ошибка называет введённое, Enter от
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
 
-  // Карточка 1 из 2: 0 × 0 — намеренно неверный ответ.
+  // Карточка 1 из 2: неверный ответ вычисляется из выданного примера.
   await expect(page.getByText('Карточка 1 из 2')).toBeVisible()
-  await page.getByLabel('Ответ на пример').fill('1')
+  const firstProduct = await currentProduct(page)
+  const firstWrongAnswer = wrongAnswer(firstProduct)
+  await page.getByLabel('Ответ на пример').fill(firstWrongAnswer)
   await page.getByRole('button', { name: 'Проверить' }).click()
-  await expect(page.getByText('Твой ответ: 1')).toBeVisible()
-  await expect(page.getByText('Верный ответ: 0')).toBeVisible()
+  await expect(page.getByText(`Твой ответ: ${firstWrongAnswer}`)).toBeVisible()
+  await expect(page.getByText(`Верный ответ: ${firstProduct}`)).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()
 
-  // Карточка 2 из 2: 0 × 1 — верный ответ отправляется Enter'ом.
+  // Карточка 2 из 2: верный ответ отправляется Enter'ом.
   await expect(page.getByText('Карточка 2 из 2')).toBeVisible()
-  await page.getByLabel('Ответ на пример').fill('0')
+  const secondProduct = await currentProduct(page)
+  await page.getByLabel('Ответ на пример').fill(String(secondProduct))
   await page.getByLabel('Ответ на пример').press('Enter')
   await expect(page.getByText('Верно')).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()

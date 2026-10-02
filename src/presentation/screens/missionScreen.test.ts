@@ -11,6 +11,15 @@ function mountMission(session = fakeGameSession()) {
   return mount(MissionScreen, sessionMountOptions(session))
 }
 
+function seededMissionSession(cardFactIds: readonly string[] = ['0:0', '0:1']) {
+  const session = fakeGameSession()
+  session.state.value = {
+    ...session.state.value,
+    currentMission: { id: 'seeded-mission', cardFactIds, answeredFactIds: [] },
+  }
+  return session
+}
+
 const buttons = (wrapper: ReturnType<typeof mountMission>) => wrapper.findAll('button')
 
 async function answer(wrapper: ReturnType<typeof mountMission>, value: string) {
@@ -23,7 +32,7 @@ async function answer(wrapper: ReturnType<typeof mountMission>, value: string) {
 
 describe('MissionScreen answer flow', () => {
   it('accepts the correct answer typed into the field (repro: 0 for 0×0 and 0×1)', async () => {
-    const wrapper = mountMission()
+    const wrapper = mountMission(seededMissionSession())
     await wrapper.vm.$nextTick()
 
     // Первая карточка свежей миссии — 0 × 0
@@ -41,7 +50,7 @@ describe('MissionScreen answer flow', () => {
   })
 
   it('marks a wrong answer wrong, keeps the typed value and names it in the feedback', async () => {
-    const wrapper = mountMission()
+    const wrapper = mountMission(seededMissionSession(['0:0']))
     await wrapper.vm.$nextTick()
 
     await answer(wrapper, '1')
@@ -54,7 +63,7 @@ describe('MissionScreen answer flow', () => {
   })
 
   it('hides the answer field after a correct answer', async () => {
-    const wrapper = mountMission()
+    const wrapper = mountMission(seededMissionSession(['0:0']))
     await wrapper.vm.$nextTick()
 
     await answer(wrapper, '0')
@@ -64,7 +73,7 @@ describe('MissionScreen answer flow', () => {
   })
 
   it('submits the answer on Enter from the field', async () => {
-    const wrapper = mountMission()
+    const wrapper = mountMission(seededMissionSession(['0:0']))
     await wrapper.vm.$nextTick()
 
     const input = wrapper.get('input')
@@ -75,7 +84,7 @@ describe('MissionScreen answer flow', () => {
   })
 
   it('resumes the unfinished mission with its frozen queue and id (PRD M4, §7)', async () => {
-    const session = fakeGameSession()
+    const session = seededMissionSession()
     const first = mountMission(session)
     await first.vm.$nextTick()
 
@@ -96,6 +105,23 @@ describe('MissionScreen answer flow', () => {
     // Награда одна: восстановленная миссия сохранила ID и не наградила дважды.
     expect(session.totalXp.value).toBe(10)
     second.unmount()
+  })
+
+  it('resumes an explicitly saved, non-sorted queue without recomposition', async () => {
+    const session = seededMissionSession(['4:7', '2:5'])
+    const first = mountMission(session)
+    await first.vm.$nextTick()
+    expect(first.get('.question-card--front .question-card__expression').text()).toContain('4 × 7')
+    await answer(first, '28')
+    await buttons(first).find((button) => button.text() === 'Продолжить')!.trigger('click')
+    await first.vm.$nextTick()
+    expect(first.get('.question-card--front .question-card__expression').text()).toContain('2 × 5')
+    first.unmount()
+
+    const resumed = mountMission(session)
+    await resumed.vm.$nextTick()
+    expect(resumed.get('.question-card--front .question-card__expression').text()).toContain('2 × 5')
+    resumed.unmount()
   })
 
   it('announces a new star on its answer and links the mission finish to the map', async () => {

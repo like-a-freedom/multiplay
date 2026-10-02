@@ -16,6 +16,19 @@ async function saved(page: Page): Promise<ProgressState> {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)!).state, PROGRESS_STORAGE_KEY)
 }
 
+async function currentProduct(page: Page): Promise<number> {
+  const expression = await page
+    .locator('.question-card--front .question-card__expression span[aria-hidden]')
+    .textContent()
+  const match = expression?.match(/(\d+)\s*×\s*(\d+)/)
+  expect(match, `не удалось прочитать пример: ${expression}`).not.toBeNull()
+  return Number(match![1]) * Number(match![2])
+}
+
+function wrongAnswer(product: number): string {
+  return String(product === 100 ? product - 1 : product + 1)
+}
+
 test('mixed outcomes stay truthful after reload and a wrong answer earns effort XP', async ({ page }) => {
   const initial = ready()
   await seed(page, { ...initial, currentMission: { id: 'mixed', cardFactIds: ['0:0', '0:1', '0:2'], answeredFactIds: [] } })
@@ -67,7 +80,8 @@ test('hints-only finish pays no XP or streak, then an entered wrong answer quali
   expect(hintsOnly.rewards.completions[0].xpEligible).toBe(false)
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
-  await page.getByLabel('Ответ на пример').fill('100')
+  const product = await currentProduct(page)
+  await page.getByLabel('Ответ на пример').fill(wrongAnswer(product))
   await page.getByLabel('Ответ на пример').press('Enter')
   await expect(page.getByText('Разберём вместе', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить', exact: true }).click()

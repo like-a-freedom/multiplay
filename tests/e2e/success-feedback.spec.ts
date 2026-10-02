@@ -4,10 +4,26 @@ import { createProgressState } from '../../src/domain/progress/progressState'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
 
-async function openMission(page: import('@playwright/test').Page) {
+async function openMission(
+  page: import('@playwright/test').Page,
+  cardFactIds?: readonly string[],
+) {
   await page.goto('./')
   await page.getByRole('button', { name: 'Начать знакомство' }).click()
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
+  if (cardFactIds !== undefined) {
+    const initial = createProgressState()
+    const seeded = {
+      ...initial,
+      diagnostic: { factIds: [], skipped: true, completed: false },
+      currentMission: { id: 'feedback-fixture', cardFactIds, answeredFactIds: [] },
+    }
+    await page.evaluate(
+      ([key, snapshot]) => localStorage.setItem(key, snapshot),
+      [PROGRESS_STORAGE_KEY, serializeSnapshot(seeded)],
+    )
+    await page.reload()
+  }
   await page.getByRole('button', { name: 'Играть' }).click()
 }
 
@@ -33,7 +49,7 @@ function waitForFlip(page: import('@playwright/test').Page) {
 
 test('правильный ответ окрашивает карточку без конфетти на самой карточке', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 })
-  await openMission(page)
+  await openMission(page, ['0:0', '0:1'])
   const front = page.locator('.question-card--front')
   await expect(front.locator('.question-card__confetti')).toHaveCount(0)
   await expect(page.locator('.inspira-flip-card')).toHaveAttribute('data-flipped', 'false')
@@ -80,7 +96,7 @@ test('правильный ответ окрашивает карточку бе
 
 test('при уменьшении движения остаются цвет и текст без анимации', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await openMission(page)
+  await openMission(page, ['0:0', '0:1'])
   await page.getByLabel('Ответ на пример').fill('0')
   await page.getByRole('button', { name: 'Проверить' }).click()
 
@@ -99,7 +115,7 @@ test('при уменьшении движения остаются цвет и 
 test('wide viewport keeps the revealed card centered and free of horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await openMission(page)
+  await openMission(page, ['0:0', '0:1'])
   await page.getByLabel('Ответ на пример').fill('1')
   await page.getByRole('button', { name: 'Проверить' }).click()
 
