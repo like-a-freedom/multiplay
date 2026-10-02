@@ -51,7 +51,7 @@ describe('streak', () => {
     streak = streakAfterCompletion(streak, '2026-01-03').streak
     expect(streak.earnedMilestoneDays).toEqual([3])
 
-    streak = streakAfterCompletion(streak, '2026-01-06').streak // пропуск → новая серия
+    streak = streakAfterCompletion(streak, '2026-01-06').streak // A missed day starts a new streak.
     const third = streakAfterCompletion(streak, '2026-01-07').streak
     const milestoneAgain = streakAfterCompletion(third, '2026-01-08')
     expect(milestoneAgain.streak.days).toBe(3)

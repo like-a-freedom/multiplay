@@ -50,7 +50,7 @@ describe('diagnostic use cases', () => {
 
     const after = diagnosticCards(state, false)
     expect(after[0].outcome).toBe('unknown')
-    // resume-режим показывает только неотвеченные
+    // Resume mode shows only unanswered facts.
     expect(diagnosticCards(state, true)).toHaveLength(9)
   })
 })

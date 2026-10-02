@@ -18,7 +18,7 @@ describe('calendarDate', () => {
   })
 
   it('counts calendar days across DST transitions, not 24h intervals', () => {
-    // 29 марта 2026 — переход на летнее время в большинстве регионов Европы.
+    // March 29, 2026 is the daylight-saving transition in most European regions.
     expect(calendarDayDiff('2026-03-28', '2026-03-30')).toBe(2)
   })
 

@@ -27,7 +27,7 @@ describe('mission use cases', () => {
 
   it('freezes the card queue at mission start', () => {
     const started = startMission(createProgressState(), { missionId: 'm1', date: '2026-01-01' })
-    // Свежее состояние: только два новых факта, повторений и знакомых нет — миссия короче.
+    // A fresh state has only two new facts and no due or familiar facts, so the mission is short.
     expect(started.mission.cardFactIds).toHaveLength(2)
     expect(started.state.currentMission?.id).toBe('m1')
     expect(started.state.currentMission?.cardFactIds).toEqual([...started.mission.cardFactIds])
@@ -78,7 +78,7 @@ describe('mission use cases', () => {
 
   it('treats a success after today’s shown solution as not independent', () => {
     let state = createProgressState()
-    state = record(state, '2:3', '2026-01-01', 'm1', true) // «Не знаю» → показано решение
+    state = record(state, '2:3', '2026-01-01', 'm1', true) // "Don't know" reveals the solution.
     const result = submitCardAnswer(state, {
       factId: '2:3',
       date: '2026-01-01',
@@ -90,7 +90,7 @@ describe('mission use cases', () => {
     const fact = result.state.facts['2:3']
     expect(result.state.attempts[1].independent).toBe(false)
     expect(fact.mastery.independentSuccessDates).toEqual([])
-    expect(fact.review?.nextReviewDate).toBe('2026-01-02') // расписание не сдвинулось
+    expect(fact.review?.nextReviewDate).toBe('2026-01-02') // The schedule did not advance.
   })
 
   it('does not grant mastery progress for diagnostic answers', () => {

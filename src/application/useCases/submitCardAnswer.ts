@@ -138,7 +138,7 @@ function updateFactProgress(
 
 function nextReviewAfterSuccess(previous: ReviewSchedule | null, date: CalendarDate): ReviewSchedule {
   if (previous === null) return scheduleAfterFirstSuccess(date)
-  if (!isDueForReview(previous, date)) return previous // досрочная практика срок не отодвигает
+  if (!isDueForReview(previous, date)) return previous // Early practice does not postpone a review.
   return scheduleAfterPlannedSuccess(previous, date)
 }
 

@@ -5,7 +5,7 @@ import { gameSessionKey } from '@/presentation/composables/gameSession'
 import { createProgressState, starsEarned } from '@/domain/progress/progressState'
 import { levelFromXp } from '@/domain/game/experience'
 
-/** Общая тестовая обвязка presentation-слоя: игровая сессия без хранилища. */
+/** Shared presentation-test fixture: a game session without persistent storage. */
 export function fakeGameSession(): GameSession {
   const state = ref(createProgressState())
   return {

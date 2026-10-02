@@ -20,11 +20,11 @@ describe('DiagnosticScreen', () => {
 
     const input = wrapper.get('input')
     await input.setValue('0')
-    await input.trigger('keyup.enter') // Enter отправляет ответ
+    await input.trigger('keyup.enter') // Enter submits the answer.
     await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('Карточка 2 из 10')
-    expect(wrapper.text()).not.toContain('Верно') // ответы отложены до конца
+    expect(wrapper.text()).not.toContain('Верно') // Feedback is deferred until the diagnostic ends.
     wrapper.unmount()
   })
 

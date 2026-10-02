@@ -35,7 +35,7 @@ describe('MissionScreen answer flow', () => {
     const wrapper = mountMission(seededMissionSession())
     await wrapper.vm.$nextTick()
 
-    // Первая карточка свежей миссии — 0 × 0
+    // The first seeded card is 0 × 0.
     await answer(wrapper, '0')
     expect(wrapper.text()).toContain('Верно')
     expect(wrapper.emitted('star-unlocked')).toBeUndefined()
@@ -43,7 +43,7 @@ describe('MissionScreen answer flow', () => {
     await buttons(wrapper).find((b) => b.text() === 'Продолжить')!.trigger('click')
     await wrapper.vm.$nextTick()
 
-    // Вторая карточка — 0 × 1
+    // The second seeded card is 0 × 1.
     await answer(wrapper, '0')
     expect(wrapper.text()).toContain('Верно')
     wrapper.unmount()
@@ -88,21 +88,21 @@ describe('MissionScreen answer flow', () => {
     const first = mountMission(session)
     await first.vm.$nextTick()
 
-    await answer(first, '0') // 0 × 0 отвечена
+    await answer(first, '0') // Answer 0 × 0.
     await buttons(first).find((b) => b.text() === 'Продолжить')!.trigger('click')
     await first.vm.$nextTick()
-    first.unmount() // закрытие посередине миссии
+    first.unmount() // Close the screen mid-mission.
 
     const second = mountMission(session)
     await second.vm.$nextTick()
-    expect(second.text()).toContain('Карточка 2 из 2') // исходный маршрут и предыдущий результат сохранены
+    expect(second.text()).toContain('Карточка 2 из 2') // The original queue and prior result are preserved.
     expect(second.get('[aria-label="Карточка 1: Верно"]').attributes('data-outcome')).toBe('correct')
 
     await answer(second, '0')
     expect(second.text()).toContain('Верно')
     await buttons(second).find((b) => b.text() === 'Продолжить')!.trigger('click')
     expect(second.text()).toContain('Миссия завершена!')
-    // Награда одна: восстановленная миссия сохранила ID и не наградила дважды.
+    // The resumed mission keeps its ID and cannot pay its reward twice.
     expect(session.totalXp.value).toBe(10)
     second.unmount()
   })

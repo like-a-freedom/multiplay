@@ -16,8 +16,8 @@ import { formatDateRu } from '@/presentation/utils/formatDate'
 
 /**
  * Home screen (PRD §3): play, streak, XP, level, knowledge stars.
- * "Due for review" is an action, not a reminder: while reviews exist the first
- * button is "Повторить" and goes straight to work. In maintenance mode the
+ * "Due for review" is an action, not a reminder: when reviews exist the first
+ * button opens them directly. In maintenance mode the
  * streak is replaced by the number of facts due and the nearest date when
  * the queue is empty.
  */

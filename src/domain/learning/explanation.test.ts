@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { explanationFor } from '@/domain/learning/explanation'
 import { makeFact } from '@/domain/fact/multiplicationFact'
 
-// Спецификация утверждённых формулировок (см. предложение об упрощении подсказок).
+// These tests pin the approved hint wording (see the proposal to simplify hints).
 describe('explanationFor', () => {
   it('explains zero facts with the school rule', () => {
     expect(explanationFor(makeFact(0, 2))).toBe('На ноль умножать — всегда будет 0.')

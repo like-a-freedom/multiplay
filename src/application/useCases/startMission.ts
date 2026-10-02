@@ -31,7 +31,7 @@ interface LastAttempt {
   readonly outcome: AttemptOutcome
 }
 
-/** Позиция последней принятой попытки каждого факта — одним проходом по истории. */
+/** Build each fact's latest accepted-attempt index in one pass over the history. */
 function lastAttemptsByFact(attempts: readonly AttemptRecord[]): Map<string, LastAttempt> {
   const latest = new Map<string, LastAttempt>()
   attempts.forEach((attempt, index) => {

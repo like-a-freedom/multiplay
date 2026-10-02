@@ -29,7 +29,7 @@ export function recordIndependentSuccess(
 ): MasteryProgress {
   const dates = mastery.independentSuccessDates
   if (dates.length > 0 && dates[dates.length - 1] === answerDate) {
-    return mastery // два успеха в один день подтверждением не считаются
+    return mastery // Two successes on the same day do not confirm mastery.
   }
   const nextDates = [...dates, answerDate]
   const confirmed =

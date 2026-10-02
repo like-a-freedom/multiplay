@@ -62,7 +62,7 @@ describe('applyMissionRewards', () => {
   })
 
   it('finishes the expedition exactly once with the mission that opens the last star', () => {
-    // 66 звёзд уже открыты попытками этой миссии — переход сохраняется с её завершением.
+    // All 66 stars were earned in this mission; the mode transition is saved with its completion.
     const state = withAnswer(withStars(createProgressState(), 66), 'm-final', '2026-01-01')
     const finishing = applyMissionRewards(state, 'm-final', '2026-01-01')
     expect(finishing.expeditionJustFinished).toBe(true)

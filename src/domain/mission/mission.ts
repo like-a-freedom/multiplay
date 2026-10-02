@@ -11,15 +11,15 @@ export type FactPlanningStatus = 'new' | 'due' | 'familiar'
 export interface FactCandidate {
   readonly factId: string
   readonly status: FactPlanningStatus
-  /** Дата планового повторения; `null` — факт ещё не ставился в расписание. */
+  /** Scheduled review date; `null` means the fact has no review schedule yet. */
   readonly nextReviewDate: CalendarDate | null
-  /** Отметка «Пора повторить» после ошибки; переживает наступление даты. */
+  /** The post-error review mark; it persists after the scheduled date arrives. */
   readonly needsReview: boolean
-  /** Позиция последней принятой попытки в истории; больше — свежее. */
+  /** Index of the latest accepted attempt; larger indices are more recent. */
   readonly lastAttemptIndex: number | null
   readonly lastAttemptDate: CalendarDate | null
   readonly lastAttemptOutcome: AttemptOutcome | null
-  /** Дата последнего ответа из записи факта — fallback для старых снимков без попыток. */
+  /** Last-answer date fallback for old snapshots without attempt history. */
   readonly lastAnswerDate: CalendarDate | null
 }
 

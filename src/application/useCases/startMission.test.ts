@@ -6,9 +6,8 @@ import { allFacts, factFromId, isSimpleFact } from '@/domain/fact/multiplication
 import { createMasteryProgress } from '@/domain/learning/mastery'
 import type { ProgressState } from '@/domain/progress/progressState'
 import { createProgressState } from '@/domain/progress/progressState'
-import { parseSnapshot } from '@/infrastructure/storage/snapshot'
 
-/** Планомерный ГПСЧ: одинаковый seed ⇒ одинаковая последовательность. */
+/** Seeded PRNG: the same seed always produces the same sequence. */
 function rng(seed: number): () => number {
   let state = seed >>> 0
   return () => {
@@ -17,9 +16,7 @@ function rng(seed: number): () => number {
   }
 }
 
-/**
- * Все факты знакомы, даты повторений в будущем: выбор — только добивка.
- */
+/** Every fact is familiar and every review date is in the future. */
 function allFamiliarReady(): ProgressState {
   const base = createProgressState()
   return {
@@ -51,14 +48,11 @@ function answerCorrect(state: ProgressState, factId: string, date: string, missi
   return result.state
 }
 
-/** Тот же прогресс, но ключи `facts` записаны в обратном порядке. */
+/** Return the same progress with the fact keys in reverse insertion order. */
 function withReversedFactOrder(state: ProgressState): ProgressState {
   const entries = Object.entries(state.facts)
   entries.reverse()
-  const raw = JSON.stringify({ version: 1, state: { ...state, facts: Object.fromEntries(entries) } })
-  const parsed = parseSnapshot(raw)
-  if (parsed.kind !== 'saved') throw new Error('ожидался корректный снимок')
-  return parsed.state
+  return { ...state, facts: Object.fromEntries(entries) }
 }
 
 describe('startMission: разнообразие состава (регрессия «слишком часто ×0»)', () => {

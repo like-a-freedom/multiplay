@@ -86,6 +86,25 @@ function compareReviewPriority(a: FactCandidate, b: FactCandidate, date: Calenda
   )
 }
 
+function shufflePriorityGroups(
+  candidates: readonly FactCandidate[],
+  comparePriority: (a: FactCandidate, b: FactCandidate) => number,
+  random: () => number,
+): FactCandidate[] {
+  const sorted = [...candidates].sort(
+    (a, b) => comparePriority(a, b) || compareFactId(a, b),
+  )
+  const ranked: FactCandidate[] = []
+
+  for (let start = 0; start < sorted.length;) {
+    let end = start + 1
+    while (end < sorted.length && comparePriority(sorted[start], sorted[end]) === 0) end += 1
+    ranked.push(...shuffle(sorted.slice(start, end), random))
+    start = end
+  }
+  return ranked
+}
+
 /**
  * Sort by urgency and age; randomize only candidates tied on those meaningful
  * priorities. Sorting by the canonical fact id before shuffling makes the
@@ -96,23 +115,11 @@ function rankReviews(
   date: CalendarDate,
   random: () => number,
 ): FactCandidate[] {
-  const sorted = [...candidates].sort(
-    (a, b) => compareReviewPriority(a, b, date) || compareFactId(a, b),
+  return shufflePriorityGroups(
+    candidates,
+    (a, b) => compareReviewPriority(a, b, date),
+    random,
   )
-  const ranked: FactCandidate[] = []
-
-  for (let start = 0; start < sorted.length;) {
-    let end = start + 1
-    while (
-      end < sorted.length &&
-      compareReviewPriority(sorted[start], sorted[end], date) === 0
-    ) {
-      end += 1
-    }
-    ranked.push(...shuffle(sorted.slice(start, end), random))
-    start = end
-  }
-  return ranked
 }
 
 function pickNewFacts(
@@ -177,17 +184,7 @@ function fillFamiliar(
   initialRuleCount: number,
   random: () => number,
 ): FactCandidate[] {
-  const sorted = [...candidates].sort(
-    (a, b) => compareRecency(a, b) || compareFactId(a, b),
-  )
-  const ranked: FactCandidate[] = []
-  for (let start = 0; start < sorted.length;) {
-    let end = start + 1
-    while (end < sorted.length && compareRecency(sorted[start], sorted[end]) === 0) end += 1
-    ranked.push(...shuffle(sorted.slice(start, end), random))
-    start = end
-  }
-
+  const ranked = shufflePriorityGroups(candidates, compareRecency, random)
   const picked: FactCandidate[] = []
   const deferredRules: FactCandidate[] = []
   let ruleCount = initialRuleCount

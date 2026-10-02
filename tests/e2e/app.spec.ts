@@ -1,22 +1,38 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 import { createProgressState, type FactProgress, type ProgressState } from '../../src/domain/progress/progressState'
 import { createMasteryProgress } from '../../src/domain/learning/mastery'
 import { serializeSnapshot } from '../../src/infrastructure/storage/snapshot'
 import { PROGRESS_STORAGE_KEY } from '../../src/infrastructure/storage/localStorageProgressStore'
+import {
+  correctAnswer,
+  currentPrompt,
+  deliberatelyWrongAnswer,
+  isRulePrompt,
+  isSimplePrompt,
+} from '../support/multiplicationPrompt'
 
-async function currentProduct(page: import('@playwright/test').Page): Promise<number> {
-  const expression = await page
-    .locator('.question-card--front .question-card__expression span[aria-hidden]')
-    .textContent()
-  const match = expression?.match(/(\d+)\s*×\s*(\d+)/)
-  expect(match, `не удалось прочитать пример: ${expression}`).not.toBeNull()
-  return Number(match![1]) * Number(match![2])
-}
+async function playCurrentMission(page: Page) {
+  const title = await page.getByText(/^Карточка 1 из \d+$/).textContent()
+  const totalCards = Number(title?.match(/из (\d+)/)?.[1])
+  expect(totalCards).toBeGreaterThan(0)
+  const prompts = []
 
-function wrongAnswer(product: number): string {
-  // Поле принимает целые числа 0–100; 101 не подходит для 10 × 10.
-  return String(product === 100 ? product - 1 : product + 1)
+  for (let index = 0; index < totalCards; index += 1) {
+    const prompt = await currentPrompt(page)
+    prompts.push(prompt)
+    await page.getByLabel('Ответ на пример').fill(correctAnswer(prompt))
+    await page.getByLabel('Ответ на пример').press('Enter')
+    await expect(page.getByText('Верно', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+
+    if (index + 1 < totalCards) {
+      await expect(page.getByText(`Карточка ${index + 2} из ${totalCards}`, { exact: true })).toBeVisible()
+    }
+  }
+
+  await expect(page.getByText('Миссия завершена!', { exact: true })).toBeVisible()
+  return prompts
 }
 
 test('первое знакомство: «Сразу играть» открывает миссию и сохраняет пропуск диагностики', async ({ page }) => {
@@ -25,11 +41,37 @@ test('первое знакомство: «Сразу играть» откры�
   await page.getByRole('button', { name: 'Сразу играть', exact: true }).click()
   await expect(page.getByText('Карточка 1 из 2', { exact: true })).toBeVisible()
   await expect(page.getByLabel('Ответ на пример')).toBeVisible()
+  const firstPrompt = await currentPrompt(page)
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Умножайка', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Начать знакомство' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Играть', exact: true }).click()
   await expect(page.getByText('Карточка 1 из 2', { exact: true })).toBeVisible()
+  expect(await currentPrompt(page)).toEqual(firstPrompt)
+  await page.getByLabel('Ответ на пример').fill(correctAnswer(firstPrompt))
+  await page.getByLabel('Ответ на пример').press('Enter')
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+  const secondPrompt = await currentPrompt(page)
+  expect([firstPrompt, secondPrompt].filter(isSimplePrompt)).toHaveLength(1)
+})
+
+test('three consecutive missions mix new facts and keep familiar rule facts varied', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', { name: 'Сразу играть', exact: true }).click()
+
+  for (let missionIndex = 0; missionIndex < 3; missionIndex += 1) {
+    const prompts = await playCurrentMission(page)
+    expect(prompts).toHaveLength((missionIndex + 1) * 2)
+    expect(prompts.filter(isRulePrompt).length).toBeLessThanOrEqual(2)
+    if (missionIndex === 0) {
+      expect(prompts.filter(isSimplePrompt)).toHaveLength(1)
+    }
+
+    if (missionIndex < 2) {
+      await page.getByRole('button', { name: 'Продолжить', exact: true }).click()
+      await page.getByRole('button', { name: 'Играть', exact: true }).click()
+    }
+  }
 })
 
 test('первый запуск: диагностика, пропуск ведёт на главный экран', async ({ page }) => {
@@ -53,20 +95,20 @@ test('миссия: ошибка называет введённое, Enter от
   await page.getByRole('button', { name: 'Пропустить проверку' }).click()
   await page.getByRole('button', { name: 'Играть' }).click()
 
-  // Карточка 1 из 2: неверный ответ вычисляется из выданного примера.
+  // Card one: calculate a wrong answer from the prompt shown in the app.
   await expect(page.getByText('Карточка 1 из 2')).toBeVisible()
-  const firstProduct = await currentProduct(page)
-  const firstWrongAnswer = wrongAnswer(firstProduct)
+  const firstPrompt = await currentPrompt(page)
+  const firstWrongAnswer = deliberatelyWrongAnswer(firstPrompt)
   await page.getByLabel('Ответ на пример').fill(firstWrongAnswer)
   await page.getByRole('button', { name: 'Проверить' }).click()
   await expect(page.getByText(`Твой ответ: ${firstWrongAnswer}`)).toBeVisible()
-  await expect(page.getByText(`Верный ответ: ${firstProduct}`)).toBeVisible()
+  await expect(page.getByText(`Верный ответ: ${firstPrompt.product}`)).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()
 
-  // Карточка 2 из 2: верный ответ отправляется Enter'ом.
+  // Card two: submit the correct answer with Enter.
   await expect(page.getByText('Карточка 2 из 2')).toBeVisible()
-  const secondProduct = await currentProduct(page)
-  await page.getByLabel('Ответ на пример').fill(String(secondProduct))
+  const secondPrompt = await currentPrompt(page)
+  await page.getByLabel('Ответ на пример').fill(correctAnswer(secondPrompt))
   await page.getByLabel('Ответ на пример').press('Enter')
   await expect(page.getByText('Верно')).toBeVisible()
   await page.getByRole('button', { name: 'Продолжить' }).click()
@@ -100,7 +142,7 @@ test('миссия: ошибка называет введённое, Enter от
 
   await expect(page.getByText('Всего XP: 10')).toBeVisible()
 
-  // Незаконченная сессия не теряет награду: прогресс живёт после перезагрузки.
+  // A completed reward remains after a page reload.
   await page.reload()
   await expect(page.getByText('Всего XP: 10')).toBeVisible()
 })
@@ -167,7 +209,7 @@ test('поддерживающий режим: свободная практик
 
   await expect(page.getByText('Карточка 1 из 10')).toBeVisible()
 
-  // Практика перемешана — вычисляем ответ из показанного примера (видимая часть без озвучки).
+  // Free practice is shuffled; answer from the expression shown on the card.
   const expression = await page.locator('.question-card--front .question-card__expression span[aria-hidden]').textContent()
   const [a, b] = (expression ?? '').split('=')[0].trim().split(' × ').map(Number)
   await page.getByLabel('Ответ на пример').fill(String(a * b))
@@ -190,7 +232,7 @@ test('«Пора повторить» ведёт сразу в повторен�
   await expect(page.locator('.home__review-number')).toHaveText('1')
   await page.getByRole('button', { name: 'Повторить', exact: true }).click()
 
-  // Повторение — только факт с наступившим сроком, без новых и практики.
+  // A review session contains only a fact whose review date has arrived.
   await expect(page.getByText('Карточка 1 из 1')).toBeVisible()
   await expect(page.locator('.question-card--front .question-card__expression')).toContainText('2 × 3 = ?')
   await page.getByLabel('Ответ на пример').fill('6')
@@ -220,7 +262,7 @@ function finishedExpedition(): ProgressState {
   }
 }
 
-/** Поддерживающий режим: один факт с наступившим сроком проверки. */
+/** Maintenance fixture with one fact whose review date has arrived. */
 function maintenanceWithReview(): ProgressState {
   const base = finishedExpedition()
   const fact = base.facts['2:3']
@@ -248,7 +290,7 @@ test('карта звёзд отмечает собранные звёзды н�
   const welcome = page.getByRole('button', { name: 'Начать знакомство', exact: true })
   if (await welcome.count()) await welcome.click()
 
-  await expect(page.getByText('Открыто звёзд: 5 из 66')).toHaveCount(0) // заголовок ещё на главной
+  await expect(page.getByText('Открыто звёзд: 5 из 66')).toHaveCount(0) // The total appears on the map, not home.
   const homeSky = page.locator('.home .constellation-sky--preview')
   await expect(homeSky.locator('.constellation-sky__star')).toHaveCount(66)
   await expect(homeSky.locator('.constellation-sky__star--earned')).toHaveCount(5)
@@ -270,7 +312,7 @@ test('карта звёзд отмечает собранные звёзды н�
   expect(mapStarPosition).toEqual(firstStarPosition)
   await page.screenshot({ path: '/tmp/math-task5-map.png', fullPage: true })
 
-  // Текстовая альтернатива: каждый факт назван со статусом в архиве.
+  // Text alternative: the archive names each fact and its status.
   await page.getByRole('button', { name: /Все факты и достижения/ }).click()
   await expect(page.getByText('Звезда открыта')).toHaveCount(5)
   await expect(page.getByText('Звезда впереди')).toHaveCount(61)
