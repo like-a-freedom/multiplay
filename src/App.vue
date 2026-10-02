@@ -89,11 +89,6 @@ function consumeStarReveals(): void {
   pendingStarRevealIds.value = []
 }
 
-function openReport(): void {
-  cancelLaunch()
-  screen.value = 'report'
-}
-
 function navigate(screenName: 'home' | 'map' | 'report'): void {
   cancelLaunch()
   screen.value = screenName
@@ -201,7 +196,6 @@ function onDiagnosticFinished(): void {
       @practice="launch('practice')"
       @review="launch('review')"
       @map="openMap"
-      @report="openReport"
     />
 
     <MissionScreen

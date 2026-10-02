@@ -40,7 +40,10 @@ watch(active, (run) => run ? resume() : pause())
 onMounted(() => {
   try { ctx = canvas.value?.getContext('2d') ?? null } catch { return }
   if (!ctx) return
-  observer = new ResizeObserver(resize); if (root.value) observer.observe(root.value)
+  if (typeof ResizeObserver === 'function' && root.value) {
+    observer = new ResizeObserver(resize)
+    observer.observe(root.value)
+  }
   resize(); if (active.value) resume()
 })
 onBeforeUnmount(() => { pause(); observer?.disconnect() })

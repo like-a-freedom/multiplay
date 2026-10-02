@@ -50,5 +50,31 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
     // e2e specs run under Playwright, not Vitest.
     exclude: [...configDefaults.exclude, 'tests/e2e/**'],
+    coverage: {
+      include: ['src/**/*.{ts,vue}'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/vite-env.d.ts',
+        'src/application/ports/progressStore.ts',
+        'src/domain/mission/mission.ts',
+      ],
+      reporter: ['text'],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+        'src/domain/**': { statements: 80, branches: 80, functions: 80, lines: 80 },
+        'src/application/**': { statements: 80, branches: 80, functions: 80, lines: 80 },
+        'src/infrastructure/**': { statements: 80, branches: 80, functions: 80, lines: 80 },
+        'src/presentation/**': { statements: 80, branches: 80, functions: 80, lines: 80 },
+        'src/presentation/components/inspira/**': {
+          statements: 80,
+          branches: 80,
+          functions: 80,
+          lines: 80,
+        },
+      },
+    },
   },
 })

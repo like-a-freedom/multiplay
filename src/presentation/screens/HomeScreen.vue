@@ -32,7 +32,7 @@ const props = defineProps<{
   nextReviewDate: string | null
   launching: boolean
 }>()
-const emit = defineEmits<{ play: []; practice: []; review: []; map: []; report: [] }>()
+const emit = defineEmits<{ play: []; practice: []; review: []; map: [] }>()
 
 const primaryLabel = computed(() => {
   if (props.reviewsToday > 0) return 'Повторить'
